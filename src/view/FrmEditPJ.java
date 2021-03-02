@@ -7,6 +7,7 @@ package view;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -23,40 +24,55 @@ public class FrmEditPJ extends javax.swing.JFrame {
      * Creates new form frmCadastrar
      */
     private SimpleDateFormat formataData = new SimpleDateFormat("dd/MM/yyyy");
-    PessoaJuridica clienteEd = new PessoaJuridica();
-        
-    public FrmEditPJ(PessoaJuridica cliente) {
+    PessoaJuridica cliente = new PessoaJuridica();
+    private int volta = 0;        
+    public FrmEditPJ(PessoaJuridica clienteParaEditar) {
         initComponents();
-        clienteEd = cliente;
+        cliente = clienteParaEditar;
+        volta = clienteParaEditar.getId();
         preencheCampos();
         
     }
     
-    public void preencheCampos(){
-        ftxtCnpj.setText(clienteEd.getCnpj());
-        txtNome.setText(clienteEd.getNome());
-        String data = clienteEd.getFundacao().toString();
+    public String editaData(){
+        String data = cliente.getFundacao().toString();
         data = data.replace("-", "/");
         data = data.substring(8,10) + data.substring(4,7) +"/"+ data.substring(0,4);
-        ftxtFundacao.setText(data);
-        txtEmail.setText(clienteEd.getEmail());
-        ftxtTelefone.setText(clienteEd.getTelefone());
-        txtEndereco.setText(clienteEd.getEndereco());       
+        return data;
+    }
+    
+    public void preencheCampos(){
+        ftxtCnpj.setText(cliente.getCnpj());
+        txtNome.setText(cliente.getNome());
+        ftxtFundacao.setText(editaData());
+        txtEmail.setText(cliente.getEmail());
+        ftxtTelefone.setText(cliente.getTelefone());
+        txtEndereco.setText(cliente.getEndereco());       
     }
     
     public boolean verificaData(String data){
+        Calendar cal = Calendar.getInstance();
+        int year = cal.get(Calendar.YEAR);
         int ano, mes, dia;
         dia = Integer.parseInt(data.substring(0,2));
         mes = Integer.parseInt(data.substring(3,5));
         ano = Integer.parseInt(data.substring(6,10));
-        if(ano < 1700 || ano > 2021)
+        if(ano < 1694 || ano > year)
             return false;
         if(mes > 12 || mes < 1)
             return false;
-        if(dia > 30 || (mes == 2 && dia > 28))
+        if((mes == 2 && (ano % 400 == 0)) && dia > 29)
+            return false;
+        if((mes == 2 && (ano % 400 != 0)) && dia > 28)
+            return false;
+        if((mes < 8 && mes%2 == 0) && dia > 30)
+            return false;
+        if((mes > 7 && mes%2 != 0) && dia > 30)
+            return false;
+        if(dia < 1 || dia > 31)
             return false;
         return true;
-    }
+    }//fim verifica data
     
     public boolean verificarCNPJ(String cnpj){
         int dig1=0, dig2=0, calc1=0, calc2=0, aux=1;
@@ -105,7 +121,7 @@ public class FrmEditPJ extends javax.swing.JFrame {
             return false;
         }  
       }
-      if(!txtEmail.getText().matches("([A-Za-z0-9]{1,})[@]([A-Za-z0-9]{1,})[.]([A-Za-z0-9]{1,})")){
+      if(!txtEmail.getText().matches("[A-Za-z0-9]+[@][A-Za-z0-9]+[.][A-Za-z0-9]+[.]*[A-Za-z0-9]*")){
         JOptionPane.showMessageDialog(rootPane, "Preencha o Email corretamente, deve conter o @");
         txtEmail.requestFocus();
         return false;
@@ -135,14 +151,14 @@ public class FrmEditPJ extends javax.swing.JFrame {
     
     public boolean salvar(){
         try {
-            clienteEd.setCnpj(ftxtCnpj.getText());
-            clienteEd.setNome(txtNome.getText());
-            clienteEd.setFundacao(formataData.parse(ftxtFundacao.getText()));
-            clienteEd.setEmail(txtEmail.getText());
-            clienteEd.setTelefone(ftxtTelefone.getText());
-            clienteEd.setEndereco(txtEndereco.getText());
-            PessoaJuridicaDAO cliente = new PessoaJuridicaDAO();
-            return cliente.update(clienteEd);  
+            cliente.setCnpj(ftxtCnpj.getText());
+            cliente.setNome(txtNome.getText());
+            cliente.setFundacao(formataData.parse(ftxtFundacao.getText()));
+            cliente.setEmail(txtEmail.getText());
+            cliente.setTelefone(ftxtTelefone.getText());
+            cliente.setEndereco(txtEndereco.getText());
+            PessoaJuridicaDAO editar = new PessoaJuridicaDAO();
+            return editar.update(cliente);  
         } catch (ParseException ex) {
             Logger.getLogger(FrmEditPJ.class.getName()).log(Level.SEVERE, null, ex);
             return false;
@@ -187,6 +203,8 @@ public class FrmEditPJ extends javax.swing.JFrame {
 
         lblCnpj.setText("CNPJ:");
 
+        ftxtCnpj.setEditable(false);
+
         lblFundacao.setText("Data de fundação:");
 
         lblTelefone.setText("Telefone:");
@@ -196,7 +214,7 @@ public class FrmEditPJ extends javax.swing.JFrame {
         lblEndereco.setText("Endereço:");
 
         lblTitulo.setFont(new java.awt.Font("Arial", 1, 25)); // NOI18N
-        lblTitulo.setText("Cadastro");
+        lblTitulo.setText("Editar");
         lblTitulo.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
 
         javax.swing.GroupLayout pnlCadastroLayout = new javax.swing.GroupLayout(pnlCadastro);
@@ -207,33 +225,25 @@ public class FrmEditPJ extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(pnlCadastroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(pnlCadastroLayout.createSequentialGroup()
-                        .addGap(185, 185, 185)
-                        .addComponent(lblTitulo)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlCadastroLayout.createSequentialGroup()
                         .addGroup(pnlCadastroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblEmail)
+                            .addComponent(lblNome)
+                            .addComponent(lblFundacao)
                             .addGroup(pnlCadastroLayout.createSequentialGroup()
-                                .addComponent(lblEndereco)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(txtEndereco))
+                                .addGap(35, 35, 35)
+                                .addComponent(txtNome, javax.swing.GroupLayout.PREFERRED_SIZE, 369, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(118, 118, 118))
+                    .addGroup(pnlCadastroLayout.createSequentialGroup()
+                        .addGroup(pnlCadastroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(pnlCadastroLayout.createSequentialGroup()
                                 .addComponent(lblTelefone)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(ftxtTelefone, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(0, 0, Short.MAX_VALUE))
                             .addGroup(pnlCadastroLayout.createSequentialGroup()
-                                .addGroup(pnlCadastroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(lblEmail)
-                                    .addComponent(lblNome)
-                                    .addComponent(lblFundacao)
-                                    .addGroup(pnlCadastroLayout.createSequentialGroup()
-                                        .addGap(35, 35, 35)
-                                        .addComponent(txtNome, javax.swing.GroupLayout.PREFERRED_SIZE, 369, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(pnlCadastroLayout.createSequentialGroup()
-                                        .addComponent(lblCnpj)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(ftxtCnpj, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(108, 108, 108)))
+                                .addComponent(lblEndereco)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(txtEndereco)))
                         .addContainerGap())))
             .addGroup(pnlCadastroLayout.createSequentialGroup()
                 .addGroup(pnlCadastroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -244,22 +254,33 @@ public class FrmEditPJ extends javax.swing.JFrame {
                         .addGap(43, 43, 43)
                         .addComponent(txtEmail, javax.swing.GroupLayout.PREFERRED_SIZE, 297, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(pnlCadastroLayout.createSequentialGroup()
+                .addGroup(pnlCadastroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnlCadastroLayout.createSequentialGroup()
+                        .addGap(220, 220, 220)
+                        .addComponent(lblTitulo))
+                    .addGroup(pnlCadastroLayout.createSequentialGroup()
+                        .addGap(23, 23, 23)
+                        .addComponent(lblCnpj)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(ftxtCnpj, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         pnlCadastroLayout.setVerticalGroup(
             pnlCadastroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlCadastroLayout.createSequentialGroup()
                 .addComponent(lblTitulo)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lblNome)
-                .addGap(3, 3, 3)
-                .addComponent(txtNome, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(9, 9, 9)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(pnlCadastroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(pnlCadastroLayout.createSequentialGroup()
                         .addComponent(lblCnpj)
                         .addGap(23, 23, 23))
                     .addComponent(ftxtCnpj, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(18, 18, 18)
+                .addComponent(lblNome)
+                .addGap(3, 3, 3)
+                .addComponent(txtNome, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(lblFundacao)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(ftxtFundacao, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -279,7 +300,7 @@ public class FrmEditPJ extends javax.swing.JFrame {
                     .addGroup(pnlCadastroLayout.createSequentialGroup()
                         .addGap(12, 12, 12)
                         .addComponent(txtEndereco, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(53, Short.MAX_VALUE))
+                .addContainerGap(32, Short.MAX_VALUE))
         );
 
         btnVoltar.setIcon(new javax.swing.ImageIcon("C:\\Users\\Willian-PC\\Documents\\NetBeansProjects\\Banco\\src\\imagens\\voltar.png")); // NOI18N
@@ -350,11 +371,11 @@ public class FrmEditPJ extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(pnlCadastro, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(pnlBotoes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(btnVoltar)
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -362,6 +383,7 @@ public class FrmEditPJ extends javax.swing.JFrame {
 
     private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
         // Cancelar
+        preencheCampos();
     }//GEN-LAST:event_btnCancelarActionPerformed
 
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
@@ -369,7 +391,7 @@ public class FrmEditPJ extends javax.swing.JFrame {
         if(validaCampos()){
             if(salvar()){ 
                 JOptionPane.showMessageDialog(rootPane,"Edição realizada com sucesso");
-                    new FrmLogin().setVisible(true);
+                    new FrmHomePJ(cliente.getId()).setVisible(true);
                     this.dispose();
             }
             else
@@ -379,7 +401,7 @@ public class FrmEditPJ extends javax.swing.JFrame {
 
     private void btnVoltarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVoltarActionPerformed
         // volar
-        new FrmSelectCadastro().setVisible(true);
+        new FrmHomePJ(cliente.getId()).setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnVoltarActionPerformed
 

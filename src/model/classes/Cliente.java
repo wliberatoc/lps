@@ -10,13 +10,13 @@ package model.classes;
  * @author Willian-PC
  */
 public abstract class Cliente {
-    private int id;
-    private String nome;
-    private String endereco; 
-    private String email;
-    private String telefone;
-    private int senha;
-    private String senhaLogin;
+    protected int id;
+    protected String nome;
+    protected String endereco; 
+    protected String email;
+    protected String telefone;
+    protected int senha;
+    protected String senhaLogin;
 
     public Cliente() {
         this.nome = "";

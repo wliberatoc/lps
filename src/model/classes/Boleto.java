@@ -12,12 +12,13 @@ import java.util.Date;
  * @author Willian-PC
  */
 public class Boleto {
-    String codigoDeBarras;
-    String numeroDaConta;
-    String agencia;
-    char tipo;
-    double valor;
-    Date dataDeVencimento;
+    private int id;
+    private String codigoDeBarras;
+    private String numeroDaConta;
+    private String agencia;
+    private char tipo;
+    private float valor;
+    private Date dataDeVencimento;
 
     public Boleto() {
         this.codigoDeBarras = "";
@@ -28,6 +29,14 @@ public class Boleto {
         this.dataDeVencimento = null;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+    
     public String getCodigoDeBarras() {
         return codigoDeBarras;
     }
@@ -60,11 +69,11 @@ public class Boleto {
         this.tipo = tipo;
     }
 
-    public double getValor() {
+    public float getValor() {
         return valor;
     }
 
-    public void setValor(double valor) {
+    public void setValor(float valor) {
         this.valor = valor;
     }
 

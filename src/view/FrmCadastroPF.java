@@ -7,8 +7,8 @@ package view;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
 import java.util.logging.Level;
@@ -33,6 +33,7 @@ public class FrmCadastroPF extends javax.swing.JFrame {
     ContaPF conta = new ContaPF();
     private String senhaLogin;
     private int senha;
+    
     
     public FrmCadastroPF() {
         initComponents();
@@ -146,18 +147,28 @@ public class FrmCadastroPF extends javax.swing.JFrame {
     }
     
     public boolean verificaData(String data){
+        Calendar cal = Calendar.getInstance();
+        int year = cal.get(Calendar.YEAR);
         int ano, mes, dia;
         dia = Integer.parseInt(data.substring(0,2));
         mes = Integer.parseInt(data.substring(3,5));
         ano = Integer.parseInt(data.substring(6,10));
-        if(ano < 1900 || ano > 2021)
+        if(ano < 1850 || (ano > year)|| (year - ano < 18))
             return false;
         if(mes > 12 || mes < 1)
             return false;
-        if(dia > 30 || (mes == 2 && dia > 28))
+        if((mes == 2 && (ano % 400 == 0)) && dia > 29)
+            return false;
+        if((mes == 2 && (ano % 400 != 0)) && dia > 28)
+            return false;
+        if((mes < 8 && mes%2 == 0) && dia > 30)
+            return false;
+        if((mes > 7 && mes%2 != 0) && dia > 30)
+            return false;
+        if(dia < 1 || dia > 31)
             return false;
         return true;
-    }
+    }//fim verifica data
     
     public boolean verificarCPF(String cpf){
         int dig1=0, dig2=0, calc1=0, calc2=0, aux1=10, aux2=11;
@@ -214,11 +225,6 @@ public class FrmCadastroPF extends javax.swing.JFrame {
             return false;
         }  
       }
-      if(!txtEmail.getText().matches("([A-Za-z0-9]{1,})[@]([A-Za-z0-9]{1,})[.]([A-Za-z0-9]{1,})")){
-        JOptionPane.showMessageDialog(rootPane, "Preencha o Email corretamente, deve conter o @");
-        txtEmail.requestFocus();
-        return false;
-      }  
       if(ftxtNascimento.getText().replace(" ", "").length() < 10){
         JOptionPane.showMessageDialog(rootPane, "Preencha a data de nascimento corretamente");
         ftxtNascimento.requestFocus();
@@ -229,6 +235,11 @@ public class FrmCadastroPF extends javax.swing.JFrame {
         ftxtNascimento.requestFocus();
         return false;
       }
+      if(!txtEmail.getText().matches("[A-Za-z0-9]+[@][A-Za-z0-9]+[.][A-Za-z0-9]+[.]*[A-Za-z0-9]*")){
+        JOptionPane.showMessageDialog(rootPane, "Preencha o Email corretamente, deve conter o @");
+        txtEmail.requestFocus();
+        return false;
+      }  
       if(txtEndereco.getText().replace(" ", "").length() < 5){
         JOptionPane.showMessageDialog(rootPane, "Preencha o endereco corretamente");
         txtEndereco.requestFocus();
@@ -304,6 +315,12 @@ public class FrmCadastroPF extends javax.swing.JFrame {
         lblCpf.setText("CPF:");
 
         lblNascimento.setText("Nascimento:");
+
+        ftxtNascimento.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ftxtNascimentoActionPerformed(evt);
+            }
+        });
 
         lblSexo.setText("Sexo:");
 
@@ -576,6 +593,10 @@ public class FrmCadastroPF extends javax.swing.JFrame {
     private void pswSenhaLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pswSenhaLoginActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_pswSenhaLoginActionPerformed
+
+    private void ftxtNascimentoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ftxtNascimentoActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_ftxtNascimentoActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCancelar;

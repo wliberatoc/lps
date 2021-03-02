@@ -6,8 +6,11 @@
 package view;
 
 
+import java.util.ArrayList;
 import javax.swing.JOptionPane;
+import model.classes.ContaPJ;
 import model.classes.PessoaJuridica;
+import model.dao.ContaPJDAO;
 import model.dao.PessoaJuridicaDAO;
 
 
@@ -19,13 +22,24 @@ public class FrmHomePJ extends javax.swing.JFrame {
 
     /**
      * Creates new form frmHome
-     * @param pj
      */
-    PessoaJuridica cliente = new PessoaJuridica(); 
-    public FrmHomePJ(PessoaJuridica pj) {
+    PessoaJuridicaDAO pj = new PessoaJuridicaDAO();
+    ArrayList<PessoaJuridica> cliente  = new ArrayList<>();
+    ContaPJDAO contaPJ = new ContaPJDAO();    
+    ArrayList<ContaPJ> conta  = new ArrayList<>();
+    public FrmHomePJ(int id) {
         initComponents();
-        cliente = pj;
-        lblNome.setText(pj.getNome());
+        cliente = pj.load(id);
+        lblNome.setText(cliente.get(0).getNome());
+        conta = contaPJ.select("cpj_titular", cliente.get(0).getCnpj());
+        btnOutraConta.setText("Mudar conta");
+        if(conta.get(0).getTipo() == 'P')
+            lblTipoConta.setText("Saldo Poupança:");
+        if(conta.get(0).getTipo() == 'C')
+            lblTipoConta.setText("Saldo Conta Corrente:");
+        if(conta.size() == 1)
+            btnOutraConta.setText("Criar conta");
+        txtSaldo.setText(""+conta.get(0).getSaldo());
     } 
 
     /**
@@ -38,36 +52,27 @@ public class FrmHomePJ extends javax.swing.JFrame {
     private void initComponents() {
 
         pnlHome = new javax.swing.JPanel();
-        lblSaldo = new javax.swing.JLabel();
         txtSaldo = new javax.swing.JTextField();
-        btnDepositar = new javax.swing.JButton();
         btnOutraConta = new javax.swing.JButton();
         lblNome = new javax.swing.JLabel();
         btnExcluir = new javax.swing.JButton();
+        lblTipoConta = new javax.swing.JLabel();
+        btnEditar = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         cbxVisualizar = new javax.swing.JComboBox<>();
         btnVisualizar = new javax.swing.JButton();
         cbxRealizar = new javax.swing.JComboBox<>();
         btnREalizar = new javax.swing.JButton();
-        cbxEditar = new javax.swing.JComboBox<>();
-        btnEditar = new javax.swing.JButton();
+        btnSair = new javax.swing.JButton();
+        btnDepositar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         pnlHome.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED), "HOME", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Arial Black", 0, 20))); // NOI18N
 
-        lblSaldo.setText("Saldo:");
-
         txtSaldo.setEditable(false);
 
-        btnDepositar.setText("Depositar");
-        btnDepositar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnDepositarActionPerformed(evt);
-            }
-        });
-
-        btnOutraConta.setText("mudar conta");
+        btnOutraConta.setText("defaut");
 
         lblNome.setText("default");
 
@@ -78,25 +83,34 @@ public class FrmHomePJ extends javax.swing.JFrame {
             }
         });
 
+        lblTipoConta.setText("default");
+
+        btnEditar.setText("Editar");
+        btnEditar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditarActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout pnlHomeLayout = new javax.swing.GroupLayout(pnlHome);
         pnlHome.setLayout(pnlHomeLayout);
         pnlHomeLayout.setHorizontalGroup(
             pnlHomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlHomeLayout.createSequentialGroup()
                 .addGap(26, 26, 26)
-                .addGroup(pnlHomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(pnlHomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(pnlHomeLayout.createSequentialGroup()
                         .addComponent(btnOutraConta)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnExcluir))
+                        .addGap(34, 34, 34)
+                        .addComponent(btnExcluir)
+                        .addGap(31, 31, 31))
                     .addComponent(lblNome, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 45, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 6, Short.MAX_VALUE)
                 .addGroup(pnlHomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlHomeLayout.createSequentialGroup()
-                        .addComponent(lblSaldo)
-                        .addGap(18, 18, 18)
-                        .addComponent(txtSaldo, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(btnDepositar, javax.swing.GroupLayout.Alignment.TRAILING))
+                    .addComponent(lblTipoConta, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(btnEditar, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(txtSaldo, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(28, 28, 28))
         );
         pnlHomeLayout.setVerticalGroup(
@@ -106,13 +120,13 @@ public class FrmHomePJ extends javax.swing.JFrame {
                     .addComponent(lblNome, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(pnlHomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(txtSaldo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(lblSaldo)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 44, Short.MAX_VALUE)
+                        .addComponent(lblTipoConta)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 50, Short.MAX_VALUE)
                 .addGroup(pnlHomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnExcluir)
-                    .addComponent(btnOutraConta)
-                    .addComponent(btnDepositar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                    .addComponent(btnEditar)
+                    .addComponent(btnExcluir, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnOutraConta))
+                .addGap(26, 26, 26))
         );
 
         jPanel1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -125,33 +139,22 @@ public class FrmHomePJ extends javax.swing.JFrame {
 
         btnREalizar.setText("Realizar");
 
-        cbxEditar.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Conta", "Perfil" }));
-
-        btnEditar.setText("Editar");
-        btnEditar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnEditarActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(btnVisualizar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(cbxVisualizar, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(47, 47, 47)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnREalizar)
-                    .addComponent(cbxRealizar, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(45, 45, 45)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(cbxVisualizar, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnVisualizar))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(cbxEditar, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnEditar))
-                .addGap(28, 28, 28))
+                    .addComponent(cbxRealizar, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addComponent(btnREalizar)
+                        .addGap(28, 28, 28)))
+                .addGap(69, 69, 69))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -159,15 +162,27 @@ public class FrmHomePJ extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cbxVisualizar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(cbxRealizar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(cbxEditar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                    .addComponent(cbxRealizar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnVisualizar)
                     .addComponent(btnREalizar)
-                    .addComponent(btnEditar))
+                    .addComponent(btnVisualizar))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        btnSair.setText("Sair");
+        btnSair.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSairActionPerformed(evt);
+            }
+        });
+
+        btnDepositar.setText("Depositar");
+        btnDepositar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDepositarActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -176,18 +191,30 @@ public class FrmHomePJ extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(23, 23, 23)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(pnlHome, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(pnlHome, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(27, 27, 27))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(153, 153, 153)
+                        .addComponent(btnSair)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnDepositar)
+                        .addGap(69, 69, 69))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(pnlHome, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addComponent(pnlHome, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(4, 4, 4)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(17, Short.MAX_VALUE))
+                .addGap(104, 104, 104)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnSair)
+                    .addComponent(btnDepositar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         pack();
@@ -199,13 +226,8 @@ public class FrmHomePJ extends javax.swing.JFrame {
 
     private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
         // editar
-        if(cbxEditar.getItemAt(cbxEditar.getSelectedIndex()).toCharArray()[0] == 'C'){
-            //a fazer
-        }
-        if(cbxEditar.getItemAt(cbxEditar.getSelectedIndex()).toCharArray()[0] == 'P'){
-            new FrmEditPJ(cliente).setVisible(true);
-            this.dispose();
-        }
+        new FrmEditPJ(cliente.get(0)).setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_btnEditarActionPerformed
 
     private void btnExcluirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExcluirActionPerformed
@@ -213,8 +235,7 @@ public class FrmHomePJ extends javax.swing.JFrame {
         int confirma = 0;
         confirma = JOptionPane.showConfirmDialog(rootPane, "Confirma que deseja EXCLUIR SEU CADASTROS?","Confimação",JOptionPane.YES_NO_OPTION);
         if(confirma == JOptionPane.YES_OPTION){
-            PessoaJuridicaDAO clienteEx = new PessoaJuridicaDAO();
-            if(clienteEx.delete(cliente)){
+            if(pj.delete(cliente.get(0).getId()) && contaPJ.deleteAll(cliente.get(0).getCnpj())){
                 JOptionPane.showMessageDialog(rootPane, "Conta Excluida");
                 new FrmLogin().setVisible(true);
                 this.dispose();
@@ -226,6 +247,12 @@ public class FrmHomePJ extends javax.swing.JFrame {
             
     }//GEN-LAST:event_btnExcluirActionPerformed
 
+    private void btnSairActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSairActionPerformed
+        //sair
+        new FrmLogin().setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnSairActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnDepositar;
@@ -233,13 +260,13 @@ public class FrmHomePJ extends javax.swing.JFrame {
     private javax.swing.JButton btnExcluir;
     private javax.swing.JButton btnOutraConta;
     private javax.swing.JButton btnREalizar;
+    private javax.swing.JButton btnSair;
     private javax.swing.JButton btnVisualizar;
-    private javax.swing.JComboBox<String> cbxEditar;
     private javax.swing.JComboBox<String> cbxRealizar;
     private javax.swing.JComboBox<String> cbxVisualizar;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel lblNome;
-    private javax.swing.JLabel lblSaldo;
+    private javax.swing.JLabel lblTipoConta;
     private javax.swing.JPanel pnlHome;
     private javax.swing.JTextField txtSaldo;
     // End of variables declaration//GEN-END:variables

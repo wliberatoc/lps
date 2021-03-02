@@ -12,14 +12,34 @@ import java.util.Date;
  * @author Willian-PC
  */
 public class MovimentacaoBancaria {
-    String numeroDaConta;
-    String agencia;
-    char tipoDaConta;
-    double valor;
-    Date data;
-    char tipoDaOperacao;
-    String descricao;
+    private int id;
+    private String numeroDaConta;
+    private String agencia;
+    private char tipoDaConta;
+    private float valor;
+    private Date data;
+    private char tipoDaOperacao;
+    private String descricao;
 
+    public MovimentacaoBancaria() {
+        this.numeroDaConta = "";
+        this.agencia = "";
+        this.tipoDaConta = ' ';
+        this.valor = 0;
+        this.data = null;
+        this.tipoDaOperacao = ' ';
+        this.descricao = "";
+    }
+    
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+    
+    
     public String getNumeroDaConta() {
         return numeroDaConta;
     }
@@ -44,11 +64,11 @@ public class MovimentacaoBancaria {
         this.tipoDaConta = tipoDaConta;
     }
 
-    public double getValor() {
+    public float getValor() {
         return valor;
     }
 
-    public void setValor(double valor) {
+    public void setValor(float valor) {
         this.valor = valor;
     }
 
@@ -76,14 +96,4 @@ public class MovimentacaoBancaria {
         this.descricao = descricao;
     }
 
-    public MovimentacaoBancaria() {
-        this.numeroDaConta = "";
-        this.agencia = "";
-        this.tipoDaConta = ' ';
-        this.valor = 0;
-        this.data = null;
-        this.tipoDaOperacao = ' ';
-        this.descricao = "";
-    }
-    
 }

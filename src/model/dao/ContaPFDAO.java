@@ -5,8 +5,7 @@
  */
 package model.dao;
 
-import conection.Conexao;
-import java.sql.Connection;
+import conection.Persistencia;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,16 +19,13 @@ import model.classes.ContaPF;
  * @author Willian-PC
  */
 public class ContaPFDAO {
-    private Connection con = null;
-    public ContaPFDAO(){
-        con = Conexao.getConnection();
-    }
+    PreparedStatement stmt = null;
+    ResultSet rs = null;
     
     public boolean insert(ContaPF conta){
-        PreparedStatement stmt = null;
         String sql = "INSERT INTO tbl_contapf (numero_da_conta, agencia, tipo, saldo, qtd_teds, qtd_saques, limite_teds, limite_saques, data_abertura, cpf_titular) VALUES (?,?,?,?,?,?,?,?,?,?)" ;
         try {
-            stmt = con.prepareStatement(sql);
+            stmt = Persistencia.getConnection().prepareStatement(sql);
             stmt.setString(1, conta.getNumeroDaConta());
             stmt.setString(2, conta.getAgencia());
             stmt.setString(3, ""+conta.getTipo());
@@ -45,22 +41,19 @@ public class ContaPFDAO {
         } catch (SQLException ex) {
             System.err.println("Erro: "+ex);
             return false;
-        }finally{
-            Conexao.closeConnection(con, stmt);
         }
     }
-    public ArrayList<ContaPF> select(String campo, String query){     
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
+    
+    public ArrayList<ContaPF> select(String campo, String query){
         String sql = "SELECT * FROM tbl_contapf WHERE "+campo+" LIKE ?";
         ArrayList<ContaPF> lista  = new ArrayList<>();
         try {
-            stmt = con.prepareStatement(sql);
+            stmt = Persistencia.getConnection().prepareStatement(sql);
             stmt.setString(1, query);
             rs = stmt.executeQuery();
             while(rs.next()){
                 ContaPF conta = new ContaPF();
-                conta.setId(rs.getInt("id_pf"));
+                conta.setId(rs.getInt("id_contapf"));
                 conta.setNumeroDaConta(rs.getString("numero_da_conta"));
                 conta.setAgencia(rs.getString("agencia"));
                 conta.setTipo(rs.getString("tipo").toCharArray()[0]);
@@ -77,18 +70,44 @@ public class ContaPFDAO {
         } catch (SQLException ex) {
             System.err.println("Erro: "+ex);
             return null;
-        }finally{
-            Conexao.closeConnection(con, stmt, rs);
-        }    
+        }   
     }
     
+    public ArrayList<ContaPF> load(int id){
+        String sql = "SELECT * FROM tbl_contapf WHERE tbl_contapf.id_contapf = ?";
+        ArrayList<ContaPF> lista  = new ArrayList<>();
+        try {
+            stmt = Persistencia.getConnection().prepareStatement(sql);
+            stmt.setInt(1, id);
+            rs = stmt.executeQuery();
+            while(rs.next()){
+                ContaPF conta = new ContaPF();
+                conta.setId(rs.getInt("id_contapf"));
+                conta.setNumeroDaConta(rs.getString("numero_da_conta"));
+                conta.setAgencia(rs.getString("agencia"));
+                conta.setTipo(rs.getString("tipo").toCharArray()[0]);
+                conta.setSaldo(rs.getFloat("saldo"));
+                conta.setTeds(rs.getInt("qtd_teds"));
+                conta.setSaques(rs.getInt("qtd_saques"));
+                conta.setLimiteTeds(rs.getInt("limite_teds"));
+                conta.setLimiteSaques(rs.getInt("limite_saques"));
+                conta.setAbertura(rs.getDate("data_abertura"));
+                conta.setCpfTitular(rs.getString("cpf_titular"));
+                lista.add(conta);
+            }
+            return lista;
+        } catch (SQLException ex) {
+            System.err.println("Erro: "+ex);
+            return null;
+        }   
+    }//fim load
+    
+    
     public ArrayList<ContaPF> selectAll(){     
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
         String sql = "SELECT * FROM tbl_contapf ";
         ArrayList<ContaPF> lista  = new ArrayList<>();
         try {
-            stmt = con.prepareStatement(sql);
+            stmt = Persistencia.getConnection().prepareStatement(sql);
             rs = stmt.executeQuery();
             while(rs.next()){
                 ContaPF conta = new ContaPF();
@@ -109,16 +128,13 @@ public class ContaPFDAO {
         } catch (SQLException ex) {
             System.err.println("Erro: "+ex);
             return null;
-        }finally{
-            Conexao.closeConnection(con, stmt, rs);
         }    
     }
     
     public boolean update(ContaPF conta){
-        PreparedStatement stmt = null;
-        String sql = "UPDATE tbl_contapf SET numero_da_conta = ?, data_abertura = ?, tipo = ?, tipo = ?, saldo = ?, qtd_teds = ?, qtd_saques = ?, limite_teds = ?, cpf_titular = ? WHERE tbl_contapf.id_pf = ?";
+        String sql = "UPDATE tbl_contapf SET numero_da_conta = ?, agencia = ?, tipo = ?, saldo = ?, qtd_teds = ?, qtd_saques = ?, limite_teds = ?, data_abertura = ?, cpf_titular = ? WHERE tbl_contapf.id_contapf = ?";
         try {
-            stmt = con.prepareStatement(sql);
+            stmt = Persistencia.getConnection().prepareStatement(sql);
             stmt.setString(1, conta.getNumeroDaConta());
             stmt.setString(2, conta.getAgencia());
             stmt.setString(3, ""+conta.getTipo());
@@ -135,24 +151,32 @@ public class ContaPFDAO {
         } catch (SQLException ex) {
             System.err.println("Erro: "+ex);
             return false;
-        }finally{
-            Conexao.closeConnection(con, stmt);
         }
     }  
     
-    public boolean delete(ContaPF conta){
-        PreparedStatement stmt = null;
+    public boolean delete(int id){
         String sql = "DELETE FROM tbl_contapf WHERE tbl_contapf.id_pf = ?";
         try {
-            stmt = con.prepareStatement(sql);
-            stmt.setInt(1, conta.getId());
+            stmt = Persistencia.getConnection().prepareStatement(sql);
+            stmt.setInt(1, id);
             stmt.executeUpdate();
             return true;
         } catch (SQLException ex) {
             System.err.println("Erro: "+ex);
             return false;
-        }finally{
-            Conexao.closeConnection(con, stmt);
+        }
+    }  
+    
+    public boolean deleteAll(String cpf){
+        String sql = "DELETE FROM tbl_contapf WHERE tbl_contapf.cpf_titular = ?";
+        try {
+            stmt = Persistencia.getConnection().prepareStatement(sql);
+            stmt.setString(1, cpf);
+            stmt.executeUpdate();
+            return true;
+        } catch (SQLException ex) {
+            System.err.println("Erro: "+ex);
+            return false;
         }
     }  
 }

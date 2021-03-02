@@ -5,11 +5,9 @@
  */
 package view;
 
-import java.text.ParseException;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import model.classes.PessoaFisica;
 import model.classes.PessoaJuridica;
@@ -180,7 +178,7 @@ public class FrmLogin extends javax.swing.JFrame {
         cliente = teste.select("cpf",login);
         if(cliente != null){
             if(cliente.get(0).getSenhaLogin().equals(senha)){
-               new FrmHomePF(cliente.get(0)).setVisible(true);
+               new FrmHomePF(cliente.get(0).getId()).setVisible(true);
                this.dispose(); 
                return true;
             }else{
@@ -203,7 +201,7 @@ public class FrmLogin extends javax.swing.JFrame {
         cliente = teste.select("cnpj",login);
         if(cliente != null){
             if(cliente.get(0).getSenhaLogin().equals(senha)){
-                new FrmHomePJ(cliente.get(0)).setVisible(true);
+                new FrmHomePJ(cliente.get(0).getId()).setVisible(true);
                 this.dispose(); 
                 return true;
             }else{

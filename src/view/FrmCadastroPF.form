@@ -246,6 +246,9 @@
           </Properties>
         </Component>
         <Component class="javax.swing.JFormattedTextField" name="ftxtNascimento">
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ftxtNascimentoActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="lblSexo">
           <Properties>
