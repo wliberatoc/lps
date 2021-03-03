@@ -13,22 +13,18 @@ import java.util.Date;
  */
 public class MovimentacaoBancaria {
     private int id;
-    private String numeroDaConta;
-    private String agencia;
-    private char tipoDaConta;
+    private int idConta;
     private float valor;
     private Date data;
-    private char tipoDaOperacao;
+    private int idTipoOperacao;
     private String descricao;
+    private char tipoMovimentacao;
 
     public MovimentacaoBancaria() {
-        this.numeroDaConta = "";
-        this.agencia = "";
-        this.tipoDaConta = ' ';
         this.valor = 0;
         this.data = null;
-        this.tipoDaOperacao = ' ';
         this.descricao = "";
+        this.tipoMovimentacao = ' ';
     }
     
     public int getId() {
@@ -38,30 +34,13 @@ public class MovimentacaoBancaria {
     public void setId(int id) {
         this.id = id;
     }
-    
-    
-    public String getNumeroDaConta() {
-        return numeroDaConta;
+
+    public int getIdConta() {
+        return idConta;
     }
 
-    public void setNumeroDaConta(String numeroDaConta) {
-        this.numeroDaConta = numeroDaConta;
-    }
-
-    public String getAgencia() {
-        return agencia;
-    }
-
-    public void setAgencia(String agencia) {
-        this.agencia = agencia;
-    }
-
-    public char getTipoDaConta() {
-        return tipoDaConta;
-    }
-
-    public void setTipoDaConta(char tipoDaConta) {
-        this.tipoDaConta = tipoDaConta;
+    public void setIdConta(int idConta) {
+        this.idConta = idConta;
     }
 
     public float getValor() {
@@ -80,12 +59,12 @@ public class MovimentacaoBancaria {
         this.data = data;
     }
 
-    public char getTipoDaOperacao() {
-        return tipoDaOperacao;
+    public int getIdOperacao() {
+        return idTipoOperacao;
     }
 
-    public void setTipoDaOperacao(char tipoDaOperacao) {
-        this.tipoDaOperacao = tipoDaOperacao;
+    public void setIdOperacao(int idTipoOperacao) {
+        this.idTipoOperacao = idTipoOperacao;
     }
 
     public String getDescricao() {
@@ -96,4 +75,11 @@ public class MovimentacaoBancaria {
         this.descricao = descricao;
     }
 
+    public char getTipoMovimentacao() {
+        return tipoMovimentacao;
+    }
+
+    public void setTipoMovimentacao(char tipoMovimentacao) {
+        this.tipoMovimentacao = tipoMovimentacao;
+    }  
 }

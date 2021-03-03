@@ -22,15 +22,13 @@ public class BoletoDAO {
     ResultSet rs = null;
     
     public boolean insert(Boleto boleto){
-        String sql = "INSERT INTO tbl_boleto (codigo_de_barras, numero_da_boleto, agencia, tipo, saldo, qtd_teds, qtd_saques, limite_teds, limite_saques, data_abertura, cpf_titular) VALUES (?,?,?,?,?,?)" ;
+        String sql = "INSERT INTO tbl_boleto (codigo_de_barras, id_conta, valor, data_de_vencimento) VALUES (?,?,?,?)" ;
         try {
             stmt = Persistencia.getConnection().prepareStatement(sql);
             stmt.setString(1, boleto.getCodigoDeBarras());
-            stmt.setString(2, boleto.getNumeroDaConta());
-            stmt.setString(3, boleto.getAgencia());
-            stmt.setString(4, ""+boleto.getTipo());
-            stmt.setFloat(5, boleto.getValor());
-            stmt.setDate(6, new Date(boleto.getDataDeVencimento().getTime()));
+            stmt.setInt(2, boleto.getIdConta());
+            stmt.setFloat(3, boleto.getValor());
+            stmt.setDate(4, new Date(boleto.getDataDeVencimento().getTime()));
             stmt.executeUpdate();
             return true;
         } catch (SQLException ex) {
@@ -49,9 +47,7 @@ public class BoletoDAO {
                 Boleto boleto = new Boleto();
                 boleto.setId(rs.getInt("id_boleto"));                
                 boleto.setCodigoDeBarras(rs.getString("codigo_de_barras"));
-                boleto.setNumeroDaConta(rs.getString("numero_da_conta"));
-                boleto.setAgencia(rs.getString("agencia"));
-                boleto.setTipo(rs.getString("tipo").toCharArray()[0]);
+                boleto.setIdConta(rs.getInt("id_conta"));
                 boleto.setValor(rs.getFloat("valor"));
                 boleto.setDataDeVencimento(rs.getDate("data_de_vencimento"));
                 lista.add(boleto);
@@ -74,9 +70,7 @@ public class BoletoDAO {
                 Boleto boleto = new Boleto();
                 boleto.setId(rs.getInt("id_boleto"));                
                 boleto.setCodigoDeBarras(rs.getString("codigo_de_barras"));
-                boleto.setNumeroDaConta(rs.getString("numero_da_conta"));
-                boleto.setAgencia(rs.getString("agencia"));
-                boleto.setTipo(rs.getString("tipo").toCharArray()[0]);
+                boleto.setIdConta(rs.getInt("id_conta"));
                 boleto.setValor(rs.getFloat("valor"));
                 boleto.setDataDeVencimento(rs.getDate("data_de_vencimento"));
                 lista.add(boleto);
@@ -89,13 +83,11 @@ public class BoletoDAO {
     }//fim load
     
     public boolean update(Boleto boleto){
-        String sql = "UPDATE tbl_boleto SET codigo_de_barras = ?, numero_da_conta = ?, agencia = ?, tipo = ?, valor = ?, data_de_vencimento = ? WHERE tbl_boleto.id_boleto = ?";
+        String sql = "UPDATE tbl_boleto SET codigo_de_barras = ?, id_conta = ?, valor = ?, data_de_vencimento = ? WHERE tbl_boleto.id_boleto = ?";
         try {
             stmt = Persistencia.getConnection().prepareStatement(sql);
             stmt.setString(1, boleto.getCodigoDeBarras());
-            stmt.setString(2, boleto.getNumeroDaConta());
-            stmt.setString(3, boleto.getAgencia());
-            stmt.setString(4, ""+boleto.getTipo());
+            stmt.setInt(4, boleto.getIdConta());
             stmt.setFloat(5, boleto.getValor());
             stmt.setDate(6, new Date(boleto.getDataDeVencimento().getTime()));
             stmt.executeUpdate();

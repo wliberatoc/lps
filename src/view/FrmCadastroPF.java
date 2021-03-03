@@ -15,8 +15,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.text.MaskFormatter;
-import model.classes.ContaPF;
-import model.dao.ContaPFDAO;
+import model.classes.Conta;
+import model.dao.ContaDAO;
 import model.classes.PessoaFisica;
 import model.dao.PessoaFisicaDAO;
 
@@ -30,7 +30,7 @@ public class FrmCadastroPF extends javax.swing.JFrame {
      * Creates new form frmCadastrar
      */
     private SimpleDateFormat formataData = new SimpleDateFormat("dd/MM/yyyy");
-    ContaPF conta = new ContaPF();
+    Conta conta = new Conta();
     private String senhaLogin;
     private int senha;
     
@@ -111,24 +111,25 @@ public class FrmCadastroPF extends javax.swing.JFrame {
         int dv = random.nextInt(9);
         String s = ""+n1+"."+n2+n3+n4+"-"+dv;
         conta.setNumeroDaConta(s);
-        conta.setCpfTitular(ftxtCpf.getText());
+        conta.setUsuario(ftxtCpf.getText());
         conta.setAgencia("0001");
-        conta.setTipo(cbxTipoConta.getItemAt(cbxTipoConta.getSelectedIndex()).toCharArray()[0]);
         Date hoje = new Date();
         conta.setAbertura(hoje);
         if(cbxTipoConta.getItemAt(cbxTipoConta.getSelectedIndex()).toCharArray()[0] == 'P'){
-            conta.setTeds(7);
+            conta.setTipo(4);
+            conta.setQtdTeds(7);
             conta.setLimiteTeds(1000);
-            conta.setSaques(15);
+            conta.setQtdSaques(15);
             conta.setLimiteSaques(1500);
         }
         if(cbxTipoConta.getItemAt(cbxTipoConta.getSelectedIndex()).toCharArray()[0] == 'C'){
-            conta.setTeds(10);
+            conta.setTipo(2);
+            conta.setQtdTeds(10);
             conta.setLimiteTeds(1500);
-            conta.setSaques(20);
+            conta.setQtdSaques(20);
             conta.setLimiteSaques(2000);
         }  
-        ContaPFDAO contaDAO = new ContaPFDAO();
+        ContaDAO contaDAO = new ContaDAO();
         return contaDAO.insert(conta);
     }
      
@@ -137,11 +138,11 @@ public class FrmCadastroPF extends javax.swing.JFrame {
         String numConta = "Nº conta: "+conta.getNumeroDaConta();
         String agencia = "\nAgência: "+conta.getAgencia();
         String tipo = "\nConta ";
-        if(conta.getTipo() == 'P')
+        if(conta.getTipo() == 4)
             tipo += "Poupança";
-        if(conta.getTipo() == 'C')
+        if(conta.getTipo() == 2)
             tipo += "Corrente";
-        String cpf = "\nCPF: "+conta.getCpfTitular();
+        String cpf = "\nCPF: "+conta.getUsuario();
         s = numConta + agencia + tipo + cpf;     
         return s;
     }
@@ -161,22 +162,18 @@ public class FrmCadastroPF extends javax.swing.JFrame {
             return false;
         if((mes == 2 && (ano % 400 != 0)) && dia > 28)
             return false;
-        if((mes < 8 && mes%2 == 0) && dia > 30)
+        if(((mes < 8 && mes%2 == 0)||(mes > 7 && mes%2 != 0)) && dia > 30)
             return false;
-        if((mes > 7 && mes%2 != 0) && dia > 30)
-            return false;
-        if(dia < 1 || dia > 31)
-            return false;
-        return true;
+        return(dia > 0 || dia < 32);
     }//fim verifica data
     
     public boolean verificarCPF(String cpf){
-        int dig1=0, dig2=0, calc1=0, calc2=0, aux1=10, aux2=11;
+        int calc1=0, calc2=0, aux1=10, aux2=11;
         int [] arrayCPF;
         boolean repetido = true;
         arrayCPF = new int[9];
-        dig1 = Integer.parseInt(cpf.substring(12,13));
-        dig2 = Integer.parseInt(cpf.substring(13,14));
+        int dig1 = Integer.parseInt(cpf.substring(12,13));
+        int dig2 = Integer.parseInt(cpf.substring(13,14));
        
         cpf = cpf.substring(0,3) + cpf.substring(4,7) + cpf.substring(8,11);
         for(int i=0; i<arrayCPF.length; i++){
@@ -201,10 +198,7 @@ public class FrmCadastroPF extends javax.swing.JFrame {
         if(calc2 == 10)
             calc2 = 0;
                       
-        if(calc1 == dig1 && calc2 == dig2 && !repetido)
-            return true;
-        else
-            return false;
+        return(calc1 == dig1 && calc2 == dig2 && !repetido);
     }//fim função verifica CPF
     
     public boolean validaCampos(){

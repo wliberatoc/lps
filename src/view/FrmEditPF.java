@@ -25,13 +25,12 @@ public class FrmEditPF extends javax.swing.JFrame {
      */
     private final SimpleDateFormat formataData = new SimpleDateFormat("dd/MM/yyyy");
     private PessoaFisica cliente = new PessoaFisica();
-    private int volta = 0;    
+    private String use = "";    
     public FrmEditPF(PessoaFisica clienteParaEditar) {
         initComponents();
         cliente = clienteParaEditar;
-        volta = clienteParaEditar.getId();
+        use = clienteParaEditar.getCpf();
         preencheCampos();
-        
     }
     
     public String editaData(){
@@ -41,7 +40,7 @@ public class FrmEditPF extends javax.swing.JFrame {
         return data;
     }
     
-    public void preencheCampos(){
+    public final void preencheCampos(){
         ftxtCpf.setText(cliente.getCpf());
         txtNome.setText(cliente.getNome());
         ftxtNascimento.setText(editaData());
@@ -69,22 +68,18 @@ public class FrmEditPF extends javax.swing.JFrame {
             return false;
         if((mes == 2 && (ano % 400 != 0)) && dia > 28)
             return false;
-        if((mes < 8 && mes%2 == 0) && dia > 30)
+        if(((mes < 8 && mes%2 == 0)||(mes > 7 && mes%2 != 0)) && dia > 30)
             return false;
-        if((mes > 7 && mes%2 != 0) && dia > 30)
-            return false;
-        if(dia < 1 || dia > 31)
-            return false;
-        return true;
+        return(dia > 0 || dia < 32);
     }//fim verifica data
     
     public boolean verificarCPF(String cpf){
-        int dig1=0, dig2=0, calc1=0, calc2=0, aux1=10, aux2=11;
+        int calc1=0, calc2=0, aux1=10, aux2=11;
         int [] arrayCPF;
         boolean repetido = true;
         arrayCPF = new int[9];
-        dig1 = Integer.parseInt(cpf.substring(12,13));
-        dig2 = Integer.parseInt(cpf.substring(13,14));
+        int dig1 = Integer.parseInt(cpf.substring(12,13));
+        int dig2 = Integer.parseInt(cpf.substring(13,14));
        
         cpf = cpf.substring(0,3) + cpf.substring(4,7) + cpf.substring(8,11);
         for(int i=0; i<arrayCPF.length; i++){
@@ -109,10 +104,7 @@ public class FrmEditPF extends javax.swing.JFrame {
         if(calc2 == 10)
             calc2 = 0;
                       
-        if(calc1 == dig1 && calc2 == dig2 && !repetido)
-            return true;
-        else
-            return false;
+        return(calc1 == dig1 && calc2 == dig2 && !repetido);
     }//fim função verifica CPF
     
     public boolean validaCampos(){
@@ -419,7 +411,7 @@ public class FrmEditPF extends javax.swing.JFrame {
         if(validaCampos()){
             if(salvar()){ 
                 JOptionPane.showMessageDialog(rootPane,"Edição realizada com sucesso");
-                new FrmHomePF(cliente.getId()).setVisible(true);
+                new FrmHome(cliente.getCpf(),0).setVisible(true);
                 this.dispose();
             }
             else
@@ -429,7 +421,7 @@ public class FrmEditPF extends javax.swing.JFrame {
 
     private void btnVoltarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVoltarActionPerformed
         // volar
-        new FrmHomePF(volta).setVisible(true);
+        new FrmHome(use,0).setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnVoltarActionPerformed
 

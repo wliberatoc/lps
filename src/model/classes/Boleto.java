@@ -14,17 +14,12 @@ import java.util.Date;
 public class Boleto {
     private int id;
     private String codigoDeBarras;
-    private String numeroDaConta;
-    private String agencia;
-    private char tipo;
+    private int idConta;
     private float valor;
     private Date dataDeVencimento;
 
     public Boleto() {
         this.codigoDeBarras = "";
-        this.numeroDaConta = "";
-        this.agencia = "";
-        this.tipo = ' ';
         this.valor = 0;
         this.dataDeVencimento = null;
     }
@@ -45,30 +40,14 @@ public class Boleto {
         this.codigoDeBarras = codigoDeBarras;
     }
 
-    public String getNumeroDaConta() {
-        return numeroDaConta;
+    public int getIdConta() {
+        return idConta;
     }
 
-    public void setNumeroDaConta(String numeroDaConta) {
-        this.numeroDaConta = numeroDaConta;
+    public void setIdConta(int idConta) {
+        this.idConta = idConta;
     }
-
-    public String getAgencia() {
-        return agencia;
-    }
-
-    public void setAgencia(String agencia) {
-        this.agencia = agencia;
-    }
-
-    public char getTipo() {
-        return tipo;
-    }
-
-    public void setTipo(char tipo) {
-        this.tipo = tipo;
-    }
-
+  
     public float getValor() {
         return valor;
     }

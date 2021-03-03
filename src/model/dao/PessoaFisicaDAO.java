@@ -150,11 +150,11 @@ public class PessoaFisicaDAO {
         }
     }//fim update  
     
-    public boolean delete(PessoaFisica cliente){
+    public boolean delete(int id){
         String sql = "DELETE FROM tbl_pessoa_fisica WHERE tbl_pessoa_fisica.id_pf = ?";
         try {
             stmt = Persistencia.getConnection().prepareStatement(sql);
-            stmt.setInt(1, cliente.getId());
+            stmt.setInt(1, id);
             stmt.executeUpdate();
             return true;
         } catch (SQLException ex) {

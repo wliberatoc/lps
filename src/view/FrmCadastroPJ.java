@@ -15,9 +15,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.text.MaskFormatter;
-import model.classes.ContaPJ;
+import model.classes.Conta;
 import model.classes.PessoaJuridica;
-import model.dao.ContaPJDAO;
+import model.dao.ContaDAO;
 import model.dao.PessoaJuridicaDAO;
 
 /**
@@ -30,7 +30,7 @@ public class FrmCadastroPJ extends javax.swing.JFrame {
      * Creates new form frmCadastroPJ
      */
     private SimpleDateFormat formataData = new SimpleDateFormat("dd/MM/yyyy");
-    private ContaPJ conta = new ContaPJ();
+    private Conta conta = new Conta();
     private String senhaLogin;
     private int senha;
     
@@ -76,20 +76,16 @@ public class FrmCadastroPJ extends javax.swing.JFrame {
             return false;
         if((mes == 2 && (ano % 400 != 0)) && dia > 28)
             return false;
-        if((mes < 8 && mes%2 == 0) && dia > 30)
+        if(((mes < 8 && mes%2 == 0) || (mes > 7 && mes%2 != 0)) && dia > 30)
             return false;
-        if((mes > 7 && mes%2 != 0) && dia > 30)
-            return false;
-        if(dia < 1 || dia > 31)
-            return false;
-        return true;
+        return(dia > 0 || dia < 32);
     }//fim verifica data
     
     public boolean verificarCNPJ(String cnpj){
-        int dig1=0, dig2=0, calc1=0, calc2=0, aux=1;
+        int calc1=0, calc2=0, aux=1;
         int [] arrayNumsCalc = {6,5,4,3,2,9,8,7,6,5,4,3,2};
-        dig1 = Integer.parseInt(cnpj.substring(16,17));
-        dig2 = Integer.parseInt(cnpj.substring(17,18));
+        int dig1 = Integer.parseInt(cnpj.substring(16,17));
+        int dig2 = Integer.parseInt(cnpj.substring(17,18));
         cnpj = cnpj.substring(0,2) + cnpj.substring(3,6) + cnpj.substring(7,10) + cnpj.substring(11,15);
         for(int i=0; i<cnpj.length(); i++){
             calc1 += Integer.parseInt(cnpj.substring(i, i+1)) * arrayNumsCalc[aux];
@@ -109,9 +105,7 @@ public class FrmCadastroPJ extends javax.swing.JFrame {
             calc2 = 0;
         else
             calc2 = 11 - calc2;
-        if(calc1 == dig1 && calc2 == dig2)
-            return true;
-        return false;
+        return(calc1 == dig1 && calc2 == dig2);
     }
     
     public boolean formataSenhas(){
@@ -162,24 +156,25 @@ public class FrmCadastroPJ extends javax.swing.JFrame {
         int dv = random.nextInt(9);
         String s = ""+n1+"."+n2+n3+n4+"-"+dv;
         conta.setNumeroDaConta(s);
-        conta.setCnpjTitular(ftxtCnpj.getText());
+        conta.setUsuario(ftxtCnpj.getText());
         conta.setAgencia("0001");
-        conta.setTipo(cbxTipoConta.getItemAt(cbxTipoConta.getSelectedIndex()).toCharArray()[0]);
         Date hoje = new Date();
         conta.setAbertura(hoje);
         if(cbxTipoConta.getItemAt(cbxTipoConta.getSelectedIndex()).toCharArray()[0] == 'P'){
-            conta.setTeds(15);
+            conta.setTipo(5);
+            conta.setQtdTeds(15);
             conta.setLimiteTeds(3000);
-            conta.setSaques(50);
+            conta.setQtdSaques(50);
             conta.setLimiteSaques(5000);
         }
         if(cbxTipoConta.getItemAt(cbxTipoConta.getSelectedIndex()).toCharArray()[0] == 'C'){
-            conta.setTeds(10);
+            conta.setTipo(3);
+            conta.setQtdTeds(10);
             conta.setLimiteTeds(1500);
-            conta.setSaques(20);
+            conta.setQtdSaques(20);
             conta.setLimiteSaques(2000);
         }
-        ContaPJDAO contaDAO = new ContaPJDAO();
+        ContaDAO contaDAO = new ContaDAO();
         return contaDAO.insert(conta);
     }
     
@@ -188,11 +183,11 @@ public class FrmCadastroPJ extends javax.swing.JFrame {
         String numConta = "Nº conta: "+conta.getNumeroDaConta();
         String agencia = "\nAgência: "+conta.getAgencia();
         String tipo = "\nConta ";
-        if(conta.getTipo() == 'P')
+        if(conta.getTipo() == 5)
             tipo += "Poupança";
-        if(conta.getTipo() == 'C')
+        if(conta.getTipo() == 3)
             tipo += "Corrente";
-        String cpf = "\nCNPJ: "+conta.getCnpjTitular();
+        String cpf = "\nCNPJ: "+conta.getUsuario();
         s = numConta + agencia + tipo + cpf;     
         return s;
     }

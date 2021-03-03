@@ -55,7 +55,7 @@ public class FrmSelectCadastro extends javax.swing.JFrame {
 
         lblEscolha.setText("Escolha qual das opções abaixo você deseja cadastrar:");
 
-        cbxEscolha.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pessoa Física", "Pessoa Jurídica", "CPJ" }));
+        cbxEscolha.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pessoa Física", "Pessoa Jurídica" }));
         cbxEscolha.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cbxEscolhaActionPerformed(evt);
@@ -145,10 +145,6 @@ public class FrmSelectCadastro extends javax.swing.JFrame {
         }
         if(cbxEscolha.getSelectedIndex() == 1){
             new FrmCadastroPJ().setVisible(true);
-            this.dispose();
-        }
-        if(cbxEscolha.getSelectedIndex() == 2){
-            new FrmCadastroContaPJ().setVisible(true);
             this.dispose();
         }
     }//GEN-LAST:event_btnConfirmaActionPerformed

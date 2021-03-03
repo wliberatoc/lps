@@ -11,29 +11,30 @@ import java.util.Date;
  *
  * @author Willian-PC
  */
-public abstract class Conta {
+public class Conta {
     private int id;
-    protected String numeroDaConta;
-    protected String agencia;
-    protected char tipo;
-    protected float saldo;
-    protected int teds;
-    protected float limiteTeds;
-    protected int saques;
-    protected float limiteSaques;
-    protected Date abertura;
-    
+    private String numeroDaConta;
+    private String agencia;
+    private int tipo;
+    private float saldo;
+    private int qtdTeds;
+    private int qtdSaques;    
+    private float limiteTeds;
+    private float limiteSaques;
+    private Date abertura;
+    private String usuario;
 
     public Conta() {
         this.numeroDaConta = "";
         this.agencia = "";
-        this.tipo = ' ';
+        this.tipo = 0;
         this.saldo = 0;
         this.limiteSaques = 0;
         this.limiteTeds = 0;
-        this.teds = 0;
-        this.saques = 0;
+        this.qtdTeds = 0;
+        this.qtdSaques = 0;
         this.abertura = null;
+        this.usuario = "";
     }
 
     public int getId() {
@@ -43,50 +44,9 @@ public abstract class Conta {
     public void setId(int id) {
         this.id = id;
     }
-    
-    
-    public Date getAbertura() {
-        return abertura;
-    }
-
-    public void setAbertura(Date abertura) {
-        this.abertura = abertura;
-    }
 
     public String getNumeroDaConta() {
         return numeroDaConta;
-    }
-
-    public int getTeds() {
-        return teds;
-    }
-
-    public void setTeds(int teds) {
-        this.teds = teds;
-    }
-
-    public float getLimiteTeds() {
-        return limiteTeds;
-    }
-
-    public void setLimiteTeds(int limiteTeds) {
-        this.limiteTeds = limiteTeds;
-    }
-
-    public int getSaques() {
-        return saques;
-    }
-
-    public void setSaques(int saques) {
-        this.saques = saques;
-    }
-
-    public float getLimiteSaques() {
-        return limiteSaques;
-    }
-
-    public void setLimiteSaques(int limiteSaques) {
-        this.limiteSaques = limiteSaques;
     }
 
     public void setNumeroDaConta(String numeroDaConta) {
@@ -101,12 +61,11 @@ public abstract class Conta {
         this.agencia = agencia;
     }
 
-
-    public char getTipo() {
+    public int getTipo() {
         return tipo;
     }
 
-    public void setTipo(char tipo) {
+    public void setTipo(int tipo) {
         this.tipo = tipo;
     }
 
@@ -114,17 +73,57 @@ public abstract class Conta {
         return saldo;
     }
 
+    public void setSaldo(float saldo) {
+        this.saldo = saldo;
+    }
+
+    public int getQtdTeds() {
+        return qtdTeds;
+    }
+
+    public void setQtdTeds(int qtdTeds) {
+        this.qtdTeds = qtdTeds;
+    }
+
+    public int getQtdSaques() {
+        return qtdSaques;
+    }
+
+    public void setQtdSaques(int qtdSaques) {
+        this.qtdSaques = qtdSaques;
+    }
+
+    public float getLimiteTeds() {
+        return limiteTeds;
+    }
+
     public void setLimiteTeds(float limiteTeds) {
         this.limiteTeds = limiteTeds;
+    }
+
+    public float getLimiteSaques() {
+        return limiteSaques;
     }
 
     public void setLimiteSaques(float limiteSaques) {
         this.limiteSaques = limiteSaques;
     }
 
-    public void setSaldo(float saldo) {
-        this.saldo = saldo;
+    public Date getAbertura() {
+        return abertura;
+    }
+
+    public void setAbertura(Date abertura) {
+        this.abertura = abertura;
+    }
+
+    public String getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(String usuario) {
+        this.usuario = usuario;
     }
     
-     
+    
 }
