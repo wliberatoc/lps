@@ -7,12 +7,15 @@ package view;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.text.MaskFormatter;
 import model.classes.Conta;
+import model.classes.MovimentacaoBancaria;
 import model.dao.ContaDAO;
+import model.dao.MovimentacaoBancariaDAO;
 
 /**
  *
@@ -82,7 +85,38 @@ public class FrmTransferencia extends javax.swing.JFrame {
            return false;
         }
         return true;
-    }        
+    }
+    
+    public boolean salvar(){
+        Date hoje = new Date();
+        MovimentacaoBancaria mvb = new MovimentacaoBancaria();
+        mvb.setIdConta(conta.get(0).getId());
+        mvb.setData(hoje);
+        mvb.setIdTipoOperacao(3);
+        mvb.setDescricao(txtDescricao.getText());
+        mvb.setTipoMovimentacao('D');
+        MovimentacaoBancariaDAO mvbDao = new MovimentacaoBancariaDAO();
+        if(!mvbDao.insert(mvb))
+            return false;
+        mvb.setIdConta(destinatario.get(0).getId());
+        mvb.setTipoMovimentacao('C');
+        if(mvbDao.insert(mvb)){
+            mvb.setIdConta(conta.get(0).getId());
+            mvb.setTipoMovimentacao('S');
+            mvb.setDescricao("saldo de "+hoje.getTime());
+            mvb.setIdTipoOperacao(0);
+            mvbDao.insert(mvb);
+            mvb.setId(destinatario.get(0).getId());
+            mvbDao.insert(mvb);
+            return true;
+        }else{
+            mvb.setId(conta.get(0).getId());
+            mvb.setIdTipoOperacao(2);
+            mvb.setDescricao("estorno de "+txtDescricao.getText());
+            mvb.setTipoMovimentacao('C');
+            return false;
+        }            
+    }
         
 
     /**
@@ -105,6 +139,8 @@ public class FrmTransferencia extends javax.swing.JFrame {
         txtValor = new javax.swing.JTextField();
         lblTipoOperacao = new javax.swing.JLabel();
         cbxTipoOperacao = new javax.swing.JComboBox<>();
+        lblDescricao = new javax.swing.JLabel();
+        txtDescricao = new javax.swing.JTextField();
         pnlBotoes = new javax.swing.JPanel();
         btnCancelar = new javax.swing.JButton();
         btnSalvar = new javax.swing.JButton();
@@ -133,13 +169,19 @@ public class FrmTransferencia extends javax.swing.JFrame {
 
         cbxTipoOperacao.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
+        lblDescricao.setText("Descrição:");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap(99, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(lblDescricao)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txtDescricao))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(lblTipoOperacao)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -186,7 +228,11 @@ public class FrmTransferencia extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblTipoOperacao)
                     .addComponent(cbxTipoOperacao, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblDescricao)
+                    .addComponent(txtDescricao, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(28, Short.MAX_VALUE))
         );
 
         pnlBotoes.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -277,7 +323,7 @@ public class FrmTransferencia extends javax.swing.JFrame {
         if(validaCampos()){
             if(salvar()){
                 JOptionPane.showMessageDialog(rootPane,"Edição realizada com sucesso");
-                new FrmHome(cliente.getCpf(),0).setVisible(true);
+                new FrmHome(conta.get(0).getUsuario(),i).setVisible(true);
                 this.dispose();
             }
             else
@@ -304,12 +350,14 @@ public class FrmTransferencia extends javax.swing.JFrame {
     private javax.swing.JFormattedTextField ftxtNumeroDaConta;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel lblAgencia;
+    private javax.swing.JLabel lblDescricao;
     private javax.swing.JLabel lblNumeroDaConta;
     private javax.swing.JLabel lblTipoDaConta;
     private javax.swing.JLabel lblTipoOperacao;
     private javax.swing.JLabel lblValor;
     private javax.swing.JPanel pnlBotoes;
     private javax.swing.JTextField txtAgencia;
+    private javax.swing.JTextField txtDescricao;
     private javax.swing.JTextField txtValor;
     // End of variables declaration//GEN-END:variables
 
