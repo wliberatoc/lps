@@ -43,9 +43,9 @@ public class FrmHome extends javax.swing.JFrame {
     String codB = "";
     int i = 0;
     
-    public FrmHome(String use, int indice) {
+    public FrmHome(String use, int i) {
         initComponents();
-        i = indice;
+        this.i = i;
         conta = contaDao.select("usuario", use);
         btnOutraConta.setText("Mudar conta");
         if(conta.get(i).getTipo() < 4)
@@ -195,7 +195,7 @@ public class FrmHome extends javax.swing.JFrame {
             try {
                 boleto.setDataDeVencimento(formataData.parse(data));
                 return boletoDAO.insert(boleto);
-            } catch (ParseException ex) {
+            }catch (ParseException ex) {
                 System.err.println("Erro "+ex);
             }
         }catch (NumberFormatException ex) {
@@ -338,10 +338,20 @@ public class FrmHome extends javax.swing.JFrame {
         cbxVisualizar.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Saldo", "Extrato" }));
 
         btnVisualizar.setText("Visualizar");
+        btnVisualizar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnVisualizarActionPerformed(evt);
+            }
+        });
 
         cbxRealizar.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pagamento", "Transferencia" }));
 
         btnREalizar.setText("Realizar");
+        btnREalizar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnREalizarActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -463,7 +473,7 @@ public class FrmHome extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(pnlDeposito, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                            .addComponent(pnlDeposito, javax.swing.GroupLayout.PREFERRED_SIZE, 516, Short.MAX_VALUE)
                             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(pnlHome, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(layout.createSequentialGroup()
@@ -546,6 +556,27 @@ public class FrmHome extends javax.swing.JFrame {
             info += "\nConta Poupança";
         JOptionPane.showMessageDialog(rootPane,info);
     }//GEN-LAST:event_brnInfoActionPerformed
+
+    private void btnREalizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnREalizarActionPerformed
+        // transferencia
+        if(cbxRealizar.getSelectedIndex() == 1){
+            new FrmTransferencia(conta.get(i).getId(),i).setVisible(true);
+            this.dispose();
+        }else{//pagamento
+            
+        }
+            
+        
+    }//GEN-LAST:event_btnREalizarActionPerformed
+
+    private void btnVisualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVisualizarActionPerformed
+        //saldo
+        if(cbxVisualizar.getSelectedIndex() == 0){
+            
+        }else{//extrato
+            
+        }
+    }//GEN-LAST:event_btnVisualizarActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

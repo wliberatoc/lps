@@ -50,7 +50,7 @@ public class PessoaJuridicaDAO {
             rs = stmt.executeQuery();
             while(rs.next()){
                 PessoaJuridica cliente = new PessoaJuridica();
-                cliente.setId(rs.getInt("id_pj"));
+                cliente.setId(rs.getInt("id"));
                 cliente.setCnpj(rs.getString("cnpj"));
                 cliente.setNome(rs.getString("nome"));
                 cliente.setFundacao(rs.getDate("fundacao"));
@@ -67,62 +67,9 @@ public class PessoaJuridicaDAO {
             return null;
         }   
     }
-    
-    public ArrayList<PessoaJuridica> load(int id){     
-        String sql = "SELECT * FROM tbl_pessoa_juridica WHERE tbl_pessoa_juridica.id_pj = ?";
-        ArrayList<PessoaJuridica> lista  = new ArrayList<>();
-        try {
-            stmt = Persistencia.getConnection().prepareStatement(sql);
-            stmt.setInt(1, id);
-            rs = stmt.executeQuery();
-            while(rs.next()){
-                PessoaJuridica cliente = new PessoaJuridica();
-                cliente.setId(rs.getInt("id_pj"));
-                cliente.setCnpj(rs.getString("cnpj"));
-                cliente.setNome(rs.getString("nome"));
-                cliente.setFundacao(rs.getDate("fundacao"));
-                cliente.setEmail(rs.getString("email"));
-                cliente.setTelefone(rs.getString("telefone"));
-                cliente.setEndereco(rs.getString("endereco"));
-                cliente.setSenha(rs.getInt("senha"));
-                cliente.setSenhaLogin(rs.getString("senha_login"));
-                lista.add(cliente);
-            }
-            return lista;
-        } catch (SQLException ex) {
-            System.err.println("Erro: "+ex);
-            return null;
-        }   
-    }
-    
-    public ArrayList<PessoaJuridica> selectAll(){     
-        String sql = "SELECT * FROM tbl_pessoa_juridica ";
-        ArrayList<PessoaJuridica> lista  = new ArrayList<>();
-        try {
-            stmt = Persistencia.getConnection().prepareStatement(sql);
-            rs = stmt.executeQuery();
-            while(rs.next()){
-                PessoaJuridica cliente = new PessoaJuridica();
-                cliente.setId(rs.getInt("id_pj"));
-                cliente.setCnpj(rs.getString("cnpj"));
-                cliente.setNome(rs.getString("nome"));
-                cliente.setFundacao(rs.getDate("fundacao"));
-                cliente.setEmail(rs.getString("email"));
-                cliente.setTelefone(rs.getString("telefone"));
-                cliente.setEndereco(rs.getString("endereco"));
-                cliente.setSenha(rs.getInt("senha"));
-                cliente.setSenhaLogin(rs.getString("senha_login"));
-                lista.add(cliente);
-            }
-            return lista;
-        } catch (SQLException ex) {
-            System.err.println("Erro: "+ex);
-            return null;
-        }  
-    }
-    
+   
     public boolean update(PessoaJuridica cliente){
-        String sql = "UPDATE tbl_pessoa_juridica SET cnpj = ?, nome = ?, fundacao = ?, email = ?, telefone = ?, endereco = ?, senha = ?, senha_login = ? WHERE tbl_pessoa_juridica.id_pj = ?";
+        String sql = "UPDATE tbl_pessoa_juridica SET cnpj = ?, nome = ?, fundacao = ?, email = ?, telefone = ?, endereco = ?, senha = ?, senha_login = ? WHERE tbl_pessoa_juridica.id = ?";
         try {
             stmt = Persistencia.getConnection().prepareStatement(sql);
             stmt.setString(1, cliente.getCnpj());
@@ -143,7 +90,7 @@ public class PessoaJuridicaDAO {
     }  
     
     public boolean delete(int id){
-        String sql = "DELETE FROM tbl_pessoa_juridica WHERE tbl_pessoa_juridica.id_pj = ?";
+        String sql = "DELETE FROM tbl_pessoa_juridica WHERE tbl_pessoa_juridica.id = ?";
         try {
             stmt = Persistencia.getConnection().prepareStatement(sql);
             stmt.setInt(1, id);

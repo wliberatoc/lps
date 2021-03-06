@@ -53,7 +53,37 @@ public class ContaDAO {
             rs = stmt.executeQuery();
             while(rs.next()){
                 Conta conta = new Conta();
-                conta.setId(rs.getInt("id_conta"));
+                conta.setId(rs.getInt("id"));
+                conta.setNumeroDaConta(rs.getString("numero_da_conta"));
+                conta.setAgencia(rs.getString("agencia"));
+                conta.setTipo(rs.getInt("tipo"));
+                conta.setSaldo(rs.getFloat("saldo"));
+                conta.setQtdTeds(rs.getInt("qtd_teds"));
+                conta.setQtdSaques(rs.getInt("qtd_saques"));
+                conta.setLimiteTeds(rs.getInt("limite_teds"));
+                conta.setLimiteSaques(rs.getInt("limite_saques"));
+                conta.setAbertura(rs.getDate("data_abertura"));
+                conta.setUsuario(rs.getString("usuario"));
+                lista.add(conta);
+            }
+            return lista;
+        } catch (SQLException ex) {
+            System.err.println("Erro: "+ex);
+            return null;
+        }   
+    }
+    
+    public ArrayList<Conta> select2Campos(String campo, String query,String campo2, int query2){
+        String sql = "SELECT * FROM tbl_conta WHERE "+campo+" LIKE ? AND "+campo2+" = ?";
+        ArrayList<Conta> lista  = new ArrayList<>();
+        try {
+            stmt = Persistencia.getConnection().prepareStatement(sql);
+            stmt.setString(1, query);
+            stmt.setInt(2, query2);
+            rs = stmt.executeQuery();
+            while(rs.next()){
+                Conta conta = new Conta();
+                conta.setId(rs.getInt("id"));
                 conta.setNumeroDaConta(rs.getString("numero_da_conta"));
                 conta.setAgencia(rs.getString("agencia"));
                 conta.setTipo(rs.getInt("tipo"));
@@ -74,7 +104,7 @@ public class ContaDAO {
     }
     
     public ArrayList<Conta> load(int id){
-        String sql = "SELECT * FROM tbl_conta WHERE tbl_conta.id_conta = ?";
+        String sql = "SELECT * FROM tbl_conta WHERE tbl_conta.id = ?";
         ArrayList<Conta> lista  = new ArrayList<>();
         try {
             stmt = Persistencia.getConnection().prepareStatement(sql);
@@ -82,7 +112,7 @@ public class ContaDAO {
             rs = stmt.executeQuery();
             while(rs.next()){
                 Conta conta = new Conta();
-                conta.setId(rs.getInt("id_conta"));
+                conta.setId(rs.getInt("id"));
                 conta.setNumeroDaConta(rs.getString("numero_da_conta"));
                 conta.setAgencia(rs.getString("agencia"));
                 conta.setTipo(rs.getInt("tipo"));
@@ -111,7 +141,7 @@ public class ContaDAO {
             rs = stmt.executeQuery();
             while(rs.next()){
                 Conta conta = new Conta();
-                conta.setId(rs.getInt("id_conta"));
+                conta.setId(rs.getInt("id"));
                 conta.setNumeroDaConta(rs.getString("numero_da_conta"));
                 conta.setAgencia(rs.getString("agencia"));
                 conta.setTipo(rs.getInt("tipo"));
@@ -132,7 +162,7 @@ public class ContaDAO {
     }
     
     public boolean update(Conta conta){
-        String sql = "UPDATE tbl_conta SET numero_da_conta = ?, agencia = ?, tipo = ?, saldo = ?, qtd_teds = ?, qtd_saques = ?, limite_teds = ?, data_abertura = ?, usuario = ? WHERE tbl_conta.id_conta = ?";
+        String sql = "UPDATE tbl_conta SET numero_da_conta = ?, agencia = ?, tipo = ?, saldo = ?, qtd_teds = ?, qtd_saques = ?, limite_teds = ?, data_abertura = ?, usuario = ? WHERE tbl_conta.id = ?";
         try {
             stmt = Persistencia.getConnection().prepareStatement(sql);
             stmt.setString(1, conta.getNumeroDaConta());
@@ -155,7 +185,7 @@ public class ContaDAO {
     }  
     
     public boolean delete(int id){
-        String sql = "DELETE FROM tbl_conta WHERE tbl_conta.id_conta = ?";
+        String sql = "DELETE FROM tbl_conta WHERE tbl_conta.id = ?";
         try {
             stmt = Persistencia.getConnection().prepareStatement(sql);
             stmt.setInt(1, id);

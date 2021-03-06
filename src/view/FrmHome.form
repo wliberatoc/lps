@@ -28,7 +28,7 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="pnlDeposito" pref="0" max="32767" attributes="0"/>
+                          <Component id="pnlDeposito" pref="516" max="32767" attributes="0"/>
                           <Component id="jPanel1" alignment="0" max="32767" attributes="0"/>
                           <Component id="pnlHome" alignment="0" max="32767" attributes="0"/>
                       </Group>
@@ -240,6 +240,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Visualizar"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnVisualizarActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JComboBox" name="cbxRealizar">
           <Properties>
@@ -258,6 +261,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Realizar"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnREalizarActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

@@ -45,7 +45,7 @@ public class BoletoDAO {
             rs = stmt.executeQuery();
             while(rs.next()){
                 Boleto boleto = new Boleto();
-                boleto.setId(rs.getInt("id_boleto"));                
+                boleto.setId(rs.getInt("id"));                
                 boleto.setCodigoDeBarras(rs.getString("codigo_de_barras"));
                 boleto.setIdConta(rs.getInt("id_conta"));
                 boleto.setValor(rs.getFloat("valor"));
@@ -60,7 +60,7 @@ public class BoletoDAO {
     }
     
     public ArrayList<Boleto> load(int id){
-        String sql = "SELECT * FROM tbl_boleto WHERE tbl_boleto.id_boleto = ?";
+        String sql = "SELECT * FROM tbl_boleto WHERE tbl_boleto.id = ?";
         ArrayList<Boleto> lista  = new ArrayList<>();
         try {
             stmt = Persistencia.getConnection().prepareStatement(sql);
@@ -68,7 +68,7 @@ public class BoletoDAO {
             rs = stmt.executeQuery();
             while(rs.next()){
                 Boleto boleto = new Boleto();
-                boleto.setId(rs.getInt("id_boleto"));                
+                boleto.setId(rs.getInt("id"));                
                 boleto.setCodigoDeBarras(rs.getString("codigo_de_barras"));
                 boleto.setIdConta(rs.getInt("id_conta"));
                 boleto.setValor(rs.getFloat("valor"));
@@ -83,7 +83,7 @@ public class BoletoDAO {
     }//fim load
     
     public boolean update(Boleto boleto){
-        String sql = "UPDATE tbl_boleto SET codigo_de_barras = ?, id_conta = ?, valor = ?, data_de_vencimento = ? WHERE tbl_boleto.id_boleto = ?";
+        String sql = "UPDATE tbl_boleto SET codigo_de_barras = ?, id_conta = ?, valor = ?, data_de_vencimento = ? WHERE tbl_boleto.id = ?";
         try {
             stmt = Persistencia.getConnection().prepareStatement(sql);
             stmt.setString(1, boleto.getCodigoDeBarras());
@@ -97,4 +97,17 @@ public class BoletoDAO {
             return false;
         }
     }  
+    
+    public boolean delete(int id){
+        String sql = "DELETE FROM tbl_boleto WHERE tbl_boleto.id = ?";
+        try {
+            stmt = Persistencia.getConnection().prepareStatement(sql);
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+            return true;
+        } catch (SQLException ex) {
+            System.err.println("Erro: "+ex);
+            return false;
+        }
+    } 
 }

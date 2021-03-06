@@ -16,7 +16,7 @@ public class MovimentacaoBancaria {
     private int idConta;
     private float valor;
     private Date data;
-    private int idTipoOperacao;
+    private int idTipoTipoOperacao;
     private String descricao;
     private char tipoMovimentacao;
 
@@ -59,12 +59,12 @@ public class MovimentacaoBancaria {
         this.data = data;
     }
 
-    public int getIdOperacao() {
-        return idTipoOperacao;
+    public int getIdTipoOperacao() {
+        return idTipoTipoOperacao;
     }
 
-    public void setIdOperacao(int idTipoOperacao) {
-        this.idTipoOperacao = idTipoOperacao;
+    public void setIdTipoOperacao(int idTipoTipoOperacao) {
+        this.idTipoTipoOperacao = idTipoTipoOperacao;
     }
 
     public String getDescricao() {
