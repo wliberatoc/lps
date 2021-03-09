@@ -7,6 +7,7 @@ package view;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -130,6 +131,12 @@ public class FrmCadastroPF extends javax.swing.JFrame {
             conta.setLimiteSaques(2000);
         }  
         ContaDAO contaDAO = new ContaDAO();
+        ArrayList<Conta> list;
+        list = contaDAO.select("numero_da_conta", conta.getNumeroDaConta());
+        if (!list.isEmpty())
+            for(int i = 0; i<list.size(); i++)
+                if(list.get(i).getTipo()%2 == conta.getTipo()%2)
+                    criaConta();        
         return contaDAO.insert(conta);
     }
      

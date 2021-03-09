@@ -5,7 +5,10 @@
  */
 package model.classes;
 
+import java.util.ArrayList;
 import java.util.Date;
+import model.dao.ContaDAO;
+import model.dao.MovimentacaoBancariaDAO;
 
 /**
  *
@@ -125,5 +128,13 @@ public class Conta {
         this.usuario = usuario;
     }
     
+    public float atualizaSaldo(){
+        float val = 0;
+        MovimentacaoBancariaDAO mbd = new MovimentacaoBancariaDAO();
+        ArrayList<MovimentacaoBancaria> mb = mbd.load(getId());
+        for (MovimentacaoBancaria mb1 : mb) 
+            val += mb1.getValor();
+        return val;
+    }
     
 }

@@ -22,17 +22,18 @@ public class BoletoDAO {
     ResultSet rs = null;
     
     public boolean insert(Boleto boleto){
-        String sql = "INSERT INTO tbl_boleto (codigo_de_barras, id_conta, valor, data_de_vencimento) VALUES (?,?,?,?)" ;
+        String sql = "INSERT INTO tbl_boleto (codigo_de_barras, id_conta, valor, data_de_vencimento, pago) VALUES (?,?,?,?,?)" ;
         try {
             stmt = Persistencia.getConnection().prepareStatement(sql);
             stmt.setString(1, boleto.getCodigoDeBarras());
             stmt.setInt(2, boleto.getIdConta());
             stmt.setFloat(3, boleto.getValor());
             stmt.setDate(4, new Date(boleto.getDataDeVencimento().getTime()));
+            stmt.setBoolean(5, boleto.isPago());
             stmt.executeUpdate();
             return true;
         } catch (SQLException ex) {
-            System.err.println("Erro: "+ex);
+            System.err.println("Erro Boleto: "+ex);
             return false;
         }
     }
@@ -50,11 +51,12 @@ public class BoletoDAO {
                 boleto.setIdConta(rs.getInt("id_conta"));
                 boleto.setValor(rs.getFloat("valor"));
                 boleto.setDataDeVencimento(rs.getDate("data_de_vencimento"));
+                boleto.setPago(rs.getBoolean("pago"));
                 lista.add(boleto);
             }
             return lista;
         } catch (SQLException ex) {
-            System.err.println("Erro: "+ex);
+            System.err.println("Erro Boleto: "+ex);
             return null;
         }   
     }
@@ -73,27 +75,30 @@ public class BoletoDAO {
                 boleto.setIdConta(rs.getInt("id_conta"));
                 boleto.setValor(rs.getFloat("valor"));
                 boleto.setDataDeVencimento(rs.getDate("data_de_vencimento"));
+                boleto.setPago(rs.getBoolean("pago"));
                 lista.add(boleto);
             }
             return lista;
         } catch (SQLException ex) {
-            System.err.println("Erro: "+ex);
+            System.err.println("Erro Boleto: "+ex);
             return null;
         }   
     }//fim load
     
     public boolean update(Boleto boleto){
-        String sql = "UPDATE tbl_boleto SET codigo_de_barras = ?, id_conta = ?, valor = ?, data_de_vencimento = ? WHERE tbl_boleto.id = ?";
+        String sql = "UPDATE tbl_boleto SET codigo_de_barras = ?, id_conta = ?, valor = ?, data_de_vencimento = ?, pago = ? WHERE tbl_boleto.id = ?";
         try {
             stmt = Persistencia.getConnection().prepareStatement(sql);
             stmt.setString(1, boleto.getCodigoDeBarras());
-            stmt.setInt(4, boleto.getIdConta());
-            stmt.setFloat(5, boleto.getValor());
-            stmt.setDate(6, new Date(boleto.getDataDeVencimento().getTime()));
+            stmt.setInt(2, boleto.getIdConta());
+            stmt.setFloat(3, boleto.getValor());
+            stmt.setDate(4, new Date(boleto.getDataDeVencimento().getTime()));
+            stmt.setBoolean(5, boleto.isPago());
+            stmt.setInt(6, boleto.getId());
             stmt.executeUpdate();
             return true;
         } catch (SQLException ex) {
-            System.err.println("Erro: "+ex);
+            System.err.println("Erro Boleto: "+ex);
             return false;
         }
     }  
@@ -106,7 +111,7 @@ public class BoletoDAO {
             stmt.executeUpdate();
             return true;
         } catch (SQLException ex) {
-            System.err.println("Erro: "+ex);
+            System.err.println("Erro Boleto: "+ex);
             return false;
         }
     } 

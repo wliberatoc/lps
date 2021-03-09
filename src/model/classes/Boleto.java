@@ -17,11 +17,13 @@ public class Boleto {
     private int idConta;
     private float valor;
     private Date dataDeVencimento;
+    private boolean pago;
 
     public Boleto() {
         this.codigoDeBarras = "";
         this.valor = 0;
         this.dataDeVencimento = null;
+        this.pago = false;
     }
 
     public int getId() {
@@ -63,5 +65,12 @@ public class Boleto {
     public void setDataDeVencimento(Date dataDeVencimento) {
         this.dataDeVencimento = dataDeVencimento;
     }
-    
+
+    public boolean isPago() {
+        return pago;
+    }
+
+    public void setPago(boolean pago) {
+        this.pago = pago;
+    }    
 }

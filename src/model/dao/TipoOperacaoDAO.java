@@ -8,7 +8,6 @@ package model.dao;
 import conection.Persistencia;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Date;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import model.classes.TipoOperacao;
@@ -29,7 +28,7 @@ public class TipoOperacaoDAO {
             stmt.executeUpdate();
             return true;
         } catch (SQLException ex) {
-            System.err.println("Erro: "+ex);
+            System.err.println("Erro Tipo Operação: "+ex);
             return false;
         }
     }
@@ -48,7 +47,26 @@ public class TipoOperacaoDAO {
             }
             return lista;
         } catch (SQLException ex) {
-            System.err.println("Erro: "+ex);
+            System.err.println("Erro Tipo Operação: "+ex);
+            return null;
+        }   
+    }
+    
+    public ArrayList<TipoOperacao> selectAll(){
+        String sql = "SELECT * FROM tbl_tipo_operacao";
+        ArrayList<TipoOperacao> lista  = new ArrayList<>();
+        try {
+            stmt = Persistencia.getConnection().prepareStatement(sql);
+            rs = stmt.executeQuery();
+            while(rs.next()){
+                TipoOperacao tipoOperacao = new TipoOperacao();
+                tipoOperacao.setId(rs.getInt("id"));                
+                tipoOperacao.setDescricao(rs.getString("descricao"));
+                lista.add(tipoOperacao);
+            }
+            return lista;
+        } catch (SQLException ex) {
+            System.err.println("Erro Tipo Operação: "+ex);
             return null;
         }   
     }
@@ -68,7 +86,7 @@ public class TipoOperacaoDAO {
             }
             return lista;
         } catch (SQLException ex) {
-            System.err.println("Erro: "+ex);
+            System.err.println("Erro Tipo Operação: "+ex);
             return null;
         }   
     }//fim load
@@ -81,7 +99,7 @@ public class TipoOperacaoDAO {
             stmt.executeUpdate();
             return true;
         } catch (SQLException ex) {
-            System.err.println("Erro: "+ex);
+            System.err.println("Erro Tipo Operação: "+ex);
             return false;
         }
     } 
@@ -93,7 +111,7 @@ public class TipoOperacaoDAO {
             stmt.executeUpdate();
             return true;
         } catch (SQLException ex) {
-            System.err.println("Erro: "+ex);
+            System.err.println("Erro Tipo Operação: "+ex);
             return false;
         }
     } 

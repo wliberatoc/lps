@@ -47,6 +47,8 @@ public class FrmHome extends javax.swing.JFrame {
         initComponents();
         this.i = i;
         conta = contaDao.select("usuario", use);
+        conta.get(i).setSaldo(conta.get(i).atualizaSaldo()); 
+        contaDao.update(conta.get(i));
         btnOutraConta.setText("Mudar conta");
         if(conta.get(i).getTipo() < 4)
             lblTipoConta.setText("Saldo Conta Corrente:");
@@ -62,7 +64,8 @@ public class FrmHome extends javax.swing.JFrame {
         else{
             clienteJ = pj.select("cnpj",use);
             lblNome.setText(clienteJ.get(0).getNome());
-        }   
+        }
+        
     }  
     
     public void mudarDeConta(){
@@ -77,33 +80,35 @@ public class FrmHome extends javax.swing.JFrame {
         newConta.setAgencia("0001");
         Date hoje = new Date();
         newConta.setAbertura(hoje);
-        if(conta.get(i).getTipo() == 2){
-            newConta.setTipo(4);
-            newConta.setQtdTeds(7);
-            newConta.setLimiteTeds(1000);
-            newConta.setQtdSaques(15);
-            newConta.setLimiteSaques(1500);
-        }
-        if(conta.get(i).getTipo() == 4){
-            newConta.setTipo(2);
-            newConta.setQtdTeds(10);
-            newConta.setLimiteTeds(1500);
-            newConta.setQtdSaques(20);
-            newConta.setLimiteSaques(2000);
-        }
-        if(conta.get(i).getTipo() == 3){
-            newConta.setTipo(5);
-            newConta.setQtdTeds(15);
-            newConta.setLimiteTeds(3000);
-            newConta.setQtdSaques(50);
-            newConta.setLimiteSaques(5000);
-        }
-        if(conta.get(i).getTipo() == 5){
-            newConta.setTipo(3);
-            newConta.setQtdTeds(10);
-            newConta.setLimiteTeds(1500);
-            newConta.setQtdSaques(20);
-            newConta.setLimiteSaques(2000);            
+        switch (conta.get(i).getTipo()){
+            case 2:
+                newConta.setTipo(4);
+                newConta.setQtdTeds(7);
+                newConta.setLimiteTeds(1000);
+                newConta.setQtdSaques(15);
+                newConta.setLimiteSaques(1500);
+                break;
+            case 4:
+                newConta.setTipo(2);
+                newConta.setQtdTeds(10);
+                newConta.setLimiteTeds(1500);
+                newConta.setQtdSaques(20);
+                newConta.setLimiteSaques(2000);
+                break;
+            case 3:
+                newConta.setTipo(5);
+                newConta.setQtdTeds(15);
+                newConta.setLimiteTeds(3000);
+                newConta.setQtdSaques(50);
+                newConta.setLimiteSaques(5000);
+                break;
+            case 5:
+                newConta.setTipo(3);
+                newConta.setQtdTeds(10);
+                newConta.setLimiteTeds(1500);
+                newConta.setQtdSaques(20);
+                newConta.setLimiteSaques(2000); 
+                break;
         }
         return contaDao.insert(newConta);
     }
@@ -206,10 +211,16 @@ public class FrmHome extends javax.swing.JFrame {
     }
     
     public String geraCodigoBarras(){
+        BoletoDAO boletoDAO = new BoletoDAO();
         Random random = new Random();
         int dv = random.nextInt(9);
-        String s = "000"+conta.get(i).getNumeroDaConta().replace(".", "").replace("-", "")
-                +".000"+conta.get(i).getAgencia()+".000000"+conta.get(i).getTipo()+" "+dv+" ";
+        String s = "00"+conta.get(i).getNumeroDaConta().replace(".", "").replace("-", "")
+                +"."+conta.get(i).getTipo()+"00"+conta.get(i).getAgencia()+".";
+        for(int j = 0; j < 7; j++){
+            int dig = random.nextInt(9);
+            s += dig;
+        }
+        s += " "+dv+" ";
         int p = 7-txtValor.getText().replace(".","").length();
         for(int k = 0; k < 7; k++){
             if(k == p){
@@ -218,7 +229,11 @@ public class FrmHome extends javax.swing.JFrame {
             }else
                 s += "0";
         }
-        return s;
+        if(boletoDAO.select("codigo_de_barras", s).isEmpty())
+            return s;
+        else
+            geraCodigoBarras();
+        return null;
     }
     
     /**
@@ -243,9 +258,11 @@ public class FrmHome extends javax.swing.JFrame {
         btnVisualizar = new javax.swing.JButton();
         cbxRealizar = new javax.swing.JComboBox<>();
         btnREalizar = new javax.swing.JButton();
+        btnSaque = new javax.swing.JButton();
+        btnDepositar = new javax.swing.JButton();
         btnSair = new javax.swing.JButton();
         pnlDeposito = new javax.swing.JPanel();
-        btnDepositar = new javax.swing.JButton();
+        btnGerarBoleto = new javax.swing.JButton();
         lblValor = new javax.swing.JLabel();
         lblValidade = new javax.swing.JLabel();
         txtCodigoDeBarras = new javax.swing.JTextField();
@@ -257,6 +274,7 @@ public class FrmHome extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         pnlHome.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED), "HOME", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Arial Black", 0, 20))); // NOI18N
+        pnlHome.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
         txtSaldo.setEditable(false);
 
@@ -301,21 +319,23 @@ public class FrmHome extends javax.swing.JFrame {
                 .addGroup(pnlHomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(pnlHomeLayout.createSequentialGroup()
                         .addComponent(btnOutraConta)
-                        .addGap(63, 63, 63)
-                        .addComponent(btnExcluir))
+                        .addGap(51, 51, 51)
+                        .addComponent(brnInfo)
+                        .addGap(24, 24, 24))
                     .addComponent(lblNome, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGroup(pnlHomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(pnlHomeLayout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(lblTipoConta)
                         .addGap(18, 18, 18)
-                        .addComponent(txtSaldo, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(txtSaldo, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(80, 80, 80))
                     .addGroup(pnlHomeLayout.createSequentialGroup()
-                        .addGap(59, 59, 59)
-                        .addComponent(brnInfo)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 34, Short.MAX_VALUE)
-                        .addComponent(btnEditar)))
-                .addGap(80, 80, 80))
+                        .addGap(23, 23, 23)
+                        .addComponent(btnExcluir)
+                        .addGap(41, 41, 41)
+                        .addComponent(btnEditar)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         pnlHomeLayout.setVerticalGroup(
             pnlHomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -353,22 +373,40 @@ public class FrmHome extends javax.swing.JFrame {
             }
         });
 
+        btnSaque.setText("Saque");
+        btnSaque.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaqueActionPerformed(evt);
+            }
+        });
+
+        btnDepositar.setText("Depositar");
+        btnDepositar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDepositarActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(118, 118, 118)
+                .addGap(73, 73, 73)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnDepositar)
+                    .addComponent(btnSaque))
+                .addGap(51, 51, 51)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(btnVisualizar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(cbxVisualizar, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(cbxRealizar, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(24, 24, 24)
                         .addComponent(btnREalizar)))
-                .addGap(145, 145, 145))
+                .addGap(72, 72, 72))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -376,10 +414,13 @@ public class FrmHome extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cbxVisualizar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(cbxRealizar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(cbxRealizar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnSaque))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnVisualizar)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btnVisualizar)
+                        .addComponent(btnDepositar))
                     .addComponent(btnREalizar))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -393,10 +434,10 @@ public class FrmHome extends javax.swing.JFrame {
 
         pnlDeposito.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
-        btnDepositar.setText("Depositar");
-        btnDepositar.addActionListener(new java.awt.event.ActionListener() {
+        btnGerarBoleto.setText("Depositar");
+        btnGerarBoleto.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnDepositarActionPerformed(evt);
+                btnGerarBoletoActionPerformed(evt);
             }
         });
 
@@ -424,12 +465,6 @@ public class FrmHome extends javax.swing.JFrame {
             .addGroup(pnlDepositoLayout.createSequentialGroup()
                 .addGroup(pnlDepositoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(pnlDepositoLayout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(txtCodigoDeBarras, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(49, 49, 49))
-                    .addGroup(pnlDepositoLayout.createSequentialGroup()
                         .addGap(79, 79, 79)
                         .addComponent(lblValidade)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -438,20 +473,23 @@ public class FrmHome extends javax.swing.JFrame {
                         .addComponent(lblValor)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(txtValor, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addGroup(pnlDepositoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnDepositar)
+                        .addGap(75, 75, 75)
+                        .addComponent(btnGerarBoleto))
                     .addGroup(pnlDepositoLayout.createSequentialGroup()
-                        .addGap(8, 8, 8)
+                        .addContainerGap()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(txtCodigoDeBarras, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(28, 28, 28)
                         .addComponent(btnLimpar)))
-                .addGap(103, 103, 103))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         pnlDepositoLayout.setVerticalGroup(
             pnlDepositoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlDepositoLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(pnlDepositoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnDepositar)
+                    .addComponent(btnGerarBoleto)
                     .addComponent(lblValor)
                     .addComponent(lblValidade)
                     .addComponent(txtValor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -461,7 +499,7 @@ public class FrmHome extends javax.swing.JFrame {
                     .addComponent(txtCodigoDeBarras, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1)
                     .addComponent(btnLimpar))
-                .addContainerGap(29, Short.MAX_VALUE))
+                .addContainerGap(26, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -472,14 +510,14 @@ public class FrmHome extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(pnlDeposito, javax.swing.GroupLayout.PREFERRED_SIZE, 516, Short.MAX_VALUE)
-                            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(pnlHome, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(pnlHome, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(pnlDeposito, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(237, 237, 237)
                         .addComponent(btnSair)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(32, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -498,15 +536,15 @@ public class FrmHome extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnDepositarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDepositarActionPerformed
-        // depositar
+    private void btnGerarBoletoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGerarBoletoActionPerformed
+        // GeraBoleto
         if(geraBoleto()){
             JOptionPane.showMessageDialog(rootPane, "Boleto gerado com sucesso");
             txtVencimento.setText(data);
             txtCodigoDeBarras.setText(codB);
         }else
             JOptionPane.showMessageDialog(rootPane, "Erro na geração do boleto");
-    }//GEN-LAST:event_btnDepositarActionPerformed
+    }//GEN-LAST:event_btnGerarBoletoActionPerformed
 
     private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
         // editar
@@ -563,7 +601,8 @@ public class FrmHome extends javax.swing.JFrame {
             new FrmTransferencia(conta.get(i).getId(),i).setVisible(true);
             this.dispose();
         }else{//pagamento
-            
+            new FrmPagamento(conta.get(i).getId(),i).setVisible(true);
+            this.dispose();
         }
             
         
@@ -578,16 +617,31 @@ public class FrmHome extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnVisualizarActionPerformed
 
+    private void btnSaqueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaqueActionPerformed
+        //Sacar
+        new FrmSaque(conta.get(i).getId(),i).setVisible(true);
+        this.dispose();
+
+    }//GEN-LAST:event_btnSaqueActionPerformed
+
+    private void btnDepositarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDepositarActionPerformed
+        // pagar
+        new FrmDeposito(conta.get(i).getId(),i).setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnDepositarActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton brnInfo;
     private javax.swing.JButton btnDepositar;
     private javax.swing.JButton btnEditar;
     private javax.swing.JButton btnExcluir;
+    private javax.swing.JButton btnGerarBoleto;
     private javax.swing.JButton btnLimpar;
     private javax.swing.JButton btnOutraConta;
     private javax.swing.JButton btnREalizar;
     private javax.swing.JButton btnSair;
+    private javax.swing.JButton btnSaque;
     private javax.swing.JButton btnVisualizar;
     private javax.swing.JComboBox<String> cbxRealizar;
     private javax.swing.JComboBox<String> cbxVisualizar;

@@ -39,7 +39,7 @@ public class PessoaFisicaDAO {
             stmt.executeUpdate();
             return true;
         } catch (SQLException ex) {
-            System.err.println("Erro: "+ex);
+            System.err.println("Erro Pessoa Física: "+ex);
             return false;
         }
     }  
@@ -67,10 +67,25 @@ public class PessoaFisicaDAO {
             }
             return lista;
         } catch (SQLException ex) {
-            System.err.println("Erro: "+ex);
+            System.err.println("Erro Pessoa Física: "+ex);
             return null;
         }    
     }//fim select
+    
+    public boolean select2Campos(String campo, String query, String campo2, int query2){     
+        String sql = "SELECT * FROM tbl_pessoa_fisica WHERE "+campo+" LIKE ? AND "+campo2+" = ?";
+        ArrayList<PessoaFisica> lista  = new ArrayList<>();
+        try {
+            stmt = Persistencia.getConnection().prepareStatement(sql);
+            stmt.setString(1, query);
+            stmt.setInt(2, query2);
+            rs = stmt.executeQuery();
+            return true;
+        } catch (SQLException ex) {
+            System.err.println("Erro Pessoa Física: "+ex);
+            return false;
+        }    
+    }//fim select2Campos
 
        
     public boolean update(PessoaFisica cliente){
@@ -90,7 +105,7 @@ public class PessoaFisicaDAO {
             stmt.executeUpdate();
             return true;
         } catch (SQLException ex) {
-            System.err.println("Erro: "+ex);
+            System.err.println("Erro Pessoa Física: "+ex);
             return false;
         }
     }//fim update  
@@ -103,7 +118,7 @@ public class PessoaFisicaDAO {
             stmt.executeUpdate();
             return true;
         } catch (SQLException ex) {
-            System.err.println("Erro: "+ex);
+            System.err.println("Erro Pessoa Física: "+ex);
             return false;
         }
     }//fim delete  

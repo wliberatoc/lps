@@ -154,10 +154,10 @@ public class FrmLogin extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(pnlLogin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(pnlLogin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -174,47 +174,39 @@ public class FrmLogin extends javax.swing.JFrame {
     public boolean loginPF(String login,String senha){
         PessoaFisicaDAO teste = new PessoaFisicaDAO();
         login = login.substring(0,3)+"."+login.substring(3,6) + "."+login.substring(6,9) + "-"+login.substring(9,11);
-        ArrayList<PessoaFisica> cliente  = new ArrayList<>();
-        cliente = teste.select("cpf",login);
-        if(cliente != null){
+        ArrayList<PessoaFisica> cliente  = teste.select("cpf",login);
+        if(!cliente.isEmpty()){
             if(cliente.get(0).getSenhaLogin().equals(senha)){
                new FrmHome(login,0).setVisible(true);
                this.dispose(); 
                return true;
             }else{
-              JOptionPane.showMessageDialog(rootPane, "Senha incorreta");
+              JOptionPane.showMessageDialog(rootPane, "Senha incorreta, senha deve conter 6 caracteres");
               pswSenha.requestFocus();
-              return false;
+              return true;
             }
         }
-        else{
-            JOptionPane.showMessageDialog(rootPane, "Login incorreto");
-            txtLogin.requestFocus();
+        else
             return false;
-        }
     }
    
     public boolean loginPJ(String login,String senha){
         PessoaJuridicaDAO teste = new PessoaJuridicaDAO();
         login = login.substring(0,2)+"."+login.substring(2,5) + "."+login.substring(5,8) + "/"+login.substring(8,12)+ "-"+login.substring(12,14);
-        ArrayList<PessoaJuridica> cliente  = new ArrayList<>();
-        cliente = teste.select("cnpj",login);
-        if(cliente != null){
+        ArrayList<PessoaJuridica> cliente  = teste.select("cnpj",login);
+        if(!cliente.isEmpty()){
             if(cliente.get(0).getSenhaLogin().equals(senha)){
-                new FrmHome(login,0).setVisible(true);
-                this.dispose(); 
-                return true;
+               new FrmHome(login,0).setVisible(true);
+               this.dispose(); 
+               return true;
             }else{
-                JOptionPane.showMessageDialog(rootPane, "Senha incorreta");
-                pswSenha.requestFocus();
-                return false;
+              JOptionPane.showMessageDialog(rootPane, "Senha incorreta, senha deve conter 6 caracteres");
+              pswSenha.requestFocus();
+              return true;
             }
         }
-        else{
-            JOptionPane.showMessageDialog(rootPane, "Login incorreto");
-            txtLogin.requestFocus();
+        else
             return false;
-        }
     }
     
     private void pswSenhaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pswSenhaActionPerformed
@@ -238,16 +230,23 @@ public class FrmLogin extends javax.swing.JFrame {
         String login = txtLogin.getText();
         String senha  = ""+Arrays.toString(pswSenha.getPassword());
         senha = formataSenha(senha);
-        if(login.length() == 11)
-            if(!loginPF(login,senha)){
+        switch (login.length()) {
+            case 11:
+                if(!loginPF(login,senha)){
+                    JOptionPane.showMessageDialog(rootPane, "Login incorreto");
+                    txtLogin.requestFocus();
+                }   break;
+            case 14:
+                if(!loginPJ(login, senha)){
+                    JOptionPane.showMessageDialog(rootPane, "Login incorreto");
+                    txtLogin.requestFocus();
+                }   break;
+            default:
                 JOptionPane.showMessageDialog(rootPane, "Login incorreto");
                 txtLogin.requestFocus();
-            }
-        if(login.length() == 14)
-            if(!loginPJ(login, senha)){
-                JOptionPane.showMessageDialog(rootPane, "Login incorreto");
-                txtLogin.requestFocus();
-            }                         
+                break;
+        }
+        
     }//GEN-LAST:event_btnLoginActionPerformed
 
     /**

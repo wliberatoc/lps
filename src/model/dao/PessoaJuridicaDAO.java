@@ -37,7 +37,7 @@ public class PessoaJuridicaDAO {
             stmt.executeUpdate();
             return true;
         } catch (SQLException ex) {
-            System.err.println("Erro: "+ex);
+            System.err.println("Erro Pessoa Jurídica: "+ex);
             return false;
         }
     }
@@ -63,10 +63,25 @@ public class PessoaJuridicaDAO {
             }
             return lista;
         } catch (SQLException ex) {
-            System.err.println("Erro: "+ex);
+            System.err.println("Erro Pessoa Jurídica: "+ex);
             return null;
         }   
     }
+    
+    public boolean select2Campos(String campo, String query, String campo2, int query2){     
+        String sql = "SELECT * FROM tbl_pessoa_juridica WHERE "+campo+" LIKE ? AND "+campo2+" = ?";
+        ArrayList<PessoaJuridica> lista  = new ArrayList<>();
+        try {
+            stmt = Persistencia.getConnection().prepareStatement(sql);
+            stmt.setString(1, query);
+            stmt.setInt(2, query2);
+            rs = stmt.executeQuery();
+            return true;
+        } catch (SQLException ex) {
+            System.err.println("Erro Pessoa Jurídica: "+ex);
+            return false;
+        }    
+    }//fim select2Campos
    
     public boolean update(PessoaJuridica cliente){
         String sql = "UPDATE tbl_pessoa_juridica SET cnpj = ?, nome = ?, fundacao = ?, email = ?, telefone = ?, endereco = ?, senha = ?, senha_login = ? WHERE tbl_pessoa_juridica.id = ?";
@@ -84,7 +99,7 @@ public class PessoaJuridicaDAO {
             stmt.executeUpdate();
             return true;
         } catch (SQLException ex) {
-            System.err.println("Erro: "+ex);
+            System.err.println("Erro Pessoa Jurídica: "+ex);
             return false;
         }
     }  
@@ -97,7 +112,7 @@ public class PessoaJuridicaDAO {
             stmt.executeUpdate();
             return true;
         } catch (SQLException ex) {
-            System.err.println("Erro: "+ex);
+            System.err.println("Erro Pessoa Jurídica: "+ex);
             return false;
         }
     }  

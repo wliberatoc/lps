@@ -7,6 +7,7 @@ package view;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -14,14 +15,18 @@ import javax.swing.JOptionPane;
 import javax.swing.text.MaskFormatter;
 import model.classes.Conta;
 import model.classes.MovimentacaoBancaria;
+import model.classes.TipoOperacao;
 import model.dao.ContaDAO;
+import model.dao.TipoOperacaoDAO;
 import model.dao.MovimentacaoBancariaDAO;
+import model.dao.PessoaFisicaDAO;
+import model.dao.PessoaJuridicaDAO;
 
 /**
  *
  * @author Willian-PC
  */
-public class FrmTransferencia extends javax.swing.JFrame {
+public final class FrmTransferencia extends javax.swing.JFrame {
 
     /**
      * Creates new form FrmTransferencia
@@ -31,10 +36,12 @@ public class FrmTransferencia extends javax.swing.JFrame {
     ContaDAO contaDao = new ContaDAO();
     ArrayList<Conta> conta  = new ArrayList<>();
     ArrayList<Conta> destinatario  = new ArrayList<>();
+    TipoOperacaoDAO tipoO = new TipoOperacaoDAO();
     int i = 0;
     float valor = 0;
     public FrmTransferencia(int id, int i) {
         initComponents();
+        carregaTipo();
         this.i = i;
         try {
             MaskFormatter maskNumConta = new MaskFormatter("#.###-#");
@@ -46,6 +53,13 @@ public class FrmTransferencia extends javax.swing.JFrame {
         
     }
     
+    public void carregaTipo(){
+        tipoO.selectAll().forEach((tipo) -> {
+            if(tipo.getId() != 1 && tipo.getId() != 4 && tipo.getId() != 5)
+                cbxTipoOperacao.addItem(tipo);
+        });
+    }
+    
     public void limpaCampos(){
         ftxtNumeroDaConta.setText("");
         txtAgencia.setText("");
@@ -54,16 +68,22 @@ public class FrmTransferencia extends javax.swing.JFrame {
     }
     
     public boolean validaCampos(){
-        int tipo  = 0;
-        if(cbxTipoDaConta.getSelectedIndex() == 0)
-            tipo = 2;
-        if(cbxTipoDaConta.getSelectedIndex() == 1)
-            tipo = 3;
-        if(cbxTipoDaConta.getSelectedIndex() == 2)
-            tipo = 4;
-        else
-            tipo = 5;
-        destinatario = contaDao.select2Campos("numreo_da_conta", ftxtNumeroDaConta.getText(),"tipo",tipo);
+        int tipo = 0;
+        switch (cbxTipoDaConta.getSelectedIndex()){
+            case 0: 
+                tipo = 2;
+                break;
+            case 1: 
+                tipo = 3;
+                break;
+            case 2: 
+                tipo = 4;
+                break;
+            case 3: 
+                tipo = 5;
+                break;
+        }
+        destinatario = contaDao.select2Campos("numero_da_conta", ftxtNumeroDaConta.getText(),"tipo",tipo);
         if(destinatario.isEmpty()){
             JOptionPane.showMessageDialog(rootPane, "Conta informada errado");
             ftxtNumeroDaConta.requestFocus();
@@ -78,23 +98,64 @@ public class FrmTransferencia extends javax.swing.JFrame {
             txtAgencia.requestFocus();
             return false;
         }
-        valor = Float.parseFloat(txtValor.getText());
-        if(valor < 3 || valor > conta.get(0).getLimiteTeds()){
-           JOptionPane.showMessageDialog(rootPane, "O valor informado deve ser um número entre 3 e "+conta.get(0).getLimiteTeds());
-           txtValor.requestFocus();
-           return false;
+        try{
+            valor = Float.parseFloat(txtValor.getText());
+            if(valor < 3 || valor > conta.get(0).getLimiteTeds()){
+               JOptionPane.showMessageDialog(rootPane, "O valor informado deve ser um número entre 3 e "+conta.get(0).getLimiteTeds());
+               txtValor.requestFocus();
+               return false;
+            }
+            if(valor > conta.get(0).getSaldo()){
+                JOptionPane.showMessageDialog(rootPane, "Saldo insuficiente");
+                txtValor.requestFocus();
+                return false;
+            }
+            String s  =  ""+Arrays.toString(pswSenha.getPassword());
+            s = s.replace(" ", "").replace(",", "").replace("[", "").replace("]", "");
+            try{
+                int senha = Integer.parseInt(s); 
+                    if(conta.get(0).getTipo()%2 == 0){
+                        PessoaFisicaDAO cliente = new PessoaFisicaDAO();
+                        if(cliente.select2Campos("cpf", conta.get(0).getUsuario(), "senha", senha)){
+                            return true;
+                        }else{
+                            JOptionPane.showMessageDialog(rootPane, "Senha incorreta ela deve conter 8 números");
+                            pswSenha.requestFocus();
+                            return false;
+                        }   
+                    }else if(conta.get(0).getTipo()%2 == 1) {
+                       PessoaJuridicaDAO cliente = new PessoaJuridicaDAO();
+                        if(cliente.select2Campos("cnpj", conta.get(0).getUsuario(), "senha", senha)){
+                            return true;
+                        }else{
+                            JOptionPane.showMessageDialog(rootPane, "Senha incorreta ela deve conter 8 números");
+                            pswSenha.requestFocus();
+                            return false;
+                        }
+                    } 
+            }catch (NumberFormatException ex){
+               JOptionPane.showMessageDialog(rootPane, "A senha deve contaer apenas numeros");
+               pswSenha.requestFocus();
+               return false;
+            }
+        }catch(NumberFormatException ex){
+            JOptionPane.showMessageDialog(rootPane, "O valor deve conter apenas números");
+            txtValor.requestFocus();
+            return false;
         }
         return true;
-    }
+    }//fim valida campos
     
     public boolean salvar(){
         Date hoje = new Date();
         MovimentacaoBancaria mvb = new MovimentacaoBancaria();
         mvb.setIdConta(conta.get(0).getId());
         mvb.setData(hoje);
-        mvb.setIdTipoOperacao(3);
+        ArrayList<TipoOperacao> tipo = tipoO.select("descricao", cbxTipoOperacao.getItemAt(cbxTipoOperacao.getSelectedIndex()).toString());
+        mvb.setIdTipoOperacao(tipo.get(0).getId());
         mvb.setDescricao(txtDescricao.getText());
         mvb.setTipoMovimentacao('D');
+        mvb.setValor(valor);
         MovimentacaoBancariaDAO mvbDao = new MovimentacaoBancariaDAO();
         if(!mvbDao.insert(mvb))
             return false;
@@ -103,17 +164,20 @@ public class FrmTransferencia extends javax.swing.JFrame {
         if(mvbDao.insert(mvb)){
             mvb.setIdConta(conta.get(0).getId());
             mvb.setTipoMovimentacao('S');
-            mvb.setDescricao("saldo de "+hoje.getTime());
-            mvb.setIdTipoOperacao(0);
+            mvb.setDescricao("saldo de "+hoje);
+            mvb.setIdTipoOperacao(1);
+            mvb.setValor(conta.get(0).atualizaSaldo());
             mvbDao.insert(mvb);
-            mvb.setId(destinatario.get(0).getId());
+            mvb.setIdConta(destinatario.get(0).getId());
+            mvb.setValor(destinatario.get(0).atualizaSaldo());
             mvbDao.insert(mvb);
             return true;
         }else{
             mvb.setId(conta.get(0).getId());
-            mvb.setIdTipoOperacao(2);
+            mvb.setIdTipoOperacao(tipo.get(0).getId());
             mvb.setDescricao("estorno de "+txtDescricao.getText());
             mvb.setTipoMovimentacao('C');
+            mvbDao.insert(mvb);
             return false;
         }            
     }
@@ -128,7 +192,7 @@ public class FrmTransferencia extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
+        pnlTransferencia = new javax.swing.JPanel();
         ftxtNumeroDaConta = new javax.swing.JFormattedTextField();
         lblNumeroDaConta = new javax.swing.JLabel();
         txtAgencia = new javax.swing.JTextField();
@@ -141,6 +205,8 @@ public class FrmTransferencia extends javax.swing.JFrame {
         cbxTipoOperacao = new javax.swing.JComboBox<>();
         lblDescricao = new javax.swing.JLabel();
         txtDescricao = new javax.swing.JTextField();
+        pswSenha = new javax.swing.JPasswordField();
+        lblSenha = new javax.swing.JLabel();
         pnlBotoes = new javax.swing.JPanel();
         btnCancelar = new javax.swing.JButton();
         btnSalvar = new javax.swing.JButton();
@@ -148,7 +214,7 @@ public class FrmTransferencia extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED), "Transferencia", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Arial", 1, 20))); // NOI18N
+        pnlTransferencia.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED), "Transferencia", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Arial", 1, 20))); // NOI18N
 
         lblNumeroDaConta.setText("Número da conta:");
 
@@ -156,7 +222,7 @@ public class FrmTransferencia extends javax.swing.JFrame {
 
         lblTipoDaConta.setText("Tipo da conta:");
 
-        cbxTipoDaConta.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "2", "3", "4", "5" }));
+        cbxTipoDaConta.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Conta Corrente Pessoa Física", "Conta Corrente Pessoa Juridica", "Poupança Pessoa Física", "Poupança Pessoa Juridica" }));
         cbxTipoDaConta.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cbxTipoDaContaActionPerformed(evt);
@@ -167,72 +233,86 @@ public class FrmTransferencia extends javax.swing.JFrame {
 
         lblTipoOperacao.setText("Tipo da Operação:");
 
-        cbxTipoOperacao.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
         lblDescricao.setText("Descrição:");
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(99, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(lblDescricao)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtDescricao))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(lblTipoOperacao)
+        pswSenha.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pswSenhaActionPerformed(evt);
+            }
+        });
+
+        lblSenha.setText("Senha:");
+
+        javax.swing.GroupLayout pnlTransferenciaLayout = new javax.swing.GroupLayout(pnlTransferencia);
+        pnlTransferencia.setLayout(pnlTransferenciaLayout);
+        pnlTransferenciaLayout.setHorizontalGroup(
+            pnlTransferenciaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlTransferenciaLayout.createSequentialGroup()
+                .addGap(54, 54, 54)
+                .addGroup(pnlTransferenciaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnlTransferenciaLayout.createSequentialGroup()
+                        .addComponent(lblSenha)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(cbxTipoOperacao, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(lblNumeroDaConta)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(ftxtNumeroDaConta, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(lblTipoDaConta)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(cbxTipoDaConta, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addGroup(jPanel1Layout.createSequentialGroup()
-                            .addComponent(lblValor)
+                        .addComponent(pswSenha, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(pnlTransferenciaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(pnlTransferenciaLayout.createSequentialGroup()
+                            .addComponent(lblDescricao)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(txtValor))
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                            .addComponent(txtDescricao))
+                        .addGroup(pnlTransferenciaLayout.createSequentialGroup()
+                            .addComponent(lblNumeroDaConta)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(ftxtNumeroDaConta, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(pnlTransferenciaLayout.createSequentialGroup()
                             .addComponent(lblAgencia)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                            .addComponent(txtAgencia, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addGap(81, 81, 81))
+                            .addComponent(txtAgencia, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(pnlTransferenciaLayout.createSequentialGroup()
+                            .addComponent(lblTipoDaConta)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(cbxTipoDaConta, javax.swing.GroupLayout.PREFERRED_SIZE, 214, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(pnlTransferenciaLayout.createSequentialGroup()
+                            .addComponent(lblTipoOperacao)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(cbxTipoOperacao, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(pnlTransferenciaLayout.createSequentialGroup()
+                            .addComponent(lblValor)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(txtValor, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(67, Short.MAX_VALUE))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        pnlTransferenciaLayout.setVerticalGroup(
+            pnlTransferenciaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlTransferenciaLayout.createSequentialGroup()
                 .addGap(27, 27, 27)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(pnlTransferenciaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(ftxtNumeroDaConta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblNumeroDaConta))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(pnlTransferenciaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtAgencia, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblAgencia))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(pnlTransferenciaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblTipoDaConta)
                     .addComponent(cbxTipoDaConta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(pnlTransferenciaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblValor)
                     .addComponent(txtValor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(pnlTransferenciaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblTipoOperacao)
                     .addComponent(cbxTipoOperacao, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(pnlTransferenciaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblDescricao)
                     .addComponent(txtDescricao, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(28, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(pnlTransferenciaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblSenha)
+                    .addComponent(pswSenha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(33, Short.MAX_VALUE))
         );
 
         pnlBotoes.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -289,7 +369,7 @@ public class FrmTransferencia extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(pnlTransferencia, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(btnVoltar)
                         .addGap(0, 0, Short.MAX_VALUE))
@@ -302,7 +382,7 @@ public class FrmTransferencia extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(pnlTransferencia, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(pnlBotoes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
@@ -322,12 +402,17 @@ public class FrmTransferencia extends javax.swing.JFrame {
         // Salvar
         if(validaCampos()){
             if(salvar()){
-                JOptionPane.showMessageDialog(rootPane,"Edição realizada com sucesso");
-                new FrmHome(conta.get(0).getUsuario(),i).setVisible(true);
-                this.dispose();
+                JOptionPane.showMessageDialog(rootPane,"Transferencia realizada com sucesso");
+                int confirma = JOptionPane.showConfirmDialog(rootPane, "deseja realizar outra transferencia?","",JOptionPane.YES_NO_OPTION);
+                if(confirma == JOptionPane.YES_OPTION)
+                    limpaCampos();
+                else{
+                    new FrmHome(conta.get(0).getUsuario(),i).setVisible(true);
+                    this.dispose();
+                }  
             }
             else
-            JOptionPane.showMessageDialog(rootPane,"Erro ao editar usuário");
+            JOptionPane.showMessageDialog(rootPane,"Erro na transferencia");
         }
     }//GEN-LAST:event_btnSalvarActionPerformed
 
@@ -341,21 +426,27 @@ public class FrmTransferencia extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_cbxTipoDaContaActionPerformed
 
+    private void pswSenhaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pswSenhaActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_pswSenhaActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCancelar;
     private javax.swing.JButton btnSalvar;
     private javax.swing.JButton btnVoltar;
     private javax.swing.JComboBox<String> cbxTipoDaConta;
-    private javax.swing.JComboBox<String> cbxTipoOperacao;
+    private javax.swing.JComboBox<Object> cbxTipoOperacao;
     private javax.swing.JFormattedTextField ftxtNumeroDaConta;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel lblAgencia;
     private javax.swing.JLabel lblDescricao;
     private javax.swing.JLabel lblNumeroDaConta;
+    private javax.swing.JLabel lblSenha;
     private javax.swing.JLabel lblTipoDaConta;
     private javax.swing.JLabel lblTipoOperacao;
     private javax.swing.JLabel lblValor;
     private javax.swing.JPanel pnlBotoes;
+    private javax.swing.JPanel pnlTransferencia;
+    private javax.swing.JPasswordField pswSenha;
     private javax.swing.JTextField txtAgencia;
     private javax.swing.JTextField txtDescricao;
     private javax.swing.JTextField txtValor;

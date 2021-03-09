@@ -39,7 +39,7 @@ public class ContaDAO {
             stmt.executeUpdate();
             return true;
         } catch (SQLException ex) {
-            System.err.println("Erro: "+ex);
+            System.err.println("Erro Conta: "+ex);
             return false;
         }
     }
@@ -68,12 +68,12 @@ public class ContaDAO {
             }
             return lista;
         } catch (SQLException ex) {
-            System.err.println("Erro: "+ex);
+            System.err.println("Erro Conta: "+ex);
             return null;
         }   
     }
     
-    public ArrayList<Conta> select2Campos(String campo, String query,String campo2, int query2){
+    public ArrayList<Conta> select2Campos(String campo, String query, String campo2, int query2){
         String sql = "SELECT * FROM tbl_conta WHERE "+campo+" LIKE ? AND "+campo2+" = ?";
         ArrayList<Conta> lista  = new ArrayList<>();
         try {
@@ -98,7 +98,7 @@ public class ContaDAO {
             }
             return lista;
         } catch (SQLException ex) {
-            System.err.println("Erro: "+ex);
+            System.err.println("Erro Conta: "+ex);
             return null;
         }   
     }
@@ -127,7 +127,7 @@ public class ContaDAO {
             }
             return lista;
         } catch (SQLException ex) {
-            System.err.println("Erro: "+ex);
+            System.err.println("Erro Conta: "+ex);
             return null;
         }   
     }//fim load
@@ -156,13 +156,13 @@ public class ContaDAO {
             }
             return lista;
         } catch (SQLException ex) {
-            System.err.println("Erro: "+ex);
+            System.err.println("Erro Conta: "+ex);
             return null;
         }    
     }
     
     public boolean update(Conta conta){
-        String sql = "UPDATE tbl_conta SET numero_da_conta = ?, agencia = ?, tipo = ?, saldo = ?, qtd_teds = ?, qtd_saques = ?, limite_teds = ?, data_abertura = ?, usuario = ? WHERE tbl_conta.id = ?";
+        String sql = "UPDATE tbl_conta SET numero_da_conta = ?, agencia = ?, tipo = ?, saldo = ?, qtd_teds = ?, qtd_saques = ?, limite_teds = ?, limite_Saques = ?, data_abertura = ?, usuario = ? WHERE tbl_conta.id = ?";
         try {
             stmt = Persistencia.getConnection().prepareStatement(sql);
             stmt.setString(1, conta.getNumeroDaConta());
@@ -179,7 +179,7 @@ public class ContaDAO {
             stmt.executeUpdate();
             return true;
         } catch (SQLException ex) {
-            System.err.println("Erro: "+ex);
+            System.err.println("Erro Conta: "+ex);
             return false;
         }
     }  
@@ -192,7 +192,7 @@ public class ContaDAO {
             stmt.executeUpdate();
             return true;
         } catch (SQLException ex) {
-            System.err.println("Erro: "+ex);
+            System.err.println("Erro Conta: "+ex);
             return false;
         }
     }  
@@ -205,7 +205,7 @@ public class ContaDAO {
             stmt.executeUpdate();
             return true;
         } catch (SQLException ex) {
-            System.err.println("Erro: "+ex);
+            System.err.println("Erro Conta: "+ex);
             return false;
         }
     }  
