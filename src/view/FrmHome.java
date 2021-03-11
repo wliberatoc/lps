@@ -12,9 +12,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import model.classes.Boleto;
 import model.classes.Conta;
+import model.classes.Data;
 import model.classes.PessoaFisica;
 import model.classes.PessoaJuridica;
 import model.dao.BoletoDAO;
@@ -630,15 +633,22 @@ public class FrmHome extends javax.swing.JFrame {
     private void btnVisualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVisualizarActionPerformed
         //saldo
         if(cbxVisualizar.getSelectedIndex() == 0){
+            Data date = new Data();
             Calendar cal = Calendar.getInstance();
             int ano = cal.get(Calendar.YEAR);
             int mes = cal.get(Calendar.MONTH)+1;
             int dia = cal.get(Calendar.DAY_OF_MONTH);
-            String d = ""+ano+"-"+mes+"-"+dia;
-            new FrmVisualizar(conta.get(i).getId(),i,d,d).setVisible(true);
-            this.dispose();
+            try {
+                date.setInicio(formataData.parse(""+dia+"/"+mes+"/"+ano));
+                date.setFim(formataData.parse(""+dia+"/"+mes+"/"+ano));
+                new FrmVisualizar(conta.get(i).getId(),i, date).setVisible(true);
+                this.dispose();
+            } catch (ParseException ex) {
+                Logger.getLogger(FrmHome.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
         }else{//extrato
-            new FrmSelecionarData(conta.get(i).getId(),i,'E').setVisible(true);
+            new FrmSelecionarData(conta.get(i).getId(),i).setVisible(true);
             this.dispose();
         }
     }//GEN-LAST:event_btnVisualizarActionPerformed

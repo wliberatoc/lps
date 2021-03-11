@@ -5,6 +5,7 @@
  */
 package view;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.logging.Level;
@@ -12,6 +13,7 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.text.MaskFormatter;
 import model.classes.Conta;
+import model.classes.Data;
 import model.dao.ContaDAO;
 /**
  *
@@ -30,11 +32,9 @@ public class FrmSelecionarData extends javax.swing.JFrame {
     int i;
     String inicio;
     String fim;
-    char view;
-    public FrmSelecionarData(int id, int i, char view) {
+    public FrmSelecionarData(int id, int i) {
         initComponents();
         this.i = i;
-        this.view = view;
         conta = contaDao.load(id);
         try {
             MaskFormatter maskData = new MaskFormatter("##/##/####");
@@ -253,8 +253,16 @@ public class FrmSelecionarData extends javax.swing.JFrame {
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
         // Salvar
         if(verificaData()){
-            new FrmVisualizar(conta.get(0).getId(),i,view,inicio,fim).setVisible(true);
-            this.dispose();
+            SimpleDateFormat formataData = new SimpleDateFormat("dd/MM/yyyy");
+            Data data = new Data();
+            try {
+                data.setInicio(formataData.parse(inicio));
+                data.setFim(formataData.parse(fim));
+                new FrmVisualizar(conta.get(0).getId(),i,data).setVisible(true);
+                this.dispose();
+            } catch (ParseException ex) {
+                System.err.println("Erro: "+ex);
+            }      
         }
     }//GEN-LAST:event_btnSalvarActionPerformed
 

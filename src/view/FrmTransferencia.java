@@ -55,7 +55,7 @@ public final class FrmTransferencia extends javax.swing.JFrame {
     
     public void carregaTipo(){
         tipoO.selectAll().forEach((tipo) -> {
-            if(tipo.getId() != 1 && tipo.getId() != 4 && tipo.getId() != 5)
+            if(tipo.getId() != 1 && tipo.getId() != 4 && tipo.getId() != 5 && tipo.getId() != 6)
                 cbxTipoOperacao.addItem(tipo);
         });
     }

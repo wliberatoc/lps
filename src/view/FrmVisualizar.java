@@ -9,6 +9,7 @@ package view;
 import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
 import model.classes.Conta;
+import model.classes.Data;
 import model.classes.MovimentacaoBancaria;
 import model.dao.ContaDAO;
 import model.dao.MovimentacaoBancariaDAO;
@@ -23,20 +24,19 @@ public class FrmVisualizar extends javax.swing.JFrame {
     ContaDAO contaDao = new ContaDAO();
     ArrayList<Conta> conta  = new ArrayList<>();
     int i;
-    String d1,d2;
-    public FrmVisualizar(int id, int i,String d1, String d2) {
+    Data data = new Data();
+    public FrmVisualizar(int id, int i, Data data) {
         initComponents();
         this.i = i;
+        this.data = data;
         conta = contaDao.load(id);
         carregarTabela();
-        this.d1 = d1;
-        this.d2 = d2;
     }
     public final void carregarTabela(){
         String [] colunas = {"Data","Tipo", "Descricao", "Valor"};
         DefaultTableModel modelo = new DefaultTableModel(colunas, 0);
         MovimentacaoBancariaDAO mvb = new MovimentacaoBancariaDAO();
-        ArrayList<MovimentacaoBancaria> moviB = mvb.extrato(d1, d2, conta.get(0).getId());
+        ArrayList<MovimentacaoBancaria> moviB = mvb.extrato(conta.get(0).getId(), data);
         for(int j=0; j<moviB.size(); j++){
                 Object [] linha = {moviB.get(j).getData(), mvb.pegaTipoOperacao(moviB.get(j).getIdTipoOperacao()), moviB.get(j).getDescricao(),moviB.get(j).getValor()};
                 modelo.addRow(linha);
@@ -73,6 +73,9 @@ public class FrmVisualizar extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        tblVisualizar.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
+        tblVisualizar.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        tblVisualizar.setDoubleBuffered(true);
         jScrollPane1.setViewportView(tblVisualizar);
 
         javax.swing.GroupLayout pnlVisualizarLayout = new javax.swing.GroupLayout(pnlVisualizar);
@@ -81,15 +84,15 @@ public class FrmVisualizar extends javax.swing.JFrame {
             pnlVisualizarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlVisualizarLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 375, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 621, Short.MAX_VALUE)
+                .addContainerGap())
         );
         pnlVisualizarLayout.setVerticalGroup(
             pnlVisualizarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlVisualizarLayout.createSequentialGroup()
                 .addGap(28, 28, 28)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(21, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         btnVoltar.setIcon(new javax.swing.ImageIcon("C:\\Users\\Willian-PC\\Documents\\NetBeansProjects\\Banco\\src\\imagens\\voltar.png")); // NOI18N
@@ -118,7 +121,7 @@ public class FrmVisualizar extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(pnlVisualizar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 33, Short.MAX_VALUE)
                 .addComponent(btnVoltar)
                 .addContainerGap())
         );

@@ -13,8 +13,10 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import model.classes.Data;
 import model.classes.MovimentacaoBancaria;
 
 /**
@@ -111,35 +113,27 @@ public class MovimentacaoBancariaDAO {
         }   
     }
     
-    public ArrayList<MovimentacaoBancaria> extrato(String d1, String d2, int id){
-        SimpleDateFormat formataData = new SimpleDateFormat("yyyy-MM-dd");
+    public ArrayList<MovimentacaoBancaria> extrato(int id,Data data){
+        String sql = "SELECT data,id_tipo_operacao,descricao,valor FROM tbl_movimentacao_bancaria WHERE data BETWEEN ? AND ? and id_conta = ? ORDER BY data";
+        ArrayList<MovimentacaoBancaria> lista  = new ArrayList<>();
         try {
-            Date dInicio = (Date) formataData.parse(d1);
-            Date dFim = (Date) formataData.parse(d2);
-            String sql = "SELECT data,id_tipo_operacao,descricao,valor FROM tbl_movimentacao_bancaria WHERE data BETWEEN ? AND ? and id_conta = ? ORDER BY data";
-            ArrayList<MovimentacaoBancaria> lista  = new ArrayList<>();
-            try {
-                stmt = Persistencia.getConnection().prepareStatement(sql);
-                stmt.setDate(1, dInicio);
-                stmt.setDate(2, dFim);
-                stmt.setInt(3, id);
-                rs = stmt.executeQuery();
-                while(rs.next()){
-                    MovimentacaoBancaria moviB = new MovimentacaoBancaria();
-                    moviB.setValor(rs.getFloat("valor"));
-                    moviB.setData(rs.getDate("data"));
-                    moviB.setIdTipoOperacao(rs.getInt("id_tipo_operacao"));
-                    moviB.setDescricao(rs.getString("descricao"));
-                    lista.add(moviB);
-                }
-                return lista;
-            } catch (SQLException ex) {
-                System.err.println("Erro Movimentação bancária: "+ex);
-                return null;
+            stmt = Persistencia.getConnection().prepareStatement(sql);
+            stmt.setDate(1, new Date(data.getInicio().getTime()));
+            stmt.setDate(2, new Date(data.getFim().getTime()));
+            stmt.setInt(3, id);
+            rs = stmt.executeQuery();
+            while(rs.next()){
+                MovimentacaoBancaria moviB = new MovimentacaoBancaria();
+                moviB.setValor(rs.getFloat("valor"));
+                moviB.setData(rs.getDate("data"));
+                moviB.setIdTipoOperacao(rs.getInt("id_tipo_operacao"));
+                moviB.setDescricao(rs.getString("descricao"));
+                lista.add(moviB);
             }
-        } catch (ParseException ex) {
+            return lista;
+        } catch (SQLException ex) {
             System.err.println("Erro Movimentação bancária: "+ex);
-                return null;
+            return null;
         }
            
     }//fim load
