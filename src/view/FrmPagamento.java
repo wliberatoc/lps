@@ -76,6 +76,16 @@ public class FrmPagamento extends javax.swing.JFrame {
                 txtValor.requestFocus();
                 return false;
             }
+            if(valor != boleto.get(0).getValor()){
+                JOptionPane.showMessageDialog(rootPane, "O valor informado deve ser o mesmo valor do boleto");
+                txtValor.requestFocus();
+                return false;
+            }
+            if(boleto.get(0).isPago() == true){
+                JOptionPane.showMessageDialog(rootPane, "Este boleto ja foi pago");
+                ftxtCodigoDeBarras.requestFocus();
+                return false;
+            } 
             String s  =  ""+Arrays.toString(pswSenha.getPassword());
             s = s.replace(" ", "").replace(",", "").replace("[", "").replace("]", "");
             try{
@@ -100,7 +110,7 @@ public class FrmPagamento extends javax.swing.JFrame {
                         }   
                     } 
             }catch (NumberFormatException ex){
-               JOptionPane.showMessageDialog(rootPane, "A senha deve contaer apenas numeros");
+               JOptionPane.showMessageDialog(rootPane, "A senha deve conter apenas numeros");
                pswSenha.requestFocus();
                return false;
             }

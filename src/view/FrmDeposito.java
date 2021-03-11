@@ -6,15 +6,12 @@
 package view;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import javax.swing.JOptionPane;
 import model.classes.Conta;
 import model.classes.MovimentacaoBancaria;
 import model.dao.ContaDAO;
 import model.dao.MovimentacaoBancariaDAO;
-import model.dao.PessoaFisicaDAO;
-import model.dao.PessoaJuridicaDAO;
 
 /**
  *
@@ -65,7 +62,7 @@ public class FrmDeposito extends javax.swing.JFrame {
         MovimentacaoBancaria mvb = new MovimentacaoBancaria();
         mvb.setIdConta(conta.get(0).getId());
         mvb.setData(hoje);
-        mvb.setIdTipoOperacao(4);
+        mvb.setIdTipoOperacao(6);
         mvb.setDescricao("Depósito");
         mvb.setTipoMovimentacao('C');
         mvb.setValor(valor);
@@ -292,9 +289,7 @@ public class FrmDeposito extends javax.swing.JFrame {
     }//GEN-LAST:event_btnVoltarActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnCancelar;
     private javax.swing.JButton btnCancelar1;
-    private javax.swing.JButton btnSalvar;
     private javax.swing.JButton btnSalvar1;
     private javax.swing.JButton btnVoltar;
     private javax.swing.JComboBox<String> cbxTipoDaConta;
@@ -303,7 +298,6 @@ public class FrmDeposito extends javax.swing.JFrame {
     private javax.swing.JLabel lblNumeroDaConta;
     private javax.swing.JLabel lblTipoDaConta;
     private javax.swing.JLabel lblValor;
-    private javax.swing.JPanel pnlBotoes;
     private javax.swing.JPanel pnlBotoes1;
     private javax.swing.JPanel pnlDeposito;
     private javax.swing.JTextField txtAgencia;
