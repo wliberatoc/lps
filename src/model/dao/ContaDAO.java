@@ -5,7 +5,7 @@
  */
 package model.dao;
 
-import conection.Persistencia;
+import conexao.Persistencia;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,14 +23,14 @@ public class ContaDAO {
     ResultSet rs = null;
     
     public boolean insert(Conta conta){
-        String sql = "INSERT INTO tbl_conta (numero_da_conta, agencia, tipo, saldo, qtd_teds, qtd_saques, limite_teds, limite_saques, data_abertura, usuario) VALUES (?,?,?,?,?,?,?,?,?,?)" ;
+        String sql = "INSERT INTO tbl_conta (numero_da_conta, agencia, tipo, saldo, qtd_transacoes, qtd_saques, limite_teds, limite_saques, data_abertura, usuario) VALUES (?,?,?,?,?,?,?,?,?,?)" ;
         try {
             stmt = Persistencia.getConnection().prepareStatement(sql);
             stmt.setString(1, conta.getNumeroDaConta());
             stmt.setString(2, conta.getAgencia());
             stmt.setInt(3, conta.getTipo());
             stmt.setFloat(4, conta.getSaldo());
-            stmt.setInt(5, conta.getQtdTeds());
+            stmt.setInt(5, conta.getQtdTransacoes());
             stmt.setInt(6, conta.getQtdSaques());
             stmt.setFloat(7, conta.getLimiteTeds());
             stmt.setFloat(8, conta.getLimiteSaques());
@@ -58,7 +58,7 @@ public class ContaDAO {
                 conta.setAgencia(rs.getString("agencia"));
                 conta.setTipo(rs.getInt("tipo"));
                 conta.setSaldo(rs.getFloat("saldo"));
-                conta.setQtdTeds(rs.getInt("qtd_teds"));
+                conta.setQtdTransacoes(rs.getInt("qtd_transacoes"));
                 conta.setQtdSaques(rs.getInt("qtd_saques"));
                 conta.setLimiteTeds(rs.getInt("limite_teds"));
                 conta.setLimiteSaques(rs.getInt("limite_saques"));
@@ -88,7 +88,7 @@ public class ContaDAO {
                 conta.setAgencia(rs.getString("agencia"));
                 conta.setTipo(rs.getInt("tipo"));
                 conta.setSaldo(rs.getFloat("saldo"));
-                conta.setQtdTeds(rs.getInt("qtd_teds"));
+                conta.setQtdTransacoes(rs.getInt("qtd_transacoes"));
                 conta.setQtdSaques(rs.getInt("qtd_saques"));
                 conta.setLimiteTeds(rs.getInt("limite_teds"));
                 conta.setLimiteSaques(rs.getInt("limite_saques"));
@@ -117,7 +117,7 @@ public class ContaDAO {
                 conta.setAgencia(rs.getString("agencia"));
                 conta.setTipo(rs.getInt("tipo"));
                 conta.setSaldo(rs.getFloat("saldo"));
-                conta.setQtdTeds(rs.getInt("qtd_teds"));
+                conta.setQtdTransacoes(rs.getInt("qtd_transacoes"));
                 conta.setQtdSaques(rs.getInt("qtd_saques"));
                 conta.setLimiteTeds(rs.getInt("limite_teds"));
                 conta.setLimiteSaques(rs.getInt("limite_saques"));
@@ -146,7 +146,7 @@ public class ContaDAO {
                 conta.setAgencia(rs.getString("agencia"));
                 conta.setTipo(rs.getInt("tipo"));
                 conta.setSaldo(rs.getFloat("saldo"));
-                conta.setQtdTeds(rs.getInt("qtd_teds"));
+                conta.setQtdTransacoes(rs.getInt("qtd_transacoes"));
                 conta.setQtdSaques(rs.getInt("qtd_saques"));
                 conta.setLimiteTeds(rs.getFloat("limite_teds"));
                 conta.setLimiteTeds(rs.getFloat("limite_saques"));
@@ -162,14 +162,14 @@ public class ContaDAO {
     }
     
     public boolean update(Conta conta){
-        String sql = "UPDATE tbl_conta SET numero_da_conta = ?, agencia = ?, tipo = ?, saldo = ?, qtd_teds = ?, qtd_saques = ?, limite_teds = ?, limite_Saques = ?, data_abertura = ?, usuario = ? WHERE tbl_conta.id = ?";
+        String sql = "UPDATE tbl_conta SET numero_da_conta = ?, agencia = ?, tipo = ?, saldo = ?, qtd_transacoes = ?, qtd_saques = ?, limite_teds = ?, limite_Saques = ?, data_abertura = ?, usuario = ? WHERE tbl_conta.id = ?";
         try {
             stmt = Persistencia.getConnection().prepareStatement(sql);
             stmt.setString(1, conta.getNumeroDaConta());
             stmt.setString(2, conta.getAgencia());
             stmt.setInt(3, conta.getTipo());
             stmt.setFloat(4, conta.getSaldo());
-            stmt.setInt(5, conta.getQtdTeds());
+            stmt.setInt(5, conta.getQtdTransacoes());
             stmt.setInt(6, conta.getQtdSaques());
             stmt.setFloat(7, conta.getLimiteTeds());
             stmt.setFloat(8, conta.getLimiteSaques());

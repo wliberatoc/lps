@@ -19,10 +19,10 @@ import model.dao.ContaDAO;
  *
  * @author Willian-PC
  */
-public class FrmSelecionarData extends javax.swing.JFrame {
+public class FrmSelectData extends javax.swing.JFrame {
 
     /**
-     * Creates new form FrmSelecionarData
+     * Creates new form FrmSelectData
      * @param id
      * @param i
      * @param view
@@ -32,7 +32,7 @@ public class FrmSelecionarData extends javax.swing.JFrame {
     int i;
     String inicio;
     String fim;
-    public FrmSelecionarData(int id, int i) {
+    public FrmSelectData(int id, int i) {
         initComponents();
         this.i = i;
         conta = contaDao.load(id);
@@ -83,8 +83,8 @@ public class FrmSelecionarData extends javax.swing.JFrame {
             return false;
         else if (dia < 1 || dia > 31)
             return false;
-        else if(ftxtFim.getText().isEmpty()){
-            fim = ""+dia+"/"+mes+"/"+ano;
+        else if(ftxtFim.getText().replace(" ", "").equals("//")){
+            fim = ""+day+"/"+month+"/"+year;
             return true;
         }else{
             fim = ftxtFim.getText();
@@ -273,14 +273,8 @@ public class FrmSelecionarData extends javax.swing.JFrame {
     }//GEN-LAST:event_btnVoltar3ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnCancelar;
-    private javax.swing.JButton btnCancelar1;
-    private javax.swing.JButton btnCancelar2;
     private javax.swing.JButton btnCancelar3;
     private javax.swing.JButton btnSalvar;
-    private javax.swing.JButton btnVoltar;
-    private javax.swing.JButton btnVoltar1;
-    private javax.swing.JButton btnVoltar2;
     private javax.swing.JButton btnVoltar3;
     private javax.swing.JFormattedTextField ftxtFim;
     private javax.swing.JFormattedTextField ftxtInicio;

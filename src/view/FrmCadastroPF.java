@@ -118,14 +118,14 @@ public class FrmCadastroPF extends javax.swing.JFrame {
         conta.setAbertura(hoje);
         if(cbxTipoConta.getItemAt(cbxTipoConta.getSelectedIndex()).toCharArray()[0] == 'P'){
             conta.setTipo(4);
-            conta.setQtdTeds(7);
+            conta.setQtdTransacoes(7);
             conta.setLimiteTeds(1000);
             conta.setQtdSaques(15);
             conta.setLimiteSaques(1500);
         }
         if(cbxTipoConta.getItemAt(cbxTipoConta.getSelectedIndex()).toCharArray()[0] == 'C'){
             conta.setTipo(2);
-            conta.setQtdTeds(10);
+            conta.setQtdTransacoes(10);
             conta.setLimiteTeds(1500);
             conta.setQtdSaques(20);
             conta.setLimiteSaques(2000);
@@ -181,30 +181,23 @@ public class FrmCadastroPF extends javax.swing.JFrame {
         arrayCPF = new int[9];
         int dig1 = Integer.parseInt(cpf.substring(12,13));
         int dig2 = Integer.parseInt(cpf.substring(13,14));
-       
         cpf = cpf.substring(0,3) + cpf.substring(4,7) + cpf.substring(8,11);
         for(int i=0; i<arrayCPF.length; i++){
             arrayCPF[i] = Integer.parseInt(cpf.substring(i, i+1));
-            
             calc1 += aux1 * arrayCPF[i];
             aux1--;
             calc2 += aux2 * arrayCPF[i];
-            aux2--;
-            
+            aux2--;            
             if(arrayCPF[0] != arrayCPF[i] && repetido)
                 repetido = false;
         }
         calc2 += dig1 * aux2;
-        
         calc1 = (calc1 * 10) % 11;
         calc2 = (calc2 * 10) % 11;
-        
         if(calc1 == 10)
             calc1 = 0;
-        
         if(calc2 == 10)
-            calc2 = 0;
-                      
+            calc2 = 0;             
         return(calc1 == dig1 && calc2 == dig2 && !repetido);
     }//fim função verifica CPF
     

@@ -52,6 +52,7 @@ public class FrmPagamento extends javax.swing.JFrame {
     public void limpaCampos(){
         ftxtCodigoDeBarras.setText("");
         txtValor.setText("");
+        pswSenha.setText("");
     }
     
     public boolean validaCampos(){
@@ -151,6 +152,8 @@ public class FrmPagamento extends javax.swing.JFrame {
             mvbDao.insert(mvb);
             boleto.get(0).setPago(true);
             boletoDAO.update(boleto.get(0));
+            conta.get(0).setQtdTransacoes(conta.get(0).getQtdTransacoes()-1);
+            contaDao.update(conta.get(0));
             return true;
         }else{
             mvb.setIdConta(conta.get(0).getId());
@@ -341,15 +344,15 @@ public class FrmPagamento extends javax.swing.JFrame {
             if(salvar()){
                 JOptionPane.showMessageDialog(rootPane,"Pagamento realizado com sucesso");
                 int confirma = JOptionPane.showConfirmDialog(rootPane, "deseja realizar outro pagamento?","",JOptionPane.YES_NO_OPTION);
-                if(confirma == JOptionPane.YES_OPTION)
-                limpaCampos();
-                else{
+                if(confirma == JOptionPane.YES_OPTION){
+                    limpaCampos();
+                    ftxtCodigoDeBarras.requestFocus();
+                }else{
                     new FrmHome(conta.get(0).getUsuario(), i).setVisible(true);
                     this.dispose();
                 }
-            }
-            else
-            JOptionPane.showMessageDialog(rootPane,"Erro no pagamento");
+            }else
+                JOptionPane.showMessageDialog(rootPane,"Erro no pagamento");
         }
     }//GEN-LAST:event_btnSalvarActionPerformed
 

@@ -5,7 +5,7 @@
  */
 package model.dao;
 
-import conection.Persistencia;
+import conexao.Persistencia;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

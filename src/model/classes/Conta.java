@@ -20,7 +20,7 @@ public class Conta {
     private String agencia;
     private int tipo;
     private float saldo;
-    private int qtdTeds;
+    private int qtdTransacoes;
     private int qtdSaques;    
     private float limiteTeds;
     private float limiteSaques;
@@ -34,7 +34,7 @@ public class Conta {
         this.saldo = 0;
         this.limiteSaques = 0;
         this.limiteTeds = 0;
-        this.qtdTeds = 0;
+        this.qtdTransacoes = 0;
         this.qtdSaques = 0;
         this.abertura = null;
         this.usuario = "";
@@ -80,12 +80,12 @@ public class Conta {
         this.saldo = saldo;
     }
 
-    public int getQtdTeds() {
-        return qtdTeds;
+    public int getQtdTransacoes() {
+        return qtdTransacoes;
     }
 
-    public void setQtdTeds(int qtdTeds) {
-        this.qtdTeds = qtdTeds;
+    public void setQtdTransacoes(int qtdTransacoes) {
+        this.qtdTransacoes = qtdTransacoes;
     }
 
     public int getQtdSaques() {

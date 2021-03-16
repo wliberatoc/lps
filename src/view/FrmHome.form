@@ -239,7 +239,7 @@
                                   <EmptySpace type="separate" max="-2" attributes="0"/>
                               </Group>
                           </Group>
-                          <Group type="103" groupAlignment="3" attributes="0">
+                          <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="btnVisualizar" alignment="1" min="-2" pref="31" max="-2" attributes="0"/>
                               <Component id="btnREalizar" alignment="1" min="-2" pref="31" max="-2" attributes="0"/>
                               <Component id="btnDepositar" alignment="0" min="-2" pref="31" max="-2" attributes="0"/>

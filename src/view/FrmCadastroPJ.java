@@ -162,14 +162,14 @@ public class FrmCadastroPJ extends javax.swing.JFrame {
         conta.setAbertura(hoje);
         if(cbxTipoConta.getItemAt(cbxTipoConta.getSelectedIndex()).toCharArray()[0] == 'P'){
             conta.setTipo(5);
-            conta.setQtdTeds(15);
+            conta.setQtdTransacoes(15);
             conta.setLimiteTeds(3000);
             conta.setQtdSaques(50);
             conta.setLimiteSaques(5000);
         }
         if(cbxTipoConta.getItemAt(cbxTipoConta.getSelectedIndex()).toCharArray()[0] == 'C'){
             conta.setTipo(3);
-            conta.setQtdTeds(10);
+            conta.setQtdTransacoes(10);
             conta.setLimiteTeds(1500);
             conta.setQtdSaques(20);
             conta.setLimiteSaques(2000);

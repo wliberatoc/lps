@@ -106,6 +106,8 @@ public class FrmSaque extends javax.swing.JFrame {
         mvb.setIdTipoOperacao(1);
         mvb.setValor(conta.get(0).atualizaSaldo());
         mvbDao.insert(mvb);
+        conta.get(0).setQtdSaques(conta.get(0).getQtdSaques()-1);
+        contaDao.update(conta.get(0));
         return true;
     }
     
@@ -264,15 +266,15 @@ public class FrmSaque extends javax.swing.JFrame {
             if(salvar()){
                 JOptionPane.showMessageDialog(rootPane,"Saque realizado com sucesso");
                 int confirma = JOptionPane.showConfirmDialog(rootPane, "deseja realizar outro Saque?","",JOptionPane.YES_NO_OPTION);
-                if(confirma == JOptionPane.YES_OPTION)
-                limpaCampos();
-                else{
+                if(confirma == JOptionPane.YES_OPTION){
+                    limpaCampos();
+                    txtValor.requestFocus();
+                }else{
                     new FrmHome(conta.get(0).getUsuario(),i).setVisible(true);
                     this.dispose();
                 }
-            }
-            else
-            JOptionPane.showMessageDialog(rootPane,"Erro no Saque");
+            }else
+                JOptionPane.showMessageDialog(rootPane,"Erro no Saque");
         }
     }//GEN-LAST:event_btnSalvarActionPerformed
 

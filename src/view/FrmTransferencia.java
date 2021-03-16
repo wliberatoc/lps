@@ -65,6 +65,7 @@ public final class FrmTransferencia extends javax.swing.JFrame {
         txtAgencia.setText("");
         cbxTipoDaConta.setSelectedIndex(0);
         cbxTipoOperacao.setSelectedIndex(0);
+        pswSenha.setText("");
     }
     
     public boolean validaCampos(){
@@ -171,6 +172,8 @@ public final class FrmTransferencia extends javax.swing.JFrame {
             mvb.setIdConta(destinatario.get(0).getId());
             mvb.setValor(destinatario.get(0).atualizaSaldo());
             mvbDao.insert(mvb);
+            conta.get(0).setQtdTransacoes(conta.get(0).getQtdTransacoes()-1);
+            contaDao.update(conta.get(0));
             return true;
         }else{
             mvb.setId(conta.get(0).getId());
@@ -404,15 +407,15 @@ public final class FrmTransferencia extends javax.swing.JFrame {
             if(salvar()){
                 JOptionPane.showMessageDialog(rootPane,"Transferencia realizada com sucesso");
                 int confirma = JOptionPane.showConfirmDialog(rootPane, "deseja realizar outra transferencia?","",JOptionPane.YES_NO_OPTION);
-                if(confirma == JOptionPane.YES_OPTION)
+                if(confirma == JOptionPane.YES_OPTION){
                     limpaCampos();
-                else{
+                    ftxtNumeroDaConta.requestFocus();
+                }else{
                     new FrmHome(conta.get(0).getUsuario(),i).setVisible(true);
                     this.dispose();
                 }  
-            }
-            else
-            JOptionPane.showMessageDialog(rootPane,"Erro na transferencia");
+            }else
+                JOptionPane.showMessageDialog(rootPane,"Erro na transferencia");
         }
     }//GEN-LAST:event_btnSalvarActionPerformed
 

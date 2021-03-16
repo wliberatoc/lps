@@ -18,10 +18,12 @@ import javax.swing.JOptionPane;
 import model.classes.Boleto;
 import model.classes.Conta;
 import model.classes.Data;
+import model.classes.Mes;
 import model.classes.PessoaFisica;
 import model.classes.PessoaJuridica;
 import model.dao.BoletoDAO;
 import model.dao.ContaDAO;
+import model.dao.MesDAO;
 import model.dao.PessoaFisicaDAO;
 import model.dao.PessoaJuridicaDAO;
 
@@ -45,9 +47,10 @@ public class FrmHome extends javax.swing.JFrame {
     String data = "";
     String codB = "";
     int i = 0;
-    
     public FrmHome(String use, int i) {
         initComponents();
+        if(atualizaData())
+            atualizaQtds();
         this.i = i;
         conta = contaDao.select("usuario", use);
         conta.get(i).setSaldo(conta.get(i).atualizaSaldo()); 
@@ -69,10 +72,91 @@ public class FrmHome extends javax.swing.JFrame {
             lblNome.setText(clienteJ.get(0).getNome());
         }
         
-    }  
+    }
+    
+    public final boolean atualizaData(){
+        MesDAO mesD = new MesDAO();
+        String dataLimite = mesD.load(1);
+        String dataAtual = dataAtual();
+        int mes = Integer.parseInt(dataAtual.substring(3, 5));
+        int ano = Integer.parseInt(dataAtual.substring(6, 10));
+        int year = Integer.parseInt(dataLimite.substring(0, 4));
+        int month;
+        if(mes > 10)
+            month = Integer.parseInt(dataLimite.substring(6, 8));
+        else    
+            month = Integer.parseInt(dataLimite.substring(6, 7));
+        if(ano > year){
+            Mes dataL = new Mes();
+            try {
+                dataL.setId(1);
+                dataL.setData(formataData.parse("01/01/"+ano));
+                mesD.update(dataL);
+                return true;
+            } catch (ParseException ex) {
+                Logger.getLogger(FrmHome.class.getName()).log(Level.SEVERE, null, ex);
+                return false;
+            }            
+        }
+        else if (ano == year && mes > month){
+            Mes dataL = new Mes();
+            try {
+                dataL.setId(1);
+                dataL.setData(formataData.parse("01/"+mes+"/"+ano));
+                mesD.update(dataL);
+                return true;
+            } catch (ParseException ex) {
+                Logger.getLogger(FrmHome.class.getName()).log(Level.SEVERE, null, ex);
+                return false;
+            }
+        }
+        else
+            return false;         
+    }
+    
+    public final void atualizaQtds(){
+        switch (conta.get(i).getTipo()){
+            case 2:
+                conta.get(i).setQtdTransacoes(7);
+                conta.get(i).setQtdSaques(15);                
+                break;
+            case 4:
+                conta.get(i).setQtdTransacoes(10);
+                conta.get(i).setQtdSaques(20);
+                break;
+            case 3:
+                conta.get(i).setQtdTransacoes(15);
+                conta.get(i).setQtdSaques(50);
+                break;
+            case 5:
+                conta.get(i).setQtdTransacoes(10);
+                conta.get(i).setQtdSaques(20);
+                break;
+        }
+        contaDao.update(conta.get(i));
+    }
+    
+    public String dataAtual(){ 
+        Calendar cal = Calendar.getInstance();
+        int year = cal.get(Calendar.YEAR);
+        int month = cal.get(Calendar.MONTH)+1;
+        int day = cal.get(Calendar.DAY_OF_MONTH);
+        if(day<10 && month<10)
+            return "0"+day+"/0"+month+"/"+year;
+        else if (day<10 && month>9)
+            return "0"+day+"/"+month+"/"+year;
+        else if (day>9 && month<10)
+            return ""+day+"/0"+month+"/"+year;
+        else    
+            return ""+day+"/"+month+"/"+year;
+    }
     
     public void mudarDeConta(){
-        new FrmHome(conta.get(i).getUsuario(),1).setVisible(true);
+        if(i == 1)
+            i = 0;
+        else
+            i = 1;
+        new FrmHome(conta.get(i).getUsuario(),i).setVisible(true);
         this.dispose();
     }
     
@@ -86,28 +170,28 @@ public class FrmHome extends javax.swing.JFrame {
         switch (conta.get(i).getTipo()){
             case 2:
                 newConta.setTipo(4);
-                newConta.setQtdTeds(7);
+                newConta.setQtdTransacoes(7);
                 newConta.setLimiteTeds(1000);
                 newConta.setQtdSaques(15);
                 newConta.setLimiteSaques(1500);
                 break;
             case 4:
                 newConta.setTipo(2);
-                newConta.setQtdTeds(10);
+                newConta.setQtdTransacoes(10);
                 newConta.setLimiteTeds(1500);
                 newConta.setQtdSaques(20);
                 newConta.setLimiteSaques(2000);
                 break;
             case 3:
                 newConta.setTipo(5);
-                newConta.setQtdTeds(15);
+                newConta.setQtdTransacoes(15);
                 newConta.setLimiteTeds(3000);
                 newConta.setQtdSaques(50);
                 newConta.setLimiteSaques(5000);
                 break;
             case 5:
                 newConta.setTipo(3);
-                newConta.setQtdTeds(10);
+                newConta.setQtdTransacoes(10);
                 newConta.setLimiteTeds(1500);
                 newConta.setQtdSaques(20);
                 newConta.setLimiteSaques(2000); 
@@ -438,9 +522,9 @@ public class FrmHome extends javax.swing.JFrame {
                                 .addContainerGap()
                                 .addComponent(btnSaque, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)))
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btnVisualizar, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnREalizar, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnVisualizar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnREalizar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(btnDepositar, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -634,13 +718,9 @@ public class FrmHome extends javax.swing.JFrame {
         //saldo
         if(cbxVisualizar.getSelectedIndex() == 0){
             Data date = new Data();
-            Calendar cal = Calendar.getInstance();
-            int ano = cal.get(Calendar.YEAR);
-            int mes = cal.get(Calendar.MONTH)+1;
-            int dia = cal.get(Calendar.DAY_OF_MONTH);
             try {
-                date.setInicio(formataData.parse(""+dia+"/"+mes+"/"+ano));
-                date.setFim(formataData.parse(""+dia+"/"+mes+"/"+ano));
+                date.setInicio(formataData.parse(dataAtual()));
+                date.setFim(formataData.parse(dataAtual()));
                 new FrmVisualizar(conta.get(i).getId(),i, date).setVisible(true);
                 this.dispose();
             } catch (ParseException ex) {
@@ -648,7 +728,7 @@ public class FrmHome extends javax.swing.JFrame {
             }
             
         }else{//extrato
-            new FrmSelecionarData(conta.get(i).getId(),i).setVisible(true);
+            new FrmSelectData(conta.get(i).getId(),i).setVisible(true);
             this.dispose();
         }
     }//GEN-LAST:event_btnVisualizarActionPerformed
