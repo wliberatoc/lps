@@ -15,6 +15,7 @@ import javax.swing.text.MaskFormatter;
 import model.classes.Conta;
 import model.classes.Data;
 import model.dao.ContaDAO;
+import uteis.Uteis;
 /**
  *
  * @author Willian-PC
@@ -58,32 +59,17 @@ public class FrmSelectData extends javax.swing.JFrame {
             ftxtInicio.requestFocus();
             return false;
         }
-        Calendar cal = Calendar.getInstance();
         inicio = ftxtInicio.getText();
-        int year = cal.get(Calendar.YEAR);
-        int month = cal.get(Calendar.MONTH)+1;
-        int day = cal.get(Calendar.DAY_OF_MONTH);
         int dia = Integer.parseInt(inicio.substring(0,2));
         int mes = Integer.parseInt(inicio.substring(3,5));
         int ano = Integer.parseInt(inicio.substring(6,10));
-        if(ano > year)
-            return false;
-        else if(ano == year)
-            if(mes > month || mes < 1)
-                return false;
-            else if(mes == month && (dia > day || dia < 1))
-                return false;
-        else if(mes > 12 || mes < 1)
-            return false;
-        else if((mes == 2 && (ano % 400 == 0)) && dia > 29)
-            return false;
-        else if((mes == 2 && (ano % 400 != 0)) && dia > 28)
-            return false;
-        else if(((mes < 8 && mes%2 == 0)||(mes > 7 && mes%2 != 0)) && dia > 30)
-            return false;
-        else if (dia < 1 || dia > 31)
+        if(!Uteis.verificaData(fim))
             return false;
         else if(ftxtFim.getText().replace(" ", "").equals("//")){
+            Calendar cal = Calendar.getInstance();
+            int year = cal.get(Calendar.YEAR);
+            int month = cal.get(Calendar.MONTH)+1;
+            int day = cal.get(Calendar.DAY_OF_MONTH);
             fim = ""+day+"/"+month+"/"+year;
             return true;
         }else{
@@ -91,29 +77,17 @@ public class FrmSelectData extends javax.swing.JFrame {
             int diaf = Integer.parseInt(fim.substring(0,2));
             int mesf = Integer.parseInt(fim.substring(3,5));
             int anof = Integer.parseInt(fim.substring(6,10));
-            if(ano > anof || anof > year)
+            if(!Uteis.verificaData(fim))
+                return false;
+            else if(ano > anof)
                 return false;
             else if(ano == anof)
-                if(mes > mesf || mesf < 1)
+                if(mes > mesf)
                     return false;
-                else if(mes == mesf && (dia > diaf || diaf < 1))
+                else if(mes == mesf && dia > diaf)
                     return false;
-            else if(anof == year)
-                if(mesf > month || mes < 1)
-                    return false;
-                else if(mesf == month && (diaf > day || diaf < 1))
-                    return false;            
-            else if(mesf > 12 || mesf < 1)
-                return false;
-            else if((mesf == 2 && (anof % 400 == 0)) && diaf > 29)
-                return false;
-            else if((mesf == 2 && (anof % 400 != 0)) && diaf > 28)
-                return false;
-            else if(((mesf < 8 && mesf%2 == 0)||(mesf > 7 && mesf%2 != 0)) && diaf > 30)
-                return false;
-            return (diaf > 0 || diaf < 32);            
+            return true;          
         }  
-        return false;
     }//fim verifica inicio
     
     @SuppressWarnings("unchecked")

@@ -7,12 +7,12 @@ package view;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import model.classes.PessoaFisica;
 import model.dao.PessoaFisicaDAO;
+import uteis.Uteis;
 
 /**
  *
@@ -53,60 +53,6 @@ public class FrmEditPF extends javax.swing.JFrame {
         txtEndereco.setText(cliente.getEndereco());       
     }
     
-    public boolean verificaData(String data){
-        Calendar cal = Calendar.getInstance();
-        int year = cal.get(Calendar.YEAR);
-        int ano, mes, dia;
-        dia = Integer.parseInt(data.substring(0,2));
-        mes = Integer.parseInt(data.substring(3,5));
-        ano = Integer.parseInt(data.substring(6,10));
-        if(ano < 1850 || (ano > year)|| (year- ano < 18))
-            return false;
-        if(mes > 12 || mes < 1)
-            return false;
-        if((mes == 2 && (ano % 400 == 0)) && dia > 29)
-            return false;
-        if((mes == 2 && (ano % 400 != 0)) && dia > 28)
-            return false;
-        if(((mes < 8 && mes%2 == 0)||(mes > 7 && mes%2 != 0)) && dia > 30)
-            return false;
-        return(dia > 0 || dia < 32);
-    }//fim verifica data
-    
-    public boolean verificarCPF(String cpf){
-        int calc1=0, calc2=0, aux1=10, aux2=11;
-        int [] arrayCPF;
-        boolean repetido = true;
-        arrayCPF = new int[9];
-        int dig1 = Integer.parseInt(cpf.substring(12,13));
-        int dig2 = Integer.parseInt(cpf.substring(13,14));
-       
-        cpf = cpf.substring(0,3) + cpf.substring(4,7) + cpf.substring(8,11);
-        for(int i=0; i<arrayCPF.length; i++){
-            arrayCPF[i] = Integer.parseInt(cpf.substring(i, i+1));
-            
-            calc1 += aux1 * arrayCPF[i];
-            aux1--;
-            calc2 += aux2 * arrayCPF[i];
-            aux2--;
-            
-            if(arrayCPF[0] != arrayCPF[i] && repetido)
-                repetido = false;
-        }
-        calc2 += dig1 * aux2;
-        
-        calc1 = (calc1 * 10) % 11;
-        calc2 = (calc2 * 10) % 11;
-        
-        if(calc1 == 10)
-            calc1 = 0;
-        
-        if(calc2 == 10)
-            calc2 = 0;
-                      
-        return(calc1 == dig1 && calc2 == dig2 && !repetido);
-    }//fim função verifica CPF
-    
     public boolean validaCampos(){
       if(!txtNome.getText().replace(" ", "").matches("[A-Za-z]{3,}")){
           JOptionPane.showMessageDialog(rootPane, "Preencha o nome corretamente");
@@ -119,7 +65,7 @@ public class FrmEditPF extends javax.swing.JFrame {
         return false;
       }
       else{
-        if(!verificarCPF(ftxtCpf.getText())){
+        if(!Uteis.verificaCPF(ftxtCpf.getText())){
             JOptionPane.showMessageDialog(rootPane, "Preencha o CPF corretamente");
             ftxtCpf.requestFocus();
             return false;
@@ -135,7 +81,7 @@ public class FrmEditPF extends javax.swing.JFrame {
         ftxtNascimento.requestFocus();
         return false;
       }  
-      if(!verificaData(ftxtNascimento.getText())){
+      if(!Uteis.verificaData(ftxtNascimento.getText()) || !Uteis.verificaSeTem18Anos(ftxtNascimento.getText())){
         JOptionPane.showMessageDialog(rootPane, "Preencha a data de nascimento corretamente");
         ftxtNascimento.requestFocus();
         return false;

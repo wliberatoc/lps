@@ -5,20 +5,16 @@
  */
 package view;
 
+import controller.ControllerConta;
+import controller.ControllerPessoaJuridica;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.text.MaskFormatter;
-import model.classes.Conta;
-import model.classes.PessoaJuridica;
-import model.dao.ContaDAO;
-import model.dao.PessoaJuridicaDAO;
+import uteis.Uteis;
 
 /**
  *
@@ -30,7 +26,6 @@ public class FrmCadastroPJ extends javax.swing.JFrame {
      * Creates new form frmCadastroPJ
      */
     private SimpleDateFormat formataData = new SimpleDateFormat("dd/MM/yyyy");
-    private Conta conta = new Conta();
     private String senhaLogin;
     private int senha;
     
@@ -61,53 +56,6 @@ public class FrmCadastroPJ extends javax.swing.JFrame {
         cbxTipoConta.setSelectedIndex(0);
     }
     
-    public boolean verificaData(String data){
-        Calendar cal = Calendar.getInstance();
-        int year = cal.get(Calendar.YEAR);
-        int ano, mes, dia;
-        dia = Integer.parseInt(data.substring(0,2));
-        mes = Integer.parseInt(data.substring(3,5));
-        ano = Integer.parseInt(data.substring(6,10));
-        if(ano < 1694 || ano > year)
-            return false;
-        if(mes > 12 || mes < 1)
-            return false;
-        if((mes == 2 && (ano % 400 == 0)) && dia > 29)
-            return false;
-        if((mes == 2 && (ano % 400 != 0)) && dia > 28)
-            return false;
-        if(((mes < 8 && mes%2 == 0) || (mes > 7 && mes%2 != 0)) && dia > 30)
-            return false;
-        return(dia > 0 || dia < 32);
-    }//fim verifica data
-    
-    public boolean verificarCNPJ(String cnpj){
-        int calc1=0, calc2=0, aux=1;
-        int [] arrayNumsCalc = {6,5,4,3,2,9,8,7,6,5,4,3,2};
-        int dig1 = Integer.parseInt(cnpj.substring(16,17));
-        int dig2 = Integer.parseInt(cnpj.substring(17,18));
-        cnpj = cnpj.substring(0,2) + cnpj.substring(3,6) + cnpj.substring(7,10) + cnpj.substring(11,15);
-        for(int i=0; i<cnpj.length(); i++){
-            calc1 += Integer.parseInt(cnpj.substring(i, i+1)) * arrayNumsCalc[aux];
-            if(aux < 12)
-                calc2 += Integer.parseInt(cnpj.substring(aux, aux+1)) * arrayNumsCalc[aux];
-            aux++;
-        }
-        calc1 = calc1% 11;
-        if(calc1 < 2)
-            calc1 = 0;
-        else
-            calc1 = 11 - calc1;
-        
-        calc2 += (dig1 * 2) + (Integer.parseInt(cnpj.substring(0, 1)) * 6 );
-        calc2 = calc2% 11;
-        if(calc2 < 2)
-            calc2 = 0;
-        else
-            calc2 = 11 - calc2;
-        return(calc1 == dig1 && calc2 == dig2);
-    }
-    
     public boolean formataSenhas(){
         String s  =  ""+Arrays.toString(pswSenha.getPassword());
         senhaLogin = ""+Arrays.toString(pswSenhaLogin.getPassword());
@@ -128,66 +76,12 @@ public class FrmCadastroPJ extends javax.swing.JFrame {
         }          
     }
     
-    public boolean salvar(){
-        try {
-            PessoaJuridica pj = new PessoaJuridica();
-            pj.setCnpj(ftxtCnpj.getText());
-            pj.setNome(txtNome.getText());
-            pj.setFundacao(formataData.parse(ftxtFundacao.getText()));
-            pj.setEmail(txtEmail.getText());
-            pj.setTelefone(ftxtTelefone.getText());
-            pj.setEndereco(txtEndereco.getText());
-            pj.setSenha(senha);
-            pj.setSenhaLogin(senhaLogin);
-            PessoaJuridicaDAO cliente = new PessoaJuridicaDAO();
-            return cliente.insert(pj);        
-        } catch (ParseException ex) {
-            Logger.getLogger(FrmCadastroPF.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
-        }
-    }
-    
-    public boolean criaConta(){
-        Random random = new Random();
-        int n1 = random.nextInt(9);
-        int n2 = random.nextInt(9);
-        int n3 = random.nextInt(9);
-        int n4 = random.nextInt(9);
-        int dv = random.nextInt(9);
-        String s = ""+n1+"."+n2+n3+n4+"-"+dv;
-        conta.setNumeroDaConta(s);
-        conta.setUsuario(ftxtCnpj.getText());
-        conta.setAgencia("0001");
-        Date hoje = new Date();
-        conta.setAbertura(hoje);
-        if(cbxTipoConta.getItemAt(cbxTipoConta.getSelectedIndex()).toCharArray()[0] == 'P'){
-            conta.setTipo(5);
-            conta.setQtdTransacoes(15);
-            conta.setLimiteTeds(3000);
-            conta.setQtdSaques(50);
-            conta.setLimiteSaques(5000);
-        }
-        if(cbxTipoConta.getItemAt(cbxTipoConta.getSelectedIndex()).toCharArray()[0] == 'C'){
-            conta.setTipo(3);
-            conta.setQtdTransacoes(10);
-            conta.setLimiteTeds(1500);
-            conta.setQtdSaques(20);
-            conta.setLimiteSaques(2000);
-        }
-        ContaDAO contaDAO = new ContaDAO();
-        return contaDAO.insert(conta);
-    }
-    
-    public String dadosConta(){
+    public String dadosConta(String num){
         String s;
-        String numConta = "Nº conta: "+conta.getNumeroDaConta();
-        String agencia = "\nAgência: "+conta.getAgencia();
-        String tipo = "\nConta ";
-        if(conta.getTipo() == 5)
-            tipo += "Poupança";
-        if(conta.getTipo() == 3)
-            tipo += "Corrente";
-        String cpf = "\nCNPJ: "+conta.getUsuario();
+        String numConta = "Nº conta: "+num;
+        String agencia = "\nAgência: 0001";
+        String tipo = "\nConta "+cbxTipoConta.getItemAt(cbxTipoConta.getSelectedIndex());
+        String cpf = "\nCNPJ: "+ftxtCnpj.getText();
         s = numConta + agencia + tipo + cpf;     
         return s;
     }
@@ -203,7 +97,7 @@ public class FrmCadastroPJ extends javax.swing.JFrame {
             ftxtCnpj.requestFocus();
             return false;
         }
-        if(!verificarCNPJ(ftxtCnpj.getText())){
+        if(!Uteis.verificaCNPJ(ftxtCnpj.getText())){
             JOptionPane.showMessageDialog(rootPane, "Preencha o CNPJ corretamente");
             ftxtCnpj.requestFocus();
             return false;
@@ -213,7 +107,7 @@ public class FrmCadastroPJ extends javax.swing.JFrame {
             ftxtFundacao.requestFocus();
             return false;
         } 
-        if(!verificaData(ftxtFundacao.getText())){
+        if(!Uteis.verificaData(ftxtFundacao.getText())){
             JOptionPane.showMessageDialog(rootPane, "Preencha a data de Fundação corretamente");
             ftxtFundacao.requestFocus();
             return false;
@@ -513,17 +407,22 @@ public class FrmCadastroPJ extends javax.swing.JFrame {
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
         // Salvar
         if(validaCampos()){
-            if(salvar()){
-                if(criaConta()){
-                    JOptionPane.showMessageDialog(rootPane,dadosConta());
-                    new FrmLogin().setVisible(true);
-                    this.dispose();
+            try {
+                if(ControllerPessoaJuridica.cadastraPessoaJuridica(ftxtCnpj.getText(),txtNome.getText(),formataData.parse(ftxtFundacao.getText()),txtEmail.getText(),ftxtTelefone.getText(),txtEndereco.getText(), senha, senhaLogin)){
+                    String s = ControllerConta.cadastraConta(ftxtCnpj.getText(),cbxTipoConta.getItemAt(cbxTipoConta.getSelectedIndex()).toCharArray()[0]);
+                    if(!s.isEmpty()){
+                        JOptionPane.showMessageDialog(rootPane,dadosConta(s));
+                        new FrmLogin().setVisible(true);
+                        this.dispose();
+                    }
+                    else
+                        JOptionPane.showMessageDialog(rootPane,"Erro ao criar conta");
                 }
                 else
-                    JOptionPane.showMessageDialog(rootPane,"Erro ao criar conta");
+                    JOptionPane.showMessageDialog(rootPane,"Erro ao cadastrar usuário");
+            } catch (ParseException ex) {
+                Logger.getLogger(FrmCadastroPJ.class.getName()).log(Level.SEVERE, null, ex);
             }
-            else
-                JOptionPane.showMessageDialog(rootPane,"Erro ao cadastrar usuário");
         }
     }//GEN-LAST:event_btnSalvarActionPerformed
 

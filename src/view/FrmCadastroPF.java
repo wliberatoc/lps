@@ -5,21 +5,16 @@
  */
 package view;
 
+import controller.ControllerConta;
+import controller.ControllerPessoaFisica;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.text.MaskFormatter;
-import model.classes.Conta;
-import model.dao.ContaDAO;
-import model.classes.PessoaFisica;
-import model.dao.PessoaFisicaDAO;
+import uteis.Uteis;
 
 /**
  *
@@ -31,7 +26,6 @@ public class FrmCadastroPF extends javax.swing.JFrame {
      * Creates new form frmCadastrar
      */
     private SimpleDateFormat formataData = new SimpleDateFormat("dd/MM/yyyy");
-    Conta conta = new Conta();
     private String senhaLogin;
     private int senha;
     
@@ -82,125 +76,17 @@ public class FrmCadastroPF extends javax.swing.JFrame {
         cbxSexo.setSelectedIndex(0);
         cbxTipoConta.setSelectedIndex(0);
     }
-    
-    public boolean salvar(){
-        try {
-            PessoaFisica pf = new PessoaFisica();
-            pf.setCpf(ftxtCpf.getText());
-            pf.setNome(txtNome.getText());
-            pf.setNascimento(formataData.parse(ftxtNascimento.getText()));
-            pf.setSexo(cbxSexo.getItemAt(cbxSexo.getSelectedIndex()).toCharArray()[0]);
-            pf.setEmail(txtEmail.getText());
-            pf.setTelefone(ftxtTelefone.getText());
-            pf.setEndereco(txtEndereco.getText());
-            pf.setSenha(senha);
-            pf.setSenhaLogin(senhaLogin);
-            PessoaFisicaDAO cliente = new PessoaFisicaDAO();
-            return cliente.insert(pf);  
-        } catch (ParseException ex) {
-            Logger.getLogger(FrmCadastroPF.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
-        }
-    }
-    
-    public boolean criaConta(){
-        Random random = new Random();
-        int n1 = random.nextInt(9);
-        int n2 = random.nextInt(9);
-        int n3 = random.nextInt(9);
-        int n4 = random.nextInt(9);
-        int dv = random.nextInt(9);
-        String s = ""+n1+"."+n2+n3+n4+"-"+dv;
-        conta.setNumeroDaConta(s);
-        conta.setUsuario(ftxtCpf.getText());
-        conta.setAgencia("0001");
-        Date hoje = new Date();
-        conta.setAbertura(hoje);
-        if(cbxTipoConta.getItemAt(cbxTipoConta.getSelectedIndex()).toCharArray()[0] == 'P'){
-            conta.setTipo(4);
-            conta.setQtdTransacoes(7);
-            conta.setLimiteTeds(1000);
-            conta.setQtdSaques(15);
-            conta.setLimiteSaques(1500);
-        }
-        if(cbxTipoConta.getItemAt(cbxTipoConta.getSelectedIndex()).toCharArray()[0] == 'C'){
-            conta.setTipo(2);
-            conta.setQtdTransacoes(10);
-            conta.setLimiteTeds(1500);
-            conta.setQtdSaques(20);
-            conta.setLimiteSaques(2000);
-        }  
-        ContaDAO contaDAO = new ContaDAO();
-        ArrayList<Conta> list;
-        list = contaDAO.select("numero_da_conta", conta.getNumeroDaConta());
-        if (!list.isEmpty())
-            for(int i = 0; i<list.size(); i++)
-                if(list.get(i).getTipo()%2 == conta.getTipo()%2)
-                    criaConta();        
-        return contaDAO.insert(conta);
-    }
      
-    public String dadosConta(){
+    public String dadosConta(String num){
         String s;
-        String numConta = "Nº conta: "+conta.getNumeroDaConta();
-        String agencia = "\nAgência: "+conta.getAgencia();
-        String tipo = "\nConta ";
-        if(conta.getTipo() == 4)
-            tipo += "Poupança";
-        if(conta.getTipo() == 2)
-            tipo += "Corrente";
-        String cpf = "\nCPF: "+conta.getUsuario();
+        String numConta = "Nº conta: "+num;
+        String agencia = "\nAgência: 0001";
+        String tipo = "\nConta "+cbxTipoConta.getItemAt(cbxTipoConta.getSelectedIndex());
+        String cpf = "\nCPF: "+ftxtCpf.getText();
         s = numConta + agencia + tipo + cpf;     
         return s;
     }
-    
-    public boolean verificaData(String data){
-        Calendar cal = Calendar.getInstance();
-        int year = cal.get(Calendar.YEAR);
-        int ano, mes, dia;
-        dia = Integer.parseInt(data.substring(0,2));
-        mes = Integer.parseInt(data.substring(3,5));
-        ano = Integer.parseInt(data.substring(6,10));
-        if(ano < 1850 || (ano > year)|| (year - ano < 18))
-            return false;
-        if(mes > 12 || mes < 1)
-            return false;
-        if((mes == 2 && (ano % 400 == 0)) && dia > 29)
-            return false;
-        if((mes == 2 && (ano % 400 != 0)) && dia > 28)
-            return false;
-        if(((mes < 8 && mes%2 == 0)||(mes > 7 && mes%2 != 0)) && dia > 30)
-            return false;
-        return(dia > 0 || dia < 32);
-    }//fim verifica data
-    
-    public boolean verificarCPF(String cpf){
-        int calc1=0, calc2=0, aux1=10, aux2=11;
-        int [] arrayCPF;
-        boolean repetido = true;
-        arrayCPF = new int[9];
-        int dig1 = Integer.parseInt(cpf.substring(12,13));
-        int dig2 = Integer.parseInt(cpf.substring(13,14));
-        cpf = cpf.substring(0,3) + cpf.substring(4,7) + cpf.substring(8,11);
-        for(int i=0; i<arrayCPF.length; i++){
-            arrayCPF[i] = Integer.parseInt(cpf.substring(i, i+1));
-            calc1 += aux1 * arrayCPF[i];
-            aux1--;
-            calc2 += aux2 * arrayCPF[i];
-            aux2--;            
-            if(arrayCPF[0] != arrayCPF[i] && repetido)
-                repetido = false;
-        }
-        calc2 += dig1 * aux2;
-        calc1 = (calc1 * 10) % 11;
-        calc2 = (calc2 * 10) % 11;
-        if(calc1 == 10)
-            calc1 = 0;
-        if(calc2 == 10)
-            calc2 = 0;             
-        return(calc1 == dig1 && calc2 == dig2 && !repetido);
-    }//fim função verifica CPF
-    
+       
     public boolean validaCampos(){
       if(!txtNome.getText().replace(" ", "").matches("[A-Za-z]{3,}")){
           JOptionPane.showMessageDialog(rootPane, "Preencha o nome corretamente");
@@ -213,7 +99,7 @@ public class FrmCadastroPF extends javax.swing.JFrame {
         return false;
       }
       else{
-        if(!verificarCPF(ftxtCpf.getText())){
+        if(!Uteis.verificaCPF(ftxtCpf.getText())){
             JOptionPane.showMessageDialog(rootPane, "Preencha o CPF corretamente");
             ftxtCpf.requestFocus();
             return false;
@@ -224,7 +110,7 @@ public class FrmCadastroPF extends javax.swing.JFrame {
         ftxtNascimento.requestFocus();
         return false;
       }  
-      if(!verificaData(ftxtNascimento.getText())){
+      if(!Uteis.verificaData(ftxtNascimento.getText()) || !Uteis.verificaSeTem18Anos(ftxtNascimento.getText())){
         JOptionPane.showMessageDialog(rootPane, "Preencha a data de nascimento corretamente");
         ftxtNascimento.requestFocus();
         return false;
@@ -559,18 +445,24 @@ public class FrmCadastroPF extends javax.swing.JFrame {
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
         // Salvar
         if(validaCampos()){
-            if(salvar()){ 
-                JOptionPane.showMessageDialog(rootPane,"Cadastro realizado com sucesso");
-                if (criaConta()){
-                    JOptionPane.showMessageDialog(rootPane,dadosConta());
-                    new FrmLogin().setVisible(true);
-                    this.dispose();
+            
+            try {
+                if(ControllerPessoaFisica.cadastraPessoaFisica(ftxtCpf.getText(),txtNome.getText(),formataData.parse(ftxtNascimento.getText()),cbxSexo.getItemAt(cbxSexo.getSelectedIndex()).toCharArray()[0],txtEmail.getText(),ftxtTelefone.getText(),txtEndereco.getText(), senha, senhaLogin)){
+                    JOptionPane.showMessageDialog(rootPane,"Cadastro realizado com sucesso");
+                    String s = ControllerConta.cadastraConta(ftxtCpf.getText(),cbxTipoConta.getItemAt(cbxTipoConta.getSelectedIndex()).toCharArray()[0]);
+                    if(!s.isEmpty()){
+                        JOptionPane.showMessageDialog(rootPane,dadosConta(s));
+                        new FrmLogin().setVisible(true);
+                        this.dispose();
+                    }
+                    else
+                        JOptionPane.showMessageDialog(rootPane,"Erro ao criar conta");
                 }
                 else
-                    JOptionPane.showMessageDialog(rootPane,"Erro ao criar conta");
+                    JOptionPane.showMessageDialog(rootPane,"Erro ao cadastrar usuário");
+            } catch (ParseException ex) {
+                Logger.getLogger(FrmCadastroPF.class.getName()).log(Level.SEVERE, null, ex);
             }
-            else
-                JOptionPane.showMessageDialog(rootPane,"Erro ao cadastrar usuário");
         }
     }//GEN-LAST:event_btnSalvarActionPerformed
 

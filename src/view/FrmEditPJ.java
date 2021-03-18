@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import model.classes.PessoaJuridica;
 import model.dao.PessoaJuridicaDAO;
+import uteis.Uteis;
 
 /**
  *
@@ -50,53 +51,6 @@ public class FrmEditPJ extends javax.swing.JFrame {
         txtEndereco.setText(cliente.getEndereco());       
     }
     
-    public boolean verificaData(String data){
-        Calendar cal = Calendar.getInstance();
-        int year = cal.get(Calendar.YEAR);
-        int ano, mes, dia;
-        dia = Integer.parseInt(data.substring(0,2));
-        mes = Integer.parseInt(data.substring(3,5));
-        ano = Integer.parseInt(data.substring(6,10));
-        if(ano < 1694 || ano > year)
-            return false;
-        if(mes > 12 || mes < 1)
-            return false;
-        if((mes == 2 && (ano % 400 == 0)) && dia > 29)
-            return false;
-        if((mes == 2 && (ano % 400 != 0)) && dia > 28)
-            return false;
-        if(((mes < 8 && mes%2 == 0) || (mes > 7 && mes%2 != 0)) && dia > 30)
-            return false;
-        return(dia > 0 || dia < 32);
-    }//fim verifica data
-    
-    public boolean verificarCNPJ(String cnpj){
-        int calc1=0, calc2=0, aux=1;
-        int [] arrayNumsCalc = {6,5,4,3,2,9,8,7,6,5,4,3,2};
-        int dig1 = Integer.parseInt(cnpj.substring(16,17));
-        int dig2 = Integer.parseInt(cnpj.substring(17,18));
-        cnpj = cnpj.substring(0,2) + cnpj.substring(3,6) + cnpj.substring(7,10) + cnpj.substring(11,15);
-        for(int i=0; i<cnpj.length(); i++){
-            calc1 += Integer.parseInt(cnpj.substring(i, i+1)) * arrayNumsCalc[aux];
-            if(aux < 12)
-                calc2 += Integer.parseInt(cnpj.substring(aux, aux+1)) * arrayNumsCalc[aux];
-            aux++;
-        }
-        calc1 = calc1% 11;
-        if(calc1 < 2)
-            calc1 = 0;
-        else
-            calc1 = 11 - calc1;
-        
-        calc2 += (dig1 * 2) + (Integer.parseInt(cnpj.substring(0, 1)) * 6 );
-        calc2 = calc2% 11;
-        if(calc2 < 2)
-            calc2 = 0;
-        else
-            calc2 = 11 - calc2;
-        return(calc1 == dig1 && calc2 == dig2);
-    }
-    
     public boolean validaCampos(){
       if(!txtNome.getText().replace(" ", "").matches("[A-Za-z]{3,}")){
           JOptionPane.showMessageDialog(rootPane, "Preencha o nome corretamente");
@@ -109,7 +63,7 @@ public class FrmEditPJ extends javax.swing.JFrame {
         return false;
       }
       else{
-        if(!verificarCNPJ(ftxtCnpj.getText())){
+        if(!Uteis.verificaCNPJ(ftxtCnpj.getText())){
             JOptionPane.showMessageDialog(rootPane, "Preencha o CPF corretamente");
             ftxtCnpj.requestFocus();
             return false;
@@ -125,7 +79,7 @@ public class FrmEditPJ extends javax.swing.JFrame {
         ftxtFundacao.requestFocus();
         return false;
       }  
-      if(!verificaData(ftxtFundacao.getText())){
+      if(!Uteis.verificaData(ftxtFundacao.getText())){
         JOptionPane.showMessageDialog(rootPane, "Preencha a data de nascimento corretamente");
         ftxtFundacao.requestFocus();
         return false;

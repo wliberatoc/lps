@@ -232,97 +232,9 @@ public class FrmHome extends javax.swing.JFrame {
             }
         }
     }
-    
-    public String criaData(){
-        Calendar cal = Calendar.getInstance();
-        int ano = cal.get(Calendar.YEAR);
-        int mes = cal.get(Calendar.MONTH)+1;
-        int dia = cal.get(Calendar.DAY_OF_MONTH);
-        if(mes == 12 && dia > 28){
-            mes = 01;
-            ano++;
-            dia = (dia+3)-30;
-            return ""+dia+"/"+mes+"/"+ano;
-        }            
-        if((mes == 2 && (ano % 400 == 0)) && dia > 26){
-            mes++;
-            dia = (dia+3)-29;
-            return ""+dia+"/"+mes+"/"+ano;
-        }
-        if((mes == 2 && (ano % 400 != 0)) && dia > 25){
-            mes++;
-            dia = (dia+3)-28;
-            return ""+dia+"/"+mes+"/"+ano;
-        }  
-        if(((mes < 8 && mes%2 == 0)||(mes > 7 && mes%2 != 0)) && dia > 27){
-            mes++;
-            dia = (dia+3)-30;
-            return ""+dia+"/"+mes+"/"+ano;
-        }
-        if(dia > 28){
-            mes++;
-            dia = (dia+3)-31;
-            return ""+dia+"/"+mes+"/"+ano;
-        }         
-        else{
-            dia = dia+3;
-            return ""+dia+"/"+mes+"/"+ano;
-        }
-    }//fim cria data
-    
-    public boolean geraBoleto(){
-        BoletoDAO boletoDAO = new BoletoDAO();
-        Boleto boleto = new Boleto();
-        codB = geraCodigoBarras();
-        boleto.setCodigoDeBarras(codB);
-        boleto.setIdConta(conta.get(i).getId());
-        try{
-            boleto.setValor(Float.parseFloat(txtValor.getText()));
-            if(boleto.getValor() < 3 || boleto.getValor() > 9999999){
+        
                 JOptionPane.showMessageDialog(rootPane, "Valor informado deve ser maior que 3 e com no maximo 7 digitos");
                 txtValor.requestFocus();
-                return false;
-            }
-            data = criaData();
-            try {
-                boleto.setDataDeVencimento(formataData.parse(data));
-                return boletoDAO.insert(boleto);
-            }catch (ParseException ex) {
-                System.err.println("Erro "+ex);
-            }
-        }catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(rootPane, "Valor informado errado, digite um numero real positivo");
-            txtValor.requestFocus();
-        }
-        return false; 
-    }
-    
-    public String geraCodigoBarras(){
-        BoletoDAO boletoDAO = new BoletoDAO();
-        Random random = new Random();
-        int dv = random.nextInt(9);
-        String s = "00"+conta.get(i).getNumeroDaConta().replace(".", "").replace("-", "")
-                +"."+conta.get(i).getTipo()+"00"+conta.get(i).getAgencia()+".";
-        for(int j = 0; j < 7; j++){
-            int dig = random.nextInt(9);
-            s += dig;
-        }
-        s += " "+dv+" ";
-        int p = 7-txtValor.getText().replace(".","").length();
-        for(int k = 0; k < 7; k++){
-            if(k == p){
-                s += txtValor.getText().replace(".","");
-                break;
-            }else
-                s += "0";
-        }
-        if(boletoDAO.select("codigo_de_barras", s).isEmpty())
-            return s;
-        else
-            geraCodigoBarras();
-        return null;
-    }
-    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
