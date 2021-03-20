@@ -5,7 +5,6 @@
  */
 package controller;
 
-import java.util.ArrayList;
 import java.util.Date;
 import model.classes.PessoaJuridica;
 import model.dao.PessoaJuridicaDAO;
@@ -16,29 +15,52 @@ import model.dao.PessoaJuridicaDAO;
  */
 public class ControllerPessoaJuridica {
     
-    public static boolean cadastraPessoaJuridica(String cnpj, String nome, Date dataFund, String email, String telefone, String endereco, int senha, String senhaLogin){
-        PessoaJuridica pf = new PessoaJuridica();
-        pf.setCnpj(cnpj);
-        pf.setNome(nome);
-        pf.setFundacao(dataFund);
-        pf.setEmail(email);
-        pf.setTelefone(telefone);
-        pf.setEndereco(endereco);
-        pf.setSenha(senha);
-        pf.setSenhaLogin(senhaLogin);
-        PessoaJuridicaDAO cliente = new PessoaJuridicaDAO();
-        return cliente.insert(pf);  
+    public static boolean insert(String cnpj, String nome, Date dataFund, String email, String telefone, String endereco, int senha, String senhaLogin){
+        PessoaJuridica cliente = new PessoaJuridica();
+        cliente.setCnpj(cnpj);
+        cliente.setNome(nome);
+        cliente.setFundacao(dataFund);
+        cliente.setEmail(email);
+        cliente.setTelefone(telefone);
+        cliente.setEndereco(endereco);
+        cliente.setSenha(senha);
+        cliente.setSenhaLogin(senhaLogin);
+        PessoaJuridicaDAO clienteDao = new PessoaJuridicaDAO();
+        return clienteDao.insert(cliente);  
     }//fim cadastra Pessoa Juridica
     
-    public static ArrayList<PessoaJuridica> selecionarPessoaJuridica(String cnpj){
-        PessoaJuridicaDAO cliente = new PessoaJuridicaDAO();
-        ArrayList<PessoaJuridica> clientes = cliente.select("cnpj", cnpj);
-        return clientes;
+    public static boolean update(String cnpj, String nome, Date dataFund, String email, String telefone, String endereco, int id){
+        PessoaJuridica cliente = new PessoaJuridica();
+        cliente.setId(id);
+        cliente.setCnpj(cnpj);
+        cliente.setNome(nome);
+        cliente.setFundacao(dataFund);
+        cliente.setEmail(email);
+        cliente.setTelefone(telefone);
+        cliente.setEndereco(endereco);
+        PessoaJuridicaDAO clienteDao = new PessoaJuridicaDAO();
+        return clienteDao.insert(cliente);  
+    }//fim cadastra Pessoa Juridica
+    
+    public static PessoaJuridica select(String cnpj){
+        PessoaJuridicaDAO clienteDao = new PessoaJuridicaDAO();
+        return clienteDao.select(cnpj);
     }
     
     public static boolean login(String cnpj, String senha){
-        PessoaJuridicaDAO cliente = new PessoaJuridicaDAO();
-        ArrayList<PessoaJuridica> clientes = cliente.select("cnpj", cnpj);
-        return clientes.get(0).getSenhaLogin().equals(senha);
+        PessoaJuridicaDAO clienteDao = new PessoaJuridicaDAO();
+        String senhaBD = clienteDao.select(cnpj).getSenhaLogin();
+        return senhaBD.equals(senha);
+    }
+    
+    public static boolean confirma(String cnpj, int senha){
+        PessoaJuridicaDAO clienteDao = new PessoaJuridicaDAO();
+        int senhaBD = clienteDao.select(cnpj).getSenha();
+        return senhaBD==senha;
+    }
+    
+    public static boolean delete(String use){
+        PessoaJuridicaDAO clienteDao = new PessoaJuridicaDAO();
+        return clienteDao.delete(use);
     }
 }

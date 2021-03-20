@@ -10,14 +10,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Date;
 import java.sql.SQLException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import model.classes.Data;
 import model.classes.MovimentacaoBancaria;
+import model.classes.TipoOperacao;
 
 /**
  *
@@ -48,30 +44,6 @@ public class MovimentacaoBancariaDAO {
             return false;
         }
     }
-    public ArrayList<MovimentacaoBancaria> select(String campo, String query){
-        String sql = "SELECT * FROM tbl_movimentacao_bancaria WHERE "+campo+" LIKE ?";
-        ArrayList<MovimentacaoBancaria> lista  = new ArrayList<>();
-        try {
-            stmt = Persistencia.getConnection().prepareStatement(sql);
-            stmt.setString(1, query);
-            rs = stmt.executeQuery();
-            while(rs.next()){
-                MovimentacaoBancaria moviB = new MovimentacaoBancaria();
-                moviB.setId(rs.getInt("id"));                
-                moviB.setIdConta(rs.getInt("id_movimentacao_bancaria"));
-                moviB.setValor(rs.getFloat("valor"));
-                moviB.setData(rs.getDate("data"));
-                moviB.setIdTipoOperacao(rs.getInt("id_tipo_opetacao"));
-                moviB.setDescricao(rs.getString("descricao"));
-                moviB.setTipoMovimentacao(rs.getString("tipo_movimentacao").toCharArray()[0]);            
-                lista.add(moviB);
-            }
-            return lista;
-        } catch (SQLException ex) {
-            System.err.println("Erro Movimentação bancária: "+ex);
-            return null;
-        }   
-    }
     
     public ArrayList<MovimentacaoBancaria> load(int id){
         String sql = "SELECT * FROM tbl_movimentacao_bancaria WHERE id_Conta = ? and tipo_movimentacao != 'S'";
@@ -98,6 +70,38 @@ public class MovimentacaoBancariaDAO {
         }   
     }//fim load
     
+    public ArrayList<TipoOperacao> pegaTiposOperacao(){
+        String sql = "SELECT * FROM tbl_tipo_operacao";
+        ArrayList<TipoOperacao> lista  = new ArrayList<>();
+        try {
+            stmt = Persistencia.getConnection().prepareStatement(sql);
+            rs = stmt.executeQuery();
+            while(rs.next()){
+                TipoOperacao tipoOperacao = new TipoOperacao();
+                tipoOperacao.setId(rs.getInt("id"));                
+                tipoOperacao.setDescricao(rs.getString("descricao"));
+                lista.add(tipoOperacao);
+            }
+            return lista;
+        } catch (SQLException ex) {
+            System.err.println("Erro Tipo Operação: "+ex);
+            return null;
+        }   
+    } 
+    
+    public int pegaIdOperacao(String descricao){
+        String sql = "SELECT id FROM tbl_tipo_operacao WHERE descricao LIKE ?";
+        try {
+            stmt = Persistencia.getConnection().prepareStatement(sql);
+            stmt.setString(1, descricao);
+            rs = stmt.executeQuery();
+            rs.next();
+            return rs.getInt("id");
+        } catch (SQLException ex) {
+            System.err.println("Erro Tipo Operação: "+ex);
+            return 0;
+        }   
+    }
     
     public String pegaTipoOperacao(int id){
         String sql = "SELECT descricao FROM tbl_tipo_operacao WHERE tbl_tipo_operacao.id = ?";
@@ -113,7 +117,7 @@ public class MovimentacaoBancariaDAO {
         }   
     }
     
-    public ArrayList<MovimentacaoBancaria> extrato(int id,Data data){
+    public ArrayList<MovimentacaoBancaria> extrato(int id, Data data){
         String sql = "SELECT data,id_tipo_operacao,descricao,valor FROM tbl_movimentacao_bancaria WHERE data BETWEEN ? AND ? and id_conta = ? ORDER BY data";
         ArrayList<MovimentacaoBancaria> lista  = new ArrayList<>();
         try {
@@ -137,36 +141,5 @@ public class MovimentacaoBancariaDAO {
         }
            
     }//fim load
-    
-    public boolean update(MovimentacaoBancaria moviB){
-        String sql = "UPDATE tbl_movimentacao_bancaria SET descricao = ?, id_conta = ?, data = ?, valor = ?, id_tipo_operacao = ?, tipo_movimetacao = ? WHERE tbl_movimentacao_bancaria.id = ?";
-        try {
-            stmt = Persistencia.getConnection().prepareStatement(sql);
-            stmt.setInt(1, moviB.getIdConta());
-            stmt.setDate(2, new Date(moviB.getData().getTime()));
-            stmt.setFloat(3, moviB.getValor());
-            stmt.setInt(4, moviB.getIdTipoOperacao());
-            stmt.setString(5, moviB.getDescricao());
-            stmt.setString(6, ""+moviB.getTipoMovimentacao());
-            stmt.executeUpdate();
-            return true;
-        } catch (SQLException ex) {
-            System.err.println("Erro Movimentação bancária: "+ex);
-            return false;
-        }
-    }  
-    
-    public boolean delete(int id){
-        String sql = "DELETE FROM tbl_movimentacao_bancaria WHERE tbl_movimentacao_bancaria.id = ?";
-        try {
-            stmt = Persistencia.getConnection().prepareStatement(sql);
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
-            return true;
-        } catch (SQLException ex) {
-            System.err.println("Erro Movimentação bancária: "+ex);
-            return false;
-        }
-    } 
-    
+
 }

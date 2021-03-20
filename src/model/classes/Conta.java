@@ -126,15 +126,5 @@ public class Conta {
 
     public void setUsuario(String usuario) {
         this.usuario = usuario;
-    }
-    
-    public float atualizaSaldo(){
-        float val = 0;
-        MovimentacaoBancariaDAO mbd = new MovimentacaoBancariaDAO();
-        ArrayList<MovimentacaoBancaria> mb = mbd.load(getId());
-        for (MovimentacaoBancaria mb1 : mb) 
-            val += mb1.getValor();
-        return val;
-    }
-    
+    }  
 }

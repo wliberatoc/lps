@@ -10,7 +10,6 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import model.classes.PessoaJuridica;
 
 
@@ -41,15 +40,15 @@ public class PessoaJuridicaDAO {
             return false;
         }
     }
-    public ArrayList<PessoaJuridica> select(String campo, String query){     
-        String sql = "SELECT * FROM tbl_pessoa_juridica WHERE "+campo+" LIKE ?";
-        ArrayList<PessoaJuridica> lista  = new ArrayList<>();
+    
+    public PessoaJuridica select(String query){     
+        String sql = "SELECT * FROM tbl_pessoa_juridica WHERE cnpj LIKE ?";
         try {
             stmt = Persistencia.getConnection().prepareStatement(sql);
             stmt.setString(1, query);
             rs = stmt.executeQuery();
+            PessoaJuridica cliente = new PessoaJuridica();
             while(rs.next()){
-                PessoaJuridica cliente = new PessoaJuridica();
                 cliente.setId(rs.getInt("id"));
                 cliente.setCnpj(rs.getString("cnpj"));
                 cliente.setNome(rs.getString("nome"));
@@ -59,30 +58,14 @@ public class PessoaJuridicaDAO {
                 cliente.setEndereco(rs.getString("endereco"));
                 cliente.setSenha(rs.getInt("senha"));
                 cliente.setSenhaLogin(rs.getString("senha_login"));
-                lista.add(cliente);
             }
-            return lista;
+            return cliente;
         } catch (SQLException ex) {
             System.err.println("Erro Pessoa Jurídica: "+ex);
             return null;
         }   
     }
     
-    public boolean select2Campos(String campo, String query, String campo2, int query2){     
-        String sql = "SELECT * FROM tbl_pessoa_juridica WHERE "+campo+" LIKE ? AND "+campo2+" = ?";
-        ArrayList<PessoaJuridica> lista  = new ArrayList<>();
-        try {
-            stmt = Persistencia.getConnection().prepareStatement(sql);
-            stmt.setString(1, query);
-            stmt.setInt(2, query2);
-            rs = stmt.executeQuery();
-            return true;
-        } catch (SQLException ex) {
-            System.err.println("Erro Pessoa Jurídica: "+ex);
-            return false;
-        }    
-    }//fim select2Campos
-   
     public boolean update(PessoaJuridica cliente){
         String sql = "UPDATE tbl_pessoa_juridica SET cnpj = ?, nome = ?, fundacao = ?, email = ?, telefone = ?, endereco = ?, senha = ?, senha_login = ? WHERE tbl_pessoa_juridica.id = ?";
         try {
@@ -104,11 +87,11 @@ public class PessoaJuridicaDAO {
         }
     }  
     
-    public boolean delete(int id){
-        String sql = "DELETE FROM tbl_pessoa_juridica WHERE tbl_pessoa_juridica.id = ?";
+    public boolean delete(String use){
+        String sql = "DELETE FROM tbl_pessoa_juridica WHERE cnpj LIKE ?";
         try {
             stmt = Persistencia.getConnection().prepareStatement(sql);
-            stmt.setInt(1, id);
+            stmt.setString(1, use);
             stmt.executeUpdate();
             return true;
         } catch (SQLException ex) {

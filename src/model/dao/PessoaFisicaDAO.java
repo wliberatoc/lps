@@ -11,7 +11,6 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import model.classes.PessoaFisica;
 
 
@@ -44,15 +43,14 @@ public class PessoaFisicaDAO {
         }
     }  
 
-    public ArrayList<PessoaFisica> select(String campo, String query){     
-        String sql = "SELECT * FROM tbl_pessoa_fisica WHERE "+campo+" LIKE ?";
-        ArrayList<PessoaFisica> lista  = new ArrayList<>();
+    public PessoaFisica select(String query){     
+        String sql = "SELECT * FROM tbl_pessoa_fisica WHERE cpf LIKE ?";
         try {
             stmt = Persistencia.getConnection().prepareStatement(sql);
             stmt.setString(1, query);
             rs = stmt.executeQuery();
+            PessoaFisica cliente = new PessoaFisica();
             while(rs.next()){
-                PessoaFisica cliente = new PessoaFisica();
                 cliente.setId(rs.getInt("id"));
                 cliente.setCpf(rs.getString("cpf"));
                 cliente.setNome(rs.getString("nome"));
@@ -63,31 +61,14 @@ public class PessoaFisicaDAO {
                 cliente.setEndereco(rs.getString("endereco"));
                 cliente.setSenha(rs.getInt("senha"));
                 cliente.setSenhaLogin(rs.getString("senha_login"));
-                lista.add(cliente);
             }
-            return lista;
+            return cliente;
         } catch (SQLException ex) {
             System.err.println("Erro Pessoa Física: "+ex);
             return null;
         }    
     }//fim select
     
-    public boolean select2Campos(String campo, String query, String campo2, int query2){     
-        String sql = "SELECT * FROM tbl_pessoa_fisica WHERE "+campo+" LIKE ? AND "+campo2+" = ?";
-        ArrayList<PessoaFisica> lista  = new ArrayList<>();
-        try {
-            stmt = Persistencia.getConnection().prepareStatement(sql);
-            stmt.setString(1, query);
-            stmt.setInt(2, query2);
-            rs = stmt.executeQuery();
-            return true;
-        } catch (SQLException ex) {
-            System.err.println("Erro Pessoa Física: "+ex);
-            return false;
-        }    
-    }//fim select2Campos
-
-       
     public boolean update(PessoaFisica cliente){
         String sql = "UPDATE tbl_pessoa_fisica SET cpf = ?, nome = ?, data_de_nascimento = ?, sexo = ?, email = ?, telefone = ?, endereco = ?, senha = ?, senha_login = ? WHERE tbl_pessoa_fisica.id = ?";
         try {
@@ -110,11 +91,11 @@ public class PessoaFisicaDAO {
         }
     }//fim update  
     
-    public boolean delete(int id){
-        String sql = "DELETE FROM tbl_pessoa_fisica WHERE tbl_pessoa_fisica.id = ?";
+    public boolean delete(String use){
+        String sql = "DELETE FROM tbl_pessoa_fisica WHERE cpf LIKE ?";
         try {
             stmt = Persistencia.getConnection().prepareStatement(sql);
-            stmt.setInt(1, id);
+            stmt.setString(1, use);
             stmt.executeUpdate();
             return true;
         } catch (SQLException ex) {

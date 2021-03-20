@@ -6,20 +6,17 @@
 package view;
 
 
+import controller.ControllerConta;
+import controller.ControllerMovimentacaoBancaria;
 import controller.ControllerPessoaFisica;
 import controller.ControllerPessoaJuridica;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.text.MaskFormatter;
 import model.classes.Conta;
 import model.classes.MovimentacaoBancaria;
-import model.dao.ContaDAO;
-import model.dao.MovimentacaoBancariaDAO;
 
 /**
  *
@@ -30,8 +27,7 @@ public class FrmLogin extends javax.swing.JFrame {
     /**
      * Creates new form frmLogin
      */
-    ContaDAO contaDao = new ContaDAO();
-    ArrayList<Conta> conta  = new ArrayList<>();
+    Conta conta  = new Conta();
     float valor = 0;
     public FrmLogin() {
         initComponents();
@@ -42,7 +38,7 @@ public class FrmLogin extends javax.swing.JFrame {
             maskConta.install(ftxtNumeroDaConta);
             maskAgencia.install(ftxtAgencia);
         } catch (ParseException ex) {
-            Logger.getLogger(FrmCadastroPF.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println("Erro: "+ex);
         }
     }
     @SuppressWarnings("unchecked")
@@ -295,6 +291,7 @@ public class FrmLogin extends javax.swing.JFrame {
         txtValor.setText("");
         cbxTipoDaConta.setSelectedIndex(0);
     }
+    
     public boolean validaCampos(){
         int tipo = 0;
         switch (cbxTipoDaConta.getSelectedIndex()){
@@ -311,8 +308,8 @@ public class FrmLogin extends javax.swing.JFrame {
                 tipo = 5;
                 break;
         }
-        conta = contaDao.select2Campos("numero_da_conta", ftxtNumeroDaConta.getText(),"tipo",tipo);
-        if(conta.isEmpty()){
+        conta = ControllerConta.confirmaConta(ftxtNumeroDaConta.getText(), tipo);
+        if(conta == null){
             JOptionPane.showMessageDialog(rootPane, "Conta informada errado");
             ftxtNumeroDaConta.requestFocus();
             return false;
@@ -337,25 +334,6 @@ public class FrmLogin extends javax.swing.JFrame {
         }
     }
     
-    public boolean salvar(){
-        Date hoje = new Date();
-        MovimentacaoBancaria mvb = new MovimentacaoBancaria();
-        mvb.setIdConta(conta.get(0).getId());
-        mvb.setData(hoje);
-        mvb.setIdTipoOperacao(6);
-        mvb.setDescricao("Depósito");
-        mvb.setTipoMovimentacao('C');
-        mvb.setValor(valor);
-        MovimentacaoBancariaDAO mvbDao = new MovimentacaoBancariaDAO();
-        if(!mvbDao.insert(mvb))
-            return false;
-        mvb.setTipoMovimentacao('S');
-        mvb.setDescricao("saldo de "+hoje);
-        mvb.setIdTipoOperacao(1);
-        mvb.setValor(conta.get(0).atualizaSaldo());
-        return mvbDao.insert(mvb);        
-    }
-
     private void pswSenhaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pswSenhaActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_pswSenhaActionPerformed
@@ -380,10 +358,10 @@ public class FrmLogin extends javax.swing.JFrame {
         switch (login.length()){
             case 11:
                 login = login.substring(0,3)+"."+login.substring(3,6) + "."+login.substring(6,9) + "-"+login.substring(9,11);
-                 if(ControllerPessoaFisica.login(login, senha)){
+                if(ControllerPessoaFisica.login(login, senha)){
                     new FrmHome(login,0).setVisible(true);
                     this.dispose();
-                } else
+                }else
                     JOptionPane.showMessageDialog(rootPane, "Login incorreto");
                 break;
 
@@ -405,13 +383,16 @@ public class FrmLogin extends javax.swing.JFrame {
     private void btnDepositarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDepositarActionPerformed
         // depositar
         if(validaCampos()){
-            if(salvar()){
+            Date hoje = new Date();
+            String descricao ="Depósito";
+            if(ControllerMovimentacaoBancaria.insert(conta.getId(), 'C', hoje, 6, descricao, Float.parseFloat(txtValor.getText()))){
+                descricao ="saldo de "+hoje;
+                ControllerMovimentacaoBancaria.insert(conta.getId(), 'S', hoje, 1, descricao, ControllerConta.atualizaSaldo(conta.getId()));
                 JOptionPane.showMessageDialog(rootPane,"Depósito realizado com sucesso");
                 int confirma = JOptionPane.showConfirmDialog(rootPane, "deseja realizar outro depósito?","",JOptionPane.YES_NO_OPTION);
                 if(confirma == JOptionPane.YES_OPTION)
                     ftxtNumeroDaConta.requestFocus();
-                limpaCampos();
-                
+                limpaCampos(); 
             }
             else
             JOptionPane.showMessageDialog(rootPane,"Erro no depósito");

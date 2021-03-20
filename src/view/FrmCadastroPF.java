@@ -88,65 +88,53 @@ public class FrmCadastroPF extends javax.swing.JFrame {
     }
        
     public boolean validaCampos(){
-      if(!txtNome.getText().replace(" ", "").matches("[A-Za-z]{3,}")){
+        if(!txtNome.getText().replace(" ", "").matches("[A-Za-z]{3,}")){
           JOptionPane.showMessageDialog(rootPane, "Preencha o nome corretamente");
           txtNome.requestFocus();
           return false;
-      }
-      if(ftxtCpf.getText().replace(" ", "").length() < 14){
-        JOptionPane.showMessageDialog(rootPane, "Preencha o CPF corretamente");
-        ftxtCpf.requestFocus();
-        return false;
-      }
-      else{
-        if(!Uteis.verificaCPF(ftxtCpf.getText())){
+        }
+        if(ftxtCpf.getText().replace(" ", "").length() < 14 || !Uteis.verificaCPF(ftxtCpf.getText())){
             JOptionPane.showMessageDialog(rootPane, "Preencha o CPF corretamente");
             ftxtCpf.requestFocus();
             return false;
+        } 
+        if(ftxtNascimento.getText().replace(" ", "").length() < 10 || !Uteis.verificaData(ftxtNascimento.getText()) || !Uteis.verificaSeTem18Anos(ftxtNascimento.getText())){
+          JOptionPane.showMessageDialog(rootPane, "Preencha a data de nascimento corretamente");
+          ftxtNascimento.requestFocus();
+          return false;
+        }
+        if(!txtEmail.getText().matches("[A-Za-z0-9]+[@][A-Za-z0-9]+[.][A-Za-z0-9]+[.]*[A-Za-z0-9]*")){
+          JOptionPane.showMessageDialog(rootPane, "Preencha o Email corretamente, deve conter o @");
+          txtEmail.requestFocus();
+          return false;
         }  
-      }
-      if(ftxtNascimento.getText().replace(" ", "").length() < 10){
-        JOptionPane.showMessageDialog(rootPane, "Preencha a data de nascimento corretamente");
-        ftxtNascimento.requestFocus();
-        return false;
-      }  
-      if(!Uteis.verificaData(ftxtNascimento.getText()) || !Uteis.verificaSeTem18Anos(ftxtNascimento.getText())){
-        JOptionPane.showMessageDialog(rootPane, "Preencha a data de nascimento corretamente");
-        ftxtNascimento.requestFocus();
-        return false;
-      }
-      if(!txtEmail.getText().matches("[A-Za-z0-9]+[@][A-Za-z0-9]+[.][A-Za-z0-9]+[.]*[A-Za-z0-9]*")){
-        JOptionPane.showMessageDialog(rootPane, "Preencha o Email corretamente, deve conter o @");
-        txtEmail.requestFocus();
-        return false;
-      }  
-      if(txtEndereco.getText().replace(" ", "").length() < 5){
-        JOptionPane.showMessageDialog(rootPane, "Preencha o endereco corretamente");
-        txtEndereco.requestFocus();
-        return false;
-      }  
-      if(ftxtTelefone.getText().replace(" ", "").length() < 12){
-        JOptionPane.showMessageDialog(rootPane, "Preencha o telefone corretamente");
-        ftxtTelefone.requestFocus();
-        return false;
-      }
-      
-      if(pswSenha.getPassword().length != 8){
-        JOptionPane.showMessageDialog(rootPane, "Preencha senha corretamente, ela deve conter 8 dígitos");
-        pswSenha.requestFocus();
-        return false;
-      }  
-      if(!formataSenhas()){
-        JOptionPane.showMessageDialog(rootPane, "Preencha senha corretamente, ela deve conter apenas numeros");
-        pswSenha.requestFocus();
-        return false;
-      }
-      if(pswSenhaLogin.getPassword().length != 6){
-        JOptionPane.showMessageDialog(rootPane, "Preencha senha de Login corretamente, ela deve conter 6 caracteres");
-        pswSenhaLogin.requestFocus();
-        return false;
-      }
-      return true;
+        if(txtEndereco.getText().replace(" ", "").length() < 5){
+          JOptionPane.showMessageDialog(rootPane, "Preencha o endereco corretamente");
+          txtEndereco.requestFocus();
+          return false;
+        }  
+        if(ftxtTelefone.getText().replace(" ", "").length() < 12){
+          JOptionPane.showMessageDialog(rootPane, "Preencha o telefone corretamente");
+          ftxtTelefone.requestFocus();
+          return false;
+        }
+
+        if(pswSenha.getPassword().length != 8){
+          JOptionPane.showMessageDialog(rootPane, "Preencha senha corretamente, ela deve conter 8 dígitos");
+          pswSenha.requestFocus();
+          return false;
+        }  
+        if(!formataSenhas()){
+          JOptionPane.showMessageDialog(rootPane, "Preencha senha corretamente, ela deve conter apenas numeros");
+          pswSenha.requestFocus();
+          return false;
+        }
+        if(pswSenhaLogin.getPassword().length != 6){
+          JOptionPane.showMessageDialog(rootPane, "Preencha senha de Login corretamente, ela deve conter 6 caracteres");
+          pswSenhaLogin.requestFocus();
+          return false;
+        }
+        return true;
     }
     /**
      * This method is called from within the constructor to initialize the form.
@@ -445,11 +433,19 @@ public class FrmCadastroPF extends javax.swing.JFrame {
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
         // Salvar
         if(validaCampos()){
-            
             try {
-                if(ControllerPessoaFisica.cadastraPessoaFisica(ftxtCpf.getText(),txtNome.getText(),formataData.parse(ftxtNascimento.getText()),cbxSexo.getItemAt(cbxSexo.getSelectedIndex()).toCharArray()[0],txtEmail.getText(),ftxtTelefone.getText(),txtEndereco.getText(), senha, senhaLogin)){
+                if(ControllerPessoaFisica.insert(ftxtCpf.getText(),txtNome.getText(),formataData.parse(ftxtNascimento.getText()),cbxSexo.getItemAt(cbxSexo.getSelectedIndex()).toCharArray()[0],txtEmail.getText(),ftxtTelefone.getText(),txtEndereco.getText(), senha, senhaLogin)){
                     JOptionPane.showMessageDialog(rootPane,"Cadastro realizado com sucesso");
-                    String s = ControllerConta.cadastraConta(ftxtCpf.getText(),cbxTipoConta.getItemAt(cbxTipoConta.getSelectedIndex()).toCharArray()[0]);
+                    int tipo = 0;
+                    switch(cbxTipoConta.getItemAt(cbxTipoConta.getSelectedIndex()).toCharArray()[0]){
+                        case 'P':
+                            tipo = 4;
+                            break;
+                        case 'C':
+                            tipo = 2;                                
+                            break;
+                    }
+                    String s = ControllerConta.cadastraConta(ftxtCpf.getText(),tipo, 'N');
                     if(!s.isEmpty()){
                         JOptionPane.showMessageDialog(rootPane,dadosConta(s));
                         new FrmLogin().setVisible(true);

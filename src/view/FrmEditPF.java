@@ -5,13 +5,11 @@
  */
 package view;
 
+import controller.ControllerPessoaFisica;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import model.classes.PessoaFisica;
-import model.dao.PessoaFisicaDAO;
 import uteis.Uteis;
 
 /**
@@ -26,10 +24,10 @@ public class FrmEditPF extends javax.swing.JFrame {
     private final SimpleDateFormat formataData = new SimpleDateFormat("dd/MM/yyyy");
     private PessoaFisica cliente = new PessoaFisica();
     private String use = "";    
-    public FrmEditPF(PessoaFisica clienteParaEditar) {
+    public FrmEditPF(String use) {
         initComponents();
-        cliente = clienteParaEditar;
-        use = clienteParaEditar.getCpf();
+        cliente = ControllerPessoaFisica.select(use);
+        this.use = use;
         preencheCampos();
     }
     
@@ -97,23 +95,6 @@ public class FrmEditPF extends javax.swing.JFrame {
         return false;
       }
       return true;
-    }
-    
-    public boolean salvar(){
-        try {
-            cliente.setCpf(ftxtCpf.getText());
-            cliente.setNome(txtNome.getText());
-            cliente.setNascimento(formataData.parse(ftxtNascimento.getText()));
-            cliente.setSexo(cbxSexo.getItemAt(cbxSexo.getSelectedIndex()).toCharArray()[0]);
-            cliente.setEmail(txtEmail.getText());
-            cliente.setTelefone(ftxtTelefone.getText());
-            cliente.setEndereco(txtEndereco.getText());
-            PessoaFisicaDAO editar = new PessoaFisicaDAO();
-            return editar.update(cliente);  
-        } catch (ParseException ex) {
-            Logger.getLogger(FrmEditPF.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
-        }
     }
     
     /**
@@ -355,13 +336,17 @@ public class FrmEditPF extends javax.swing.JFrame {
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
         // Salvar
         if(validaCampos()){
-            if(salvar()){ 
-                JOptionPane.showMessageDialog(rootPane,"Edição realizada com sucesso");
-                new FrmHome(cliente.getCpf(),0).setVisible(true);
-                this.dispose();
+            try {
+                if(ControllerPessoaFisica.update(ftxtCpf.getText(),txtNome.getText(),formataData.parse(ftxtNascimento.getText()),cbxSexo.getItemAt(cbxSexo.getSelectedIndex()).toCharArray()[0],txtEmail.getText(),ftxtTelefone.getText(),txtEndereco.getText(), cliente.getId())){
+                    JOptionPane.showMessageDialog(rootPane,"Edição realizada com sucesso");
+                    new FrmHome(cliente.getCpf(),0).setVisible(true);
+                    this.dispose();
+                }
+                else
+                    JOptionPane.showMessageDialog(rootPane,"Erro ao editar usuário");
+            } catch (ParseException ex) {
+                System.err.println("Erro: "+ex);
             }
-            else
-                JOptionPane.showMessageDialog(rootPane,"Erro ao editar usuário");
         }
     }//GEN-LAST:event_btnSalvarActionPerformed
 

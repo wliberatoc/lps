@@ -5,23 +5,16 @@
  */
 package view;
 
+import controller.ControllerConta;
+import controller.ControllerMovimentacaoBancaria;
+import controller.ControllerPessoaFisica;
+import controller.ControllerPessoaJuridica;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.text.MaskFormatter;
 import model.classes.Conta;
-import model.classes.MovimentacaoBancaria;
-import model.classes.TipoOperacao;
-import model.dao.ContaDAO;
-import model.dao.TipoOperacaoDAO;
-import model.dao.MovimentacaoBancariaDAO;
-import model.dao.PessoaFisicaDAO;
-import model.dao.PessoaJuridicaDAO;
-
 /**
  *
  * @author Willian-PC
@@ -33,10 +26,8 @@ public final class FrmTransferencia extends javax.swing.JFrame {
      * @param id
      * @param i
      */
-    ContaDAO contaDao = new ContaDAO();
-    ArrayList<Conta> conta  = new ArrayList<>();
-    ArrayList<Conta> destinatario  = new ArrayList<>();
-    TipoOperacaoDAO tipoO = new TipoOperacaoDAO();
+    Conta conta  = new Conta();
+    Conta destinatario  = new Conta();
     int i = 0;
     float valor = 0;
     public FrmTransferencia(int id, int i) {
@@ -47,14 +38,14 @@ public final class FrmTransferencia extends javax.swing.JFrame {
             MaskFormatter maskNumConta = new MaskFormatter("#.###-#");
             maskNumConta.install(ftxtNumeroDaConta);
         } catch (ParseException ex) {
-            Logger.getLogger(FrmCadastroPF.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println("Erro: "+ex);
         }
-        conta = contaDao.load(id);
+        conta = ControllerConta.load(id);
         
     }
     
     public void carregaTipo(){
-        tipoO.selectAll().forEach((tipo) -> {
+        ControllerMovimentacaoBancaria.pegaTipos().forEach((tipo) -> {
             if(tipo.getId() != 1 && tipo.getId() != 4 && tipo.getId() != 5 && tipo.getId() != 6)
                 cbxTipoOperacao.addItem(tipo);
         });
@@ -84,13 +75,13 @@ public final class FrmTransferencia extends javax.swing.JFrame {
                 tipo = 5;
                 break;
         }
-        destinatario = contaDao.select2Campos("numero_da_conta", ftxtNumeroDaConta.getText(),"tipo",tipo);
-        if(destinatario.isEmpty()){
+        destinatario = ControllerConta.confirmaConta(ftxtNumeroDaConta.getText(), tipo);
+        if(destinatario == null){
             JOptionPane.showMessageDialog(rootPane, "Conta informada errado");
             ftxtNumeroDaConta.requestFocus();
             return false;
         }
-        if(conta.get(0).getId() == destinatario.get(0).getId()){
+        if(conta.getId() == destinatario.getId()){
             JOptionPane.showMessageDialog(rootPane, "Você não pode transferir para a mesma conta");
             ftxtNumeroDaConta.requestFocus();
         }
@@ -101,12 +92,12 @@ public final class FrmTransferencia extends javax.swing.JFrame {
         }
         try{
             valor = Float.parseFloat(txtValor.getText());
-            if(valor < 3 || valor > conta.get(0).getLimiteTeds()){
-               JOptionPane.showMessageDialog(rootPane, "O valor informado deve ser um número entre 3 e "+conta.get(0).getLimiteTeds());
+            if(valor < 3 || valor > conta.getLimiteTeds()){
+               JOptionPane.showMessageDialog(rootPane, "O valor informado deve ser um número entre 3 e "+conta.getLimiteTeds());
                txtValor.requestFocus();
                return false;
             }
-            if(valor > conta.get(0).getSaldo()){
+            if(valor > conta.getSaldo()){
                 JOptionPane.showMessageDialog(rootPane, "Saldo insuficiente");
                 txtValor.requestFocus();
                 return false;
@@ -115,18 +106,16 @@ public final class FrmTransferencia extends javax.swing.JFrame {
             s = s.replace(" ", "").replace(",", "").replace("[", "").replace("]", "");
             try{
                 int senha = Integer.parseInt(s); 
-                    if(conta.get(0).getTipo()%2 == 0){
-                        PessoaFisicaDAO cliente = new PessoaFisicaDAO();
-                        if(cliente.select2Campos("cpf", conta.get(0).getUsuario(), "senha", senha)){
+                    if(conta.getTipo()%2 == 0){
+                        if(ControllerPessoaFisica.confirma(conta.getUsuario(), senha)){
                             return true;
                         }else{
                             JOptionPane.showMessageDialog(rootPane, "Senha incorreta ela deve conter 8 números");
                             pswSenha.requestFocus();
                             return false;
                         }   
-                    }else if(conta.get(0).getTipo()%2 == 1) {
-                       PessoaJuridicaDAO cliente = new PessoaJuridicaDAO();
-                        if(cliente.select2Campos("cnpj", conta.get(0).getUsuario(), "senha", senha)){
+                    }else if(conta.getTipo()%2 == 1) {
+                        if(ControllerPessoaJuridica.confirma(conta.getUsuario(), senha)){
                             return true;
                         }else{
                             JOptionPane.showMessageDialog(rootPane, "Senha incorreta ela deve conter 8 números");
@@ -146,45 +135,6 @@ public final class FrmTransferencia extends javax.swing.JFrame {
         }
         return true;
     }//fim valida campos
-    
-    public boolean salvar(){
-        Date hoje = new Date();
-        MovimentacaoBancaria mvb = new MovimentacaoBancaria();
-        mvb.setIdConta(conta.get(0).getId());
-        mvb.setData(hoje);
-        ArrayList<TipoOperacao> tipo = tipoO.select("descricao", cbxTipoOperacao.getItemAt(cbxTipoOperacao.getSelectedIndex()).toString());
-        mvb.setIdTipoOperacao(tipo.get(0).getId());
-        mvb.setDescricao(txtDescricao.getText());
-        mvb.setTipoMovimentacao('D');
-        mvb.setValor(valor);
-        MovimentacaoBancariaDAO mvbDao = new MovimentacaoBancariaDAO();
-        if(!mvbDao.insert(mvb))
-            return false;
-        mvb.setIdConta(destinatario.get(0).getId());
-        mvb.setTipoMovimentacao('C');
-        if(mvbDao.insert(mvb)){
-            mvb.setIdConta(conta.get(0).getId());
-            mvb.setTipoMovimentacao('S');
-            mvb.setDescricao("saldo de "+hoje);
-            mvb.setIdTipoOperacao(1);
-            mvb.setValor(conta.get(0).atualizaSaldo());
-            mvbDao.insert(mvb);
-            mvb.setIdConta(destinatario.get(0).getId());
-            mvb.setValor(destinatario.get(0).atualizaSaldo());
-            mvbDao.insert(mvb);
-            conta.get(0).setQtdTransacoes(conta.get(0).getQtdTransacoes()-1);
-            contaDao.update(conta.get(0));
-            return true;
-        }else{
-            mvb.setId(conta.get(0).getId());
-            mvb.setIdTipoOperacao(tipo.get(0).getId());
-            mvb.setDescricao("estorno de "+txtDescricao.getText());
-            mvb.setTipoMovimentacao('C');
-            mvbDao.insert(mvb);
-            return false;
-        }            
-    }
-        
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -404,14 +354,23 @@ public final class FrmTransferencia extends javax.swing.JFrame {
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
         // Salvar
         if(validaCampos()){
-            if(salvar()){
+            Date hoje = new Date();
+            String descricao = txtDescricao.getText();
+            int tipo = ControllerMovimentacaoBancaria.pegaIdTipo(cbxTipoOperacao.getItemAt(cbxTipoOperacao.getSelectedIndex()).toString());
+            if(ControllerMovimentacaoBancaria.insert(conta.getId(), 'D', hoje, tipo, descricao, Float.parseFloat(txtValor.getText()))){
+                ControllerMovimentacaoBancaria.insert(destinatario.getId(), 'C', hoje, tipo, descricao, Float.parseFloat(txtValor.getText()));
+                descricao = "saldo de "+hoje;
+                ControllerMovimentacaoBancaria.insert(conta.getId(), 'S', hoje, 1, descricao, ControllerConta.atualizaSaldo(conta.getId()));
+                ControllerMovimentacaoBancaria.insert(destinatario.getId(), 'S', hoje, 1, descricao, ControllerConta.atualizaSaldo(destinatario.getId()));
+                conta.setQtdTransacoes(conta.getQtdTransacoes()-1);
+                ControllerConta.update(conta);
                 JOptionPane.showMessageDialog(rootPane,"Transferencia realizada com sucesso");
                 int confirma = JOptionPane.showConfirmDialog(rootPane, "deseja realizar outra transferencia?","",JOptionPane.YES_NO_OPTION);
                 if(confirma == JOptionPane.YES_OPTION){
                     limpaCampos();
                     ftxtNumeroDaConta.requestFocus();
                 }else{
-                    new FrmHome(conta.get(0).getUsuario(),i).setVisible(true);
+                    new FrmHome(conta.getUsuario(),i).setVisible(true);
                     this.dispose();
                 }  
             }else
@@ -421,7 +380,7 @@ public final class FrmTransferencia extends javax.swing.JFrame {
 
     private void btnVoltarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVoltarActionPerformed
         // volar
-        new FrmHome(conta.get(0).getUsuario(),this.i).setVisible(true);
+        new FrmHome(conta.getUsuario(),this.i).setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnVoltarActionPerformed
 

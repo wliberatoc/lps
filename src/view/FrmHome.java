@@ -6,27 +6,15 @@
 package view;
 
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import controller.ControllerBoleto;
+import controller.ControllerConta;
+import controller.ControllerPessoaFisica;
+import controller.ControllerPessoaJuridica;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import model.classes.Boleto;
 import model.classes.Conta;
 import model.classes.Data;
-import model.classes.Mes;
-import model.classes.PessoaFisica;
-import model.classes.PessoaJuridica;
-import model.dao.BoletoDAO;
-import model.dao.ContaDAO;
-import model.dao.MesDAO;
-import model.dao.PessoaFisicaDAO;
-import model.dao.PessoaJuridicaDAO;
-
 
 /**
  *
@@ -37,24 +25,16 @@ public class FrmHome extends javax.swing.JFrame {
     /**
      * Creates new form frmHome
      */
-    private final SimpleDateFormat formataData = new SimpleDateFormat("dd/MM/yyyy");
-    ContaDAO contaDao = new ContaDAO();
     ArrayList<Conta> conta  = new ArrayList<>();
-    PessoaJuridicaDAO pj = new PessoaJuridicaDAO();
-    ArrayList<PessoaJuridica> clienteJ  = new ArrayList<>(); 
-    PessoaFisicaDAO pf = new PessoaFisicaDAO();
-    ArrayList<PessoaFisica> clienteF  = new ArrayList<>(); 
-    String data = "";
-    String codB = "";
     int i = 0;
     public FrmHome(String use, int i) {
         initComponents();
-        if(atualizaData())
-            atualizaQtds();
         this.i = i;
-        conta = contaDao.select("usuario", use);
-        conta.get(i).setSaldo(conta.get(i).atualizaSaldo()); 
-        contaDao.update(conta.get(i));
+        conta = ControllerConta.selecionarConta(use);
+        ControllerConta.atualizaQtds(conta.get(i).getId());
+        conta.get(i).setSaldo(ControllerConta.atualizaSaldo(conta.get(i).getId()));
+        if(!ControllerConta.update(conta.get(i)))
+            JOptionPane.showMessageDialog(rootPane, "Erro ao atualizar o salda da conta");
         btnOutraConta.setText("Mudar conta");
         if(conta.get(i).getTipo() < 4)
             lblTipoConta.setText("Saldo Conta Corrente:");
@@ -63,94 +43,9 @@ public class FrmHome extends javax.swing.JFrame {
         if(conta.size() == 1)
             btnOutraConta.setText("Criar conta");
         txtSaldo.setText(""+conta.get(i).getSaldo());
-        if(use.length() < 18){
-            clienteF = pf.select("cpf",use);
-            lblNome.setText(clienteF.get(0).getNome());
-        }            
-        else{
-            clienteJ = pj.select("cnpj",use);
-            lblNome.setText(clienteJ.get(0).getNome());
-        }
-        
+        lblNome.setText(ControllerConta.nomeUse(use)); 
     }
-    
-    public final boolean atualizaData(){
-        MesDAO mesD = new MesDAO();
-        String dataLimite = mesD.load(1);
-        String dataAtual = dataAtual();
-        int mes = Integer.parseInt(dataAtual.substring(3, 5));
-        int ano = Integer.parseInt(dataAtual.substring(6, 10));
-        int year = Integer.parseInt(dataLimite.substring(0, 4));
-        int month;
-        if(mes > 10)
-            month = Integer.parseInt(dataLimite.substring(6, 8));
-        else    
-            month = Integer.parseInt(dataLimite.substring(6, 7));
-        if(ano > year){
-            Mes dataL = new Mes();
-            try {
-                dataL.setId(1);
-                dataL.setData(formataData.parse("01/01/"+ano));
-                mesD.update(dataL);
-                return true;
-            } catch (ParseException ex) {
-                Logger.getLogger(FrmHome.class.getName()).log(Level.SEVERE, null, ex);
-                return false;
-            }            
-        }
-        else if (ano == year && mes > month){
-            Mes dataL = new Mes();
-            try {
-                dataL.setId(1);
-                dataL.setData(formataData.parse("01/"+mes+"/"+ano));
-                mesD.update(dataL);
-                return true;
-            } catch (ParseException ex) {
-                Logger.getLogger(FrmHome.class.getName()).log(Level.SEVERE, null, ex);
-                return false;
-            }
-        }
-        else
-            return false;         
-    }
-    
-    public final void atualizaQtds(){
-        switch (conta.get(i).getTipo()){
-            case 2:
-                conta.get(i).setQtdTransacoes(7);
-                conta.get(i).setQtdSaques(15);                
-                break;
-            case 4:
-                conta.get(i).setQtdTransacoes(10);
-                conta.get(i).setQtdSaques(20);
-                break;
-            case 3:
-                conta.get(i).setQtdTransacoes(15);
-                conta.get(i).setQtdSaques(50);
-                break;
-            case 5:
-                conta.get(i).setQtdTransacoes(10);
-                conta.get(i).setQtdSaques(20);
-                break;
-        }
-        contaDao.update(conta.get(i));
-    }
-    
-    public String dataAtual(){ 
-        Calendar cal = Calendar.getInstance();
-        int year = cal.get(Calendar.YEAR);
-        int month = cal.get(Calendar.MONTH)+1;
-        int day = cal.get(Calendar.DAY_OF_MONTH);
-        if(day<10 && month<10)
-            return "0"+day+"/0"+month+"/"+year;
-        else if (day<10 && month>9)
-            return "0"+day+"/"+month+"/"+year;
-        else if (day>9 && month<10)
-            return ""+day+"/0"+month+"/"+year;
-        else    
-            return ""+day+"/"+month+"/"+year;
-    }
-    
+
     public void mudarDeConta(){
         if(i == 1)
             i = 0;
@@ -160,52 +55,12 @@ public class FrmHome extends javax.swing.JFrame {
         this.dispose();
     }
     
-    public boolean criaConta(){
-        Conta newConta = new Conta();
-        newConta.setNumeroDaConta(conta.get(i).getNumeroDaConta());
-        newConta.setUsuario(conta.get(i).getUsuario());
-        newConta.setAgencia("0001");
-        Date hoje = new Date();
-        newConta.setAbertura(hoje);
-        switch (conta.get(i).getTipo()){
-            case 2:
-                newConta.setTipo(4);
-                newConta.setQtdTransacoes(7);
-                newConta.setLimiteTeds(1000);
-                newConta.setQtdSaques(15);
-                newConta.setLimiteSaques(1500);
-                break;
-            case 4:
-                newConta.setTipo(2);
-                newConta.setQtdTransacoes(10);
-                newConta.setLimiteTeds(1500);
-                newConta.setQtdSaques(20);
-                newConta.setLimiteSaques(2000);
-                break;
-            case 3:
-                newConta.setTipo(5);
-                newConta.setQtdTransacoes(15);
-                newConta.setLimiteTeds(3000);
-                newConta.setQtdSaques(50);
-                newConta.setLimiteSaques(5000);
-                break;
-            case 5:
-                newConta.setTipo(3);
-                newConta.setQtdTransacoes(10);
-                newConta.setLimiteTeds(1500);
-                newConta.setQtdSaques(20);
-                newConta.setLimiteSaques(2000); 
-                break;
-        }
-        return contaDao.insert(newConta);
-    }
-    
     public void editar(){
         if(conta.get(i).getTipo() % 2 == 0){
-            new FrmEditPF(clienteF.get(0)).setVisible(true);
+            new FrmEditPF(conta.get(i).getUsuario()).setVisible(true);
             this.dispose();
         }else{
-            new FrmEditPJ(clienteJ.get(0)).setVisible(true);
+            new FrmEditPJ(conta.get(i).getUsuario()).setVisible(true);
             this.dispose();
         }
     }
@@ -214,7 +69,7 @@ public class FrmHome extends javax.swing.JFrame {
         int confirma = JOptionPane.showConfirmDialog(rootPane, "Confirma que deseja EXCLUIR SEU CADASTROS?","Confimação",JOptionPane.YES_NO_OPTION);
         if(confirma == JOptionPane.YES_OPTION){ 
             if(conta.get(i).getTipo() % 2 == 0){
-                if(pf.delete(clienteF.get(0).getId()) && contaDao.deleteAll(clienteF.get(0).getCpf())){
+                if(ControllerPessoaFisica.delete(conta.get(i).getUsuario()) && ControllerConta.deleteAll(conta.get(i).getUsuario())){
                     JOptionPane.showMessageDialog(rootPane, "Conta Excluida");
                     new FrmLogin().setVisible(true);
                     this.dispose();
@@ -222,7 +77,7 @@ public class FrmHome extends javax.swing.JFrame {
                 else
                     JOptionPane.showMessageDialog(rootPane, "Erro ao tentar Excluir");
             }else{
-                if(pj.delete(clienteJ.get(0).getId()) && contaDao.deleteAll(clienteJ.get(0).getCnpj())){
+                if(ControllerPessoaJuridica.delete(conta.get(i).getUsuario()) && ControllerConta.deleteAll(conta.get(i).getUsuario())){
                     JOptionPane.showMessageDialog(rootPane, "Conta Excluida");
                     new FrmLogin().setVisible(true);
                     this.dispose();
@@ -231,10 +86,7 @@ public class FrmHome extends javax.swing.JFrame {
                     JOptionPane.showMessageDialog(rootPane, "Erro ao tentar Excluir");
             }
         }
-    }
-        
-                JOptionPane.showMessageDialog(rootPane, "Valor informado deve ser maior que 3 e com no maximo 7 digitos");
-                txtValor.requestFocus();
+    }           
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -556,12 +408,18 @@ public class FrmHome extends javax.swing.JFrame {
 
     private void btnGerarBoletoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGerarBoletoActionPerformed
         // GeraBoleto
-        if(geraBoleto()){
-            JOptionPane.showMessageDialog(rootPane, "Boleto gerado com sucesso");
-            txtVencimento.setText(data);
-            txtCodigoDeBarras.setText(codB);
-        }else
+        ControllerBoleto boleto = new ControllerBoleto();
+        String tipo = ""+conta.get(i).getTipo();
+        String [] bol;
+        bol = boleto.geraBoleto(conta.get(i).getNumeroDaConta(),tipo,txtValor.getText(), conta.get(i).getId());
+        if(bol == null){
             JOptionPane.showMessageDialog(rootPane, "Erro na geração do boleto");
+            txtValor.requestFocus();
+        }else{
+            JOptionPane.showMessageDialog(rootPane, "Boleto gerado com sucesso");
+            txtVencimento.setText(bol[1]);
+            txtCodigoDeBarras.setText(bol[0]);
+        }            
     }//GEN-LAST:event_btnGerarBoletoActionPerformed
 
     private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
@@ -582,16 +440,20 @@ public class FrmHome extends javax.swing.JFrame {
 
     private void btnOutraContaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOutraContaActionPerformed
         // criar
-        if(btnOutraConta.getText().equals("Criar conta"))
-            if(criaConta()){
+        if(btnOutraConta.getText().equals("Criar conta")){
+            int tipo;
+            if (conta.get(i).getTipo() > 3)
+                tipo = conta.get(i).getTipo() - 2;
+            else
+                tipo = conta.get(i).getTipo() + 2;
+            if(ControllerConta.cadastraConta(conta.get(i).getUsuario(), tipo, 'M').isEmpty())
+                JOptionPane.showMessageDialog(rootPane,"Erro ao criar conta");
+            else{        
                 JOptionPane.showMessageDialog(rootPane,"Conta criada com sucesso");
                 btnOutraConta.setText("Mudar conta");
-            }
-            else
-                JOptionPane.showMessageDialog(rootPane,"Erro ao criar conta");
-        else{// mudar
-            mudarDeConta();
-        }   
+            }   
+        }else// mudar
+            mudarDeConta();   
     }//GEN-LAST:event_btnOutraContaActionPerformed
 
     private void btnLimparActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimparActionPerformed
@@ -599,8 +461,6 @@ public class FrmHome extends javax.swing.JFrame {
         txtValor.setText("");
         txtVencimento.setText("");
         txtCodigoDeBarras.setText("");
-        data = "";
-        codB = "";
     }//GEN-LAST:event_btnLimparActionPerformed
 
     private void brnInfoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_brnInfoActionPerformed
@@ -630,15 +490,11 @@ public class FrmHome extends javax.swing.JFrame {
         //saldo
         if(cbxVisualizar.getSelectedIndex() == 0){
             Data date = new Data();
-            try {
-                date.setInicio(formataData.parse(dataAtual()));
-                date.setFim(formataData.parse(dataAtual()));
-                new FrmVisualizar(conta.get(i).getId(),i, date).setVisible(true);
-                this.dispose();
-            } catch (ParseException ex) {
-                Logger.getLogger(FrmHome.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            
+            Date hoje = new Date();
+            date.setInicio(hoje);
+            date.setFim(hoje);
+            new FrmVisualizar(conta.get(i).getId(),i, date).setVisible(true);
+            this.dispose();
         }else{//extrato
             new FrmSelectData(conta.get(i).getId(),i).setVisible(true);
             this.dispose();

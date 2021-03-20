@@ -5,22 +5,18 @@
  */
 package view;
 
+import controller.ControllerBoleto;
+import controller.ControllerConta;
+import controller.ControllerMovimentacaoBancaria;
+import controller.ControllerPessoaFisica;
+import controller.ControllerPessoaJuridica;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.text.MaskFormatter;
 import model.classes.Boleto;
 import model.classes.Conta;
-import model.classes.MovimentacaoBancaria;
-import model.dao.BoletoDAO;
-import model.dao.ContaDAO;
-import model.dao.MovimentacaoBancariaDAO;
-import model.dao.PessoaFisicaDAO;
-import model.dao.PessoaJuridicaDAO;
 
 /**
  *
@@ -31,58 +27,57 @@ public class FrmPagamento extends javax.swing.JFrame {
     /**
      * Creates new form FrmPagamento
      */
-    ContaDAO contaDao = new ContaDAO();
-    ArrayList<Conta> conta  = new ArrayList<>();
-    ArrayList<Boleto> boleto  = new ArrayList<>();
-    BoletoDAO boletoDAO = new BoletoDAO();
+    Conta conta  = new Conta();
+    Boleto boleto  = new Boleto();
     Date hoje = new Date();
     int i = 0;
-    
     public FrmPagamento(int id, int i) {
         initComponents();
         this.i = i;
-        conta = contaDao.load(id);
+        conta = ControllerConta.load(id);
         try {
             MaskFormatter maskCodDeBarras = new MaskFormatter("#######.#######.####### # #######");
             maskCodDeBarras.install(ftxtCodigoDeBarras);
         } catch (ParseException ex) {
-            Logger.getLogger(FrmCadastroPF.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println("Erro: "+ex);
         }
     }
+    
     public void limpaCampos(){
         ftxtCodigoDeBarras.setText("");
         txtValor.setText("");
         pswSenha.setText("");
     }
-    
+     
     public boolean validaCampos(){
-        boleto = boletoDAO.select("codigo_de_barras", ftxtCodigoDeBarras.getText());
-        if(boleto.isEmpty()){
+        boleto = ControllerBoleto.select(ftxtCodigoDeBarras.getText());
+        if(boleto == null){
             JOptionPane.showMessageDialog(rootPane, "Codigo de barras informado errado");
             ftxtCodigoDeBarras.requestFocus();
             return false;
         }
-        //if(boleto.get(0).getDataDeVencimento() < hoje.getTime()) {
-            
-        //}
+        if(ControllerBoleto.isVencido(boleto.getDataDeVencimento().toString())) {
+            JOptionPane.showMessageDialog(rootPane, "Boleto vencido");
+            return false;
+        }
         try{
             float valor = Float.parseFloat(txtValor.getText());
-            if(valor < 3 || valor > conta.get(0).getLimiteTeds()){
-               JOptionPane.showMessageDialog(rootPane, "O valor informado deve ser um número entre 3 e "+conta.get(0).getLimiteSaques());
+            if(valor < 3 || valor > conta.getLimiteTeds()){
+               JOptionPane.showMessageDialog(rootPane, "O valor informado deve ser um número entre 3 e "+conta.getLimiteSaques());
                txtValor.requestFocus();
                return false;
             }
-            if(valor > conta.get(0).getSaldo()){
+            if(valor > conta.getSaldo()){
                 JOptionPane.showMessageDialog(rootPane, "Saldo insuficiente");
                 txtValor.requestFocus();
                 return false;
             }
-            if(valor != boleto.get(0).getValor()){
+            if(valor != boleto.getValor()){
                 JOptionPane.showMessageDialog(rootPane, "O valor informado deve ser o mesmo valor do boleto");
                 txtValor.requestFocus();
                 return false;
             }
-            if(boleto.get(0).isPago() == true){
+            if(boleto.isPago() == true){
                 JOptionPane.showMessageDialog(rootPane, "Este boleto ja foi pago");
                 ftxtCodigoDeBarras.requestFocus();
                 return false;
@@ -91,20 +86,18 @@ public class FrmPagamento extends javax.swing.JFrame {
             s = s.replace(" ", "").replace(",", "").replace("[", "").replace("]", "");
             try{
                 int senha = Integer.parseInt(s); 
-                    if(conta.get(0).getTipo()%2 == 0){
-                        PessoaFisicaDAO cliente = new PessoaFisicaDAO();
-                        if(cliente.select2Campos("cpf", conta.get(0).getUsuario(), "senha", senha)){
+                    if(conta.getTipo()%2 == 0){
+                        if(ControllerPessoaFisica.confirma(conta.getUsuario(), senha))
                             return true;
-                        }else{
+                        else{
                             JOptionPane.showMessageDialog(rootPane, "Senha incorreta ela deve conter 8 números");
                             pswSenha.requestFocus();
                             return false;
                         }   
-                    }else if(conta.get(0).getTipo()%2 == 1) {
-                       PessoaJuridicaDAO cliente = new PessoaJuridicaDAO();
-                        if(cliente.select2Campos("cnpj", conta.get(0).getUsuario(), "senha", senha)){
+                    }else if(conta.getTipo()%2 == 1) {
+                        if(ControllerPessoaJuridica.confirma(conta.getUsuario(), senha))
                             return true;
-                        }else{
+                        else{
                             JOptionPane.showMessageDialog(rootPane, "Senha incorreta ela deve conter 8 números");
                             pswSenha.requestFocus();
                             return false;
@@ -115,7 +108,7 @@ public class FrmPagamento extends javax.swing.JFrame {
                pswSenha.requestFocus();
                return false;
             }
-            if(boleto.get(0).isPago()){
+            if(boleto.isPago()){
                 JOptionPane.showMessageDialog(rootPane, "Esse boleto ja foi pago");
                 return false;
             }
@@ -125,43 +118,6 @@ public class FrmPagamento extends javax.swing.JFrame {
             return false;
         }
         return true;
-    }  
-    
-    public boolean salvar(){
-        MovimentacaoBancaria mvb = new MovimentacaoBancaria();
-        mvb.setIdConta(conta.get(0).getId());
-        mvb.setTipoMovimentacao('D');
-        mvb.setData(hoje);
-        mvb.setIdTipoOperacao(5);
-        mvb.setDescricao("pagamento boleto");
-        mvb.setValor(Float.parseFloat(txtValor.getText()));
-        MovimentacaoBancariaDAO mvbDao = new MovimentacaoBancariaDAO();
-        if(!mvbDao.insert(mvb))
-            return false;
-        mvb.setIdConta(boleto.get(0).getIdConta());
-        mvb.setTipoMovimentacao('C');
-        if(mvbDao.insert(mvb)){
-            mvb.setTipoMovimentacao('S');
-            mvb.setDescricao("saldo de "+hoje);
-            mvb.setIdTipoOperacao(1);
-            ArrayList<Conta> destinatario = contaDao.load(boleto.get(0).getIdConta());
-            mvb.setValor(destinatario.get(0).atualizaSaldo());
-            mvbDao.insert(mvb);
-            mvb.setIdConta(conta.get(0).getId());
-            mvb.setValor(conta.get(0).atualizaSaldo());
-            mvbDao.insert(mvb);
-            boleto.get(0).setPago(true);
-            boletoDAO.update(boleto.get(0));
-            conta.get(0).setQtdTransacoes(conta.get(0).getQtdTransacoes()-1);
-            contaDao.update(conta.get(0));
-            return true;
-        }else{
-            mvb.setIdConta(conta.get(0).getId());
-            mvb.setTipoMovimentacao('C');
-            mvb.setDescricao("estorno pagamento");
-            mvbDao.insert(mvb);
-            return false;            
-        }
     }
     
     /**
@@ -341,14 +297,23 @@ public class FrmPagamento extends javax.swing.JFrame {
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
         // Salvar
         if(validaCampos()){
-            if(salvar()){
+            String descricao ="pagamento boleto";
+            if(ControllerMovimentacaoBancaria.insert(conta.getId(), 'D', hoje, 5, descricao, Float.parseFloat(txtValor.getText()))){
+                ControllerMovimentacaoBancaria.insert(boleto.getIdConta(), 'C', hoje, 5, descricao, Float.parseFloat(txtValor.getText()));
+                descricao = "saldo de "+hoje;
+                ControllerMovimentacaoBancaria.insert(conta.getId(), 'S', hoje, 1, descricao, ControllerConta.atualizaSaldo(conta.getId()));
+                ControllerMovimentacaoBancaria.insert(boleto.getIdConta(), 'S', hoje, 1, descricao, ControllerConta.atualizaSaldo(boleto.getIdConta()));
+                boleto.setPago(true);
+                ControllerBoleto.update(boleto);
+                conta.setQtdTransacoes(conta.getQtdTransacoes()-1);
+                ControllerConta.update(conta);
                 JOptionPane.showMessageDialog(rootPane,"Pagamento realizado com sucesso");
                 int confirma = JOptionPane.showConfirmDialog(rootPane, "deseja realizar outro pagamento?","",JOptionPane.YES_NO_OPTION);
                 if(confirma == JOptionPane.YES_OPTION){
                     limpaCampos();
                     ftxtCodigoDeBarras.requestFocus();
                 }else{
-                    new FrmHome(conta.get(0).getUsuario(), i).setVisible(true);
+                    new FrmHome(conta.getUsuario(), i).setVisible(true);
                     this.dispose();
                 }
             }else
@@ -358,7 +323,7 @@ public class FrmPagamento extends javax.swing.JFrame {
 
     private void btnVoltarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVoltarActionPerformed
         // volar
-        new FrmHome(conta.get(0).getUsuario(), i).setVisible(true);
+        new FrmHome(conta.getUsuario(), i).setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnVoltarActionPerformed
 

@@ -73,45 +73,14 @@ public class ContaDAO {
         }   
     }
     
-    public ArrayList<Conta> select2Campos(String campo, String query, String campo2, int query2){
-        String sql = "SELECT * FROM tbl_conta WHERE "+campo+" LIKE ? AND "+campo2+" = ?";
-        ArrayList<Conta> lista  = new ArrayList<>();
-        try {
-            stmt = Persistencia.getConnection().prepareStatement(sql);
-            stmt.setString(1, query);
-            stmt.setInt(2, query2);
-            rs = stmt.executeQuery();
-            while(rs.next()){
-                Conta conta = new Conta();
-                conta.setId(rs.getInt("id"));
-                conta.setNumeroDaConta(rs.getString("numero_da_conta"));
-                conta.setAgencia(rs.getString("agencia"));
-                conta.setTipo(rs.getInt("tipo"));
-                conta.setSaldo(rs.getFloat("saldo"));
-                conta.setQtdTransacoes(rs.getInt("qtd_transacoes"));
-                conta.setQtdSaques(rs.getInt("qtd_saques"));
-                conta.setLimiteTeds(rs.getInt("limite_teds"));
-                conta.setLimiteSaques(rs.getInt("limite_saques"));
-                conta.setAbertura(rs.getDate("data_abertura"));
-                conta.setUsuario(rs.getString("usuario"));
-                lista.add(conta);
-            }
-            return lista;
-        } catch (SQLException ex) {
-            System.err.println("Erro Conta: "+ex);
-            return null;
-        }   
-    }
-    
-    public ArrayList<Conta> load(int id){
+    public Conta load(int id){
         String sql = "SELECT * FROM tbl_conta WHERE tbl_conta.id = ?";
-        ArrayList<Conta> lista  = new ArrayList<>();
         try {
             stmt = Persistencia.getConnection().prepareStatement(sql);
             stmt.setInt(1, id);
             rs = stmt.executeQuery();
+            Conta conta = new Conta();
             while(rs.next()){
-                Conta conta = new Conta();
                 conta.setId(rs.getInt("id"));
                 conta.setNumeroDaConta(rs.getString("numero_da_conta"));
                 conta.setAgencia(rs.getString("agencia"));
@@ -123,42 +92,40 @@ public class ContaDAO {
                 conta.setLimiteSaques(rs.getInt("limite_saques"));
                 conta.setAbertura(rs.getDate("data_abertura"));
                 conta.setUsuario(rs.getString("usuario"));
-                lista.add(conta);
             }
-            return lista;
+            return conta;
         } catch (SQLException ex) {
             System.err.println("Erro Conta: "+ex);
             return null;
         }   
     }//fim load
     
-    
-    public ArrayList<Conta> selectAll(){     
-        String sql = "SELECT * FROM tbl_conta ";
-        ArrayList<Conta> lista  = new ArrayList<>();
+    public String pegaNomeUsePf(String use){
+        String sql = "SELECT nome FROM tbl_pessoa_fisica WHERE cpf LIKE ? ";
         try {
             stmt = Persistencia.getConnection().prepareStatement(sql);
+            stmt.setString(1, use);
             rs = stmt.executeQuery();
-            while(rs.next()){
-                Conta conta = new Conta();
-                conta.setId(rs.getInt("id"));
-                conta.setNumeroDaConta(rs.getString("numero_da_conta"));
-                conta.setAgencia(rs.getString("agencia"));
-                conta.setTipo(rs.getInt("tipo"));
-                conta.setSaldo(rs.getFloat("saldo"));
-                conta.setQtdTransacoes(rs.getInt("qtd_transacoes"));
-                conta.setQtdSaques(rs.getInt("qtd_saques"));
-                conta.setLimiteTeds(rs.getFloat("limite_teds"));
-                conta.setLimiteTeds(rs.getFloat("limite_saques"));
-                conta.setAbertura(rs.getDate("data_abertura"));
-                conta.setUsuario(rs.getString("usuario"));
-                lista.add(conta);
-            }
-            return lista;
+            rs.next();
+            return rs.getString("nome");
         } catch (SQLException ex) {
             System.err.println("Erro Conta: "+ex);
             return null;
-        }    
+        }   
+    }
+    
+    public String pegaNomeUsePJ(String use){
+        String sql = "SELECT nome FROM tbl_pessoa_juridica WHERE cnpj LIKE ? ";
+        try {
+            stmt = Persistencia.getConnection().prepareStatement(sql);
+            stmt.setString(1, use);
+            rs = stmt.executeQuery();
+            rs.next();
+            return rs.getString("nome");
+        } catch (SQLException ex) {
+            System.err.println("Erro Conta: "+ex);
+            return null;
+        }   
     }
     
     public boolean update(Conta conta){
@@ -197,11 +164,11 @@ public class ContaDAO {
         }
     }  
     
-    public boolean deleteAll(String cpf){
+    public boolean deleteAll(String use){
         String sql = "DELETE FROM tbl_conta WHERE tbl_conta.usuario = ?";
         try {
             stmt = Persistencia.getConnection().prepareStatement(sql);
-            stmt.setString(1, cpf);
+            stmt.setString(1, use);
             stmt.executeUpdate();
             return true;
         } catch (SQLException ex) {

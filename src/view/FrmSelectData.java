@@ -4,17 +4,14 @@
  * and open the template in the editor.
  */
 package view;
+import controller.ControllerConta;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;;
 import java.util.Calendar;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.text.MaskFormatter;
 import model.classes.Conta;
 import model.classes.Data;
-import model.dao.ContaDAO;
 import uteis.Uteis;
 /**
  *
@@ -28,15 +25,14 @@ public class FrmSelectData extends javax.swing.JFrame {
      * @param i
      * @param view
      */
-    ContaDAO contaDao = new ContaDAO();
-    ArrayList<Conta> conta  = new ArrayList<>();
+    Conta conta  = new Conta();
     int i;
     String inicio;
     String fim;
     public FrmSelectData(int id, int i) {
         initComponents();
         this.i = i;
-        conta = contaDao.load(id);
+        conta = ControllerConta.load(id);
         try {
             MaskFormatter maskData = new MaskFormatter("##/##/####");
             MaskFormatter maskData2 = new MaskFormatter("##/##/####");
@@ -44,7 +40,7 @@ public class FrmSelectData extends javax.swing.JFrame {
             maskData.install(ftxtInicio);
             maskData2.install(ftxtFim);
         } catch (ParseException ex) {
-            Logger.getLogger(FrmCadastroPF.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println("Erro: "+ex);
         }
     }
     
@@ -54,7 +50,7 @@ public class FrmSelectData extends javax.swing.JFrame {
     }
     
     public boolean verificaData(){
-        if(ftxtInicio.getText().isEmpty()){
+        if(ftxtInicio.getText().replace(" ", "").equals("//")){
             JOptionPane.showMessageDialog(rootPane, "É necessário informar a data de início");
             ftxtInicio.requestFocus();
             return false;
@@ -63,7 +59,7 @@ public class FrmSelectData extends javax.swing.JFrame {
         int dia = Integer.parseInt(inicio.substring(0,2));
         int mes = Integer.parseInt(inicio.substring(3,5));
         int ano = Integer.parseInt(inicio.substring(6,10));
-        if(!Uteis.verificaData(fim))
+        if(!Uteis.verificaData(inicio))
             return false;
         else if(ftxtFim.getText().replace(" ", "").equals("//")){
             Calendar cal = Calendar.getInstance();
@@ -232,7 +228,7 @@ public class FrmSelectData extends javax.swing.JFrame {
             try {
                 data.setInicio(formataData.parse(inicio));
                 data.setFim(formataData.parse(fim));
-                new FrmVisualizar(conta.get(0).getId(),i,data).setVisible(true);
+                new FrmVisualizar(conta.getId(),i,data).setVisible(true);
                 this.dispose();
             } catch (ParseException ex) {
                 System.err.println("Erro: "+ex);
@@ -242,7 +238,7 @@ public class FrmSelectData extends javax.swing.JFrame {
 
     private void btnVoltar3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVoltar3ActionPerformed
         // volar
-        new FrmHome(conta.get(0).getUsuario(),this.i).setVisible(true);
+        new FrmHome(conta.getUsuario(),this.i).setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnVoltar3ActionPerformed
 

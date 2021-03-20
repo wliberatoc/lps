@@ -408,8 +408,17 @@ public class FrmCadastroPJ extends javax.swing.JFrame {
         // Salvar
         if(validaCampos()){
             try {
-                if(ControllerPessoaJuridica.cadastraPessoaJuridica(ftxtCnpj.getText(),txtNome.getText(),formataData.parse(ftxtFundacao.getText()),txtEmail.getText(),ftxtTelefone.getText(),txtEndereco.getText(), senha, senhaLogin)){
-                    String s = ControllerConta.cadastraConta(ftxtCnpj.getText(),cbxTipoConta.getItemAt(cbxTipoConta.getSelectedIndex()).toCharArray()[0]);
+                if(ControllerPessoaJuridica.insert(ftxtCnpj.getText(),txtNome.getText(),formataData.parse(ftxtFundacao.getText()),txtEmail.getText(),ftxtTelefone.getText(),txtEndereco.getText(), senha, senhaLogin)){
+                    int tipo = 0;
+                    switch(cbxTipoConta.getItemAt(cbxTipoConta.getSelectedIndex()).toCharArray()[0]){
+                        case 'P':
+                            tipo = 5;
+                            break;
+                        case 'C':
+                            tipo = 3;                                
+                            break;
+                    }
+                    String s = ControllerConta.cadastraConta(ftxtCnpj.getText(),tipo, 'N');
                     if(!s.isEmpty()){
                         JOptionPane.showMessageDialog(rootPane,dadosConta(s));
                         new FrmLogin().setVisible(true);

@@ -5,13 +5,11 @@
  */
 package view;
 
-import java.util.ArrayList;
+import controller.ControllerConta;
+import controller.ControllerMovimentacaoBancaria;
 import java.util.Date;
 import javax.swing.JOptionPane;
 import model.classes.Conta;
-import model.classes.MovimentacaoBancaria;
-import model.dao.ContaDAO;
-import model.dao.MovimentacaoBancariaDAO;
 
 /**
  *
@@ -22,14 +20,13 @@ public class FrmDeposito extends javax.swing.JFrame {
     /**
      * Creates new form FrmDeposito
      */
-    ContaDAO contaDao = new ContaDAO();
-    ArrayList<Conta> conta  = new ArrayList<>();
+    Conta conta  = new Conta();
     int i;
     float valor = 0;
     public FrmDeposito(int id, int i) {
         initComponents();
         this.i = i;
-        conta = contaDao.load(id);
+        conta = ControllerConta.load(id);
         preencheCampos();
     }
     
@@ -38,9 +35,9 @@ public class FrmDeposito extends javax.swing.JFrame {
     }
     
     public final void  preencheCampos(){
-        ftxtNumeroDaConta.setText(conta.get(0).getNumeroDaConta());
-        txtAgencia.setText(conta.get(0).getAgencia());
-        cbxTipoDaConta.setSelectedIndex(conta.get(0).getTipo()-2);
+        ftxtNumeroDaConta.setText(conta.getNumeroDaConta());
+        txtAgencia.setText(conta.getAgencia());
+        cbxTipoDaConta.setSelectedIndex(conta.getTipo()-2);
     }
     public boolean validaCampos(){
         try{
@@ -57,26 +54,6 @@ public class FrmDeposito extends javax.swing.JFrame {
             return false;
         }
     }
-    public boolean salvar(){
-        Date hoje = new Date();
-        MovimentacaoBancaria mvb = new MovimentacaoBancaria();
-        mvb.setIdConta(conta.get(0).getId());
-        mvb.setData(hoje);
-        mvb.setIdTipoOperacao(6);
-        mvb.setDescricao("Depósito");
-        mvb.setTipoMovimentacao('C');
-        mvb.setValor(valor);
-        MovimentacaoBancariaDAO mvbDao = new MovimentacaoBancariaDAO();
-        if(!mvbDao.insert(mvb))
-            return false;
-        mvb.setTipoMovimentacao('S');
-        mvb.setDescricao("saldo de "+hoje);
-        mvb.setIdTipoOperacao(1);
-        mvb.setValor(conta.get(0).atualizaSaldo());
-        mvbDao.insert(mvb);
-        return true;
-    }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -267,13 +244,17 @@ public class FrmDeposito extends javax.swing.JFrame {
     private void btnSalvar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvar1ActionPerformed
         // Salvar
         if(validaCampos()){
-            if(salvar()){
+            Date hoje = new Date();
+            String descricao ="Depósito";
+            if(ControllerMovimentacaoBancaria.insert(conta.getId(), 'C', hoje, 6, descricao, Float.parseFloat(txtValor.getText()))){
+                descricao ="saldo de "+hoje;
+                ControllerMovimentacaoBancaria.insert(conta.getId(), 'S', hoje, 1, descricao, ControllerConta.atualizaSaldo(conta.getId()));
                 JOptionPane.showMessageDialog(rootPane,"Depósito realizado com sucesso");
                 int confirma = JOptionPane.showConfirmDialog(rootPane, "deseja realizar outro depósito?","",JOptionPane.YES_NO_OPTION);
                 if(confirma == JOptionPane.YES_OPTION)
                 limpaCampos();
                 else{
-                    new FrmHome(conta.get(0).getUsuario(),i).setVisible(true);
+                    new FrmHome(conta.getUsuario(),i).setVisible(true);
                     this.dispose();
                 }
             }
@@ -284,7 +265,7 @@ public class FrmDeposito extends javax.swing.JFrame {
 
     private void btnVoltarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVoltarActionPerformed
         // volar
-        new FrmHome(conta.get(0).getUsuario(),this.i).setVisible(true);
+        new FrmHome(conta.getUsuario(),this.i).setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnVoltarActionPerformed
 

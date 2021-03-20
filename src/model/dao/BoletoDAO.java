@@ -10,7 +10,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Date;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import model.classes.Boleto;
 
 /**
@@ -37,54 +36,29 @@ public class BoletoDAO {
             return false;
         }
     }
-    public ArrayList<Boleto> select(String campo, String query){
-        String sql = "SELECT * FROM tbl_boleto WHERE "+campo+" LIKE ?";
-        ArrayList<Boleto> lista  = new ArrayList<>();
+    
+    public Boleto select(String query){
+        String sql = "SELECT * FROM tbl_boleto WHERE codigo_de_barras LIKE ?";
         try {
             stmt = Persistencia.getConnection().prepareStatement(sql);
             stmt.setString(1, query);
             rs = stmt.executeQuery();
+            Boleto boleto = new Boleto();
             while(rs.next()){
-                Boleto boleto = new Boleto();
                 boleto.setId(rs.getInt("id"));                
                 boleto.setCodigoDeBarras(rs.getString("codigo_de_barras"));
                 boleto.setIdConta(rs.getInt("id_conta"));
                 boleto.setValor(rs.getFloat("valor"));
                 boleto.setDataDeVencimento(rs.getDate("data_de_vencimento"));
                 boleto.setPago(rs.getBoolean("pago"));
-                lista.add(boleto);
             }
-            return lista;
+            return boleto;
         } catch (SQLException ex) {
             System.err.println("Erro Boleto: "+ex);
             return null;
         }   
     }
-    
-    public ArrayList<Boleto> load(int id){
-        String sql = "SELECT * FROM tbl_boleto WHERE tbl_boleto.id = ?";
-        ArrayList<Boleto> lista  = new ArrayList<>();
-        try {
-            stmt = Persistencia.getConnection().prepareStatement(sql);
-            stmt.setInt(1, id);
-            rs = stmt.executeQuery();
-            while(rs.next()){
-                Boleto boleto = new Boleto();
-                boleto.setId(rs.getInt("id"));                
-                boleto.setCodigoDeBarras(rs.getString("codigo_de_barras"));
-                boleto.setIdConta(rs.getInt("id_conta"));
-                boleto.setValor(rs.getFloat("valor"));
-                boleto.setDataDeVencimento(rs.getDate("data_de_vencimento"));
-                boleto.setPago(rs.getBoolean("pago"));
-                lista.add(boleto);
-            }
-            return lista;
-        } catch (SQLException ex) {
-            System.err.println("Erro Boleto: "+ex);
-            return null;
-        }   
-    }//fim load
-    
+
     public boolean update(Boleto boleto){
         String sql = "UPDATE tbl_boleto SET codigo_de_barras = ?, id_conta = ?, valor = ?, data_de_vencimento = ?, pago = ? WHERE tbl_boleto.id = ?";
         try {
@@ -102,17 +76,4 @@ public class BoletoDAO {
             return false;
         }
     }  
-    
-    public boolean delete(int id){
-        String sql = "DELETE FROM tbl_boleto WHERE tbl_boleto.id = ?";
-        try {
-            stmt = Persistencia.getConnection().prepareStatement(sql);
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
-            return true;
-        } catch (SQLException ex) {
-            System.err.println("Erro Boleto: "+ex);
-            return false;
-        }
-    } 
 }

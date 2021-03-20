@@ -5,14 +5,13 @@
  */
 package view;
 
+import controller.ControllerPessoaJuridica;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import model.classes.PessoaJuridica;
-import model.dao.PessoaJuridicaDAO;
 import uteis.Uteis;
 
 /**
@@ -27,10 +26,10 @@ public class FrmEditPJ extends javax.swing.JFrame {
     private final SimpleDateFormat formataData = new SimpleDateFormat("dd/MM/yyyy");
     PessoaJuridica cliente = new PessoaJuridica();
     private String use = "";        
-    public FrmEditPJ(PessoaJuridica clienteParaEditar) {
+    public FrmEditPJ(String use) {
         initComponents();
-        cliente = clienteParaEditar;
-        use = clienteParaEditar.getCnpj();
+        cliente = ControllerPessoaJuridica.select(use);
+        this.use = use;
         preencheCampos();
         
     }
@@ -96,23 +95,7 @@ public class FrmEditPJ extends javax.swing.JFrame {
       }
       return true;
     }
-    
-    public boolean salvar(){
-        try {
-            cliente.setCnpj(ftxtCnpj.getText());
-            cliente.setNome(txtNome.getText());
-            cliente.setFundacao(formataData.parse(ftxtFundacao.getText()));
-            cliente.setEmail(txtEmail.getText());
-            cliente.setTelefone(ftxtTelefone.getText());
-            cliente.setEndereco(txtEndereco.getText());
-            PessoaJuridicaDAO editar = new PessoaJuridicaDAO();
-            return editar.update(cliente);  
-        } catch (ParseException ex) {
-            Logger.getLogger(FrmEditPJ.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
-        }
-    }
-    
+ 
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -337,13 +320,17 @@ public class FrmEditPJ extends javax.swing.JFrame {
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
         // Salvar
         if(validaCampos()){
-            if(salvar()){ 
-                JOptionPane.showMessageDialog(rootPane,"Edição realizada com sucesso");
+            try {
+                if(ControllerPessoaJuridica.update(ftxtCnpj.getText(),txtNome.getText(),formataData.parse(ftxtFundacao.getText()),txtEmail.getText(),ftxtTelefone.getText(),txtEndereco.getText(),cliente.getId())){
+                    JOptionPane.showMessageDialog(rootPane,"Edição realizada com sucesso");
                     new FrmHome(cliente.getCnpj(),0).setVisible(true);
                     this.dispose();
+                }
+                else
+                    JOptionPane.showMessageDialog(rootPane,"Erro ao editar usuário");
+            } catch (ParseException ex) {
+                Logger.getLogger(FrmEditPJ.class.getName()).log(Level.SEVERE, null, ex);
             }
-            else
-                JOptionPane.showMessageDialog(rootPane,"Erro ao editar usuário");
         }
     }//GEN-LAST:event_btnSalvarActionPerformed
 
