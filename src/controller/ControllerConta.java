@@ -23,7 +23,7 @@ public class ControllerConta {
     public static String cadastraConta(String use, int tipo, char v){
         Conta conta = new Conta();
         ContaDAO contaDao = new ContaDAO();     
-        String s;
+        String s = null;
         if(v == 'N'){
             Random random = new Random();
             int n1 = random.nextInt(9);
@@ -32,8 +32,9 @@ public class ControllerConta {
             int n4 = random.nextInt(9);
             int dv = random.nextInt(9);
             s = ""+n1+"."+n2+n3+n4+"-"+dv; 
-        }else
+        }else if(v == 'M')
             s = contaDao.select("usuario", use).get(0).getNumeroDaConta();
+        conta.setNumeroDaConta(s);
         conta.setUsuario(use);
         conta.setAgencia("0001");
         Date hoje = new Date();
@@ -64,17 +65,25 @@ public class ControllerConta {
                 conta.setQtdSaques(20);
                 conta.setLimiteSaques(2000);
                 break;
-        } 
-        ArrayList<Conta> list;
-        list = contaDao.select("numero_da_conta", conta.getNumeroDaConta());
-        if (!list.isEmpty())
-            for(int i = 0; i<list.size(); i++)
-                if(list.get(i).getTipo()%2 == conta.getTipo()%2)
-                    cadastraConta(use, tipo, 'N');        
-        if(contaDao.insert(conta))
-            return s;
-        else 
-            return null;
+        }
+        if(v == 'N'){
+            ArrayList<Conta> list;
+            list = contaDao.select("numero_da_conta", conta.getNumeroDaConta());
+            if (!list.isEmpty())
+                for(int i = 0; i<list.size(); i++)
+                    if(list.get(i).getTipo()%2 == conta.getTipo()%2)
+                        cadastraConta(use, tipo, 'N');        
+            if(contaDao.insert(conta))
+                return s;
+            else 
+                return null;
+        }else{
+            if(contaDao.insert(conta))
+                return s;
+            else 
+                return null;
+        }
+        
     }
     
     public static ArrayList<Conta> selecionarConta(String use){

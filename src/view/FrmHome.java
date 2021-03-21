@@ -451,6 +451,8 @@ public class FrmHome extends javax.swing.JFrame {
             else{        
                 JOptionPane.showMessageDialog(rootPane,"Conta criada com sucesso");
                 btnOutraConta.setText("Mudar conta");
+                new FrmHome(conta.get(i).getUsuario(),0).setVisible(true);
+                this.dispose();
             }   
         }else// mudar
             mudarDeConta();   
