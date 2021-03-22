@@ -22,7 +22,6 @@ public class FrmDeposito extends javax.swing.JFrame {
      */
     Conta conta  = new Conta();
     int i;
-    float valor = 0;
     public FrmDeposito(int id, int i) {
         initComponents();
         this.i = i;
@@ -39,10 +38,10 @@ public class FrmDeposito extends javax.swing.JFrame {
         txtAgencia.setText(conta.getAgencia());
         cbxTipoDaConta.setSelectedIndex(conta.getTipo()-2);
     }
+    
     public boolean validaCampos(){
         try{
-            valor = Float.parseFloat(txtValor.getText());
-            if(valor < 5){
+            if(Float.parseFloat(txtValor.getText()) < 5){
                 JOptionPane.showMessageDialog(rootPane, "O valor deve ser pelo menos 5");
                 txtValor.requestFocus();
                 return false;
@@ -54,6 +53,7 @@ public class FrmDeposito extends javax.swing.JFrame {
             return false;
         }
     }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -73,8 +73,8 @@ public class FrmDeposito extends javax.swing.JFrame {
         lblValor = new javax.swing.JLabel();
         txtValor = new javax.swing.JTextField();
         pnlBotoes1 = new javax.swing.JPanel();
-        btnCancelar1 = new javax.swing.JButton();
-        btnSalvar1 = new javax.swing.JButton();
+        btnCancelar = new javax.swing.JButton();
+        btnSalvar = new javax.swing.JButton();
         btnVoltar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -149,19 +149,19 @@ public class FrmDeposito extends javax.swing.JFrame {
 
         pnlBotoes1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
-        btnCancelar1.setIcon(new javax.swing.ImageIcon("C:\\Users\\Willian-PC\\Documents\\NetBeansProjects\\Banco\\src\\imagens\\cancela.png")); // NOI18N
-        btnCancelar1.setText("Cancelar");
-        btnCancelar1.addActionListener(new java.awt.event.ActionListener() {
+        btnCancelar.setIcon(new javax.swing.ImageIcon("C:\\Users\\Willian-PC\\Documents\\NetBeansProjects\\Banco\\src\\imagens\\cancela.png")); // NOI18N
+        btnCancelar.setText("Cancelar");
+        btnCancelar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnCancelar1ActionPerformed(evt);
+                btnCancelarActionPerformed(evt);
             }
         });
 
-        btnSalvar1.setIcon(new javax.swing.ImageIcon("C:\\Users\\Willian-PC\\Documents\\NetBeansProjects\\Banco\\src\\imagens\\confirmar.png")); // NOI18N
-        btnSalvar1.setText("Confirmar");
-        btnSalvar1.addActionListener(new java.awt.event.ActionListener() {
+        btnSalvar.setIcon(new javax.swing.ImageIcon("C:\\Users\\Willian-PC\\Documents\\NetBeansProjects\\Banco\\src\\imagens\\confirmar.png")); // NOI18N
+        btnSalvar.setText("Confirmar");
+        btnSalvar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnSalvar1ActionPerformed(evt);
+                btnSalvarActionPerformed(evt);
             }
         });
 
@@ -171,9 +171,9 @@ public class FrmDeposito extends javax.swing.JFrame {
             pnlBotoes1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlBotoes1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(btnCancelar1)
+                .addComponent(btnCancelar)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 24, Short.MAX_VALUE)
-                .addComponent(btnSalvar1)
+                .addComponent(btnSalvar)
                 .addContainerGap())
         );
         pnlBotoes1Layout.setVerticalGroup(
@@ -181,8 +181,8 @@ public class FrmDeposito extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlBotoes1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(pnlBotoes1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnSalvar1)
-                    .addComponent(btnCancelar1, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnSalvar)
+                    .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -236,12 +236,12 @@ public class FrmDeposito extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_cbxTipoDaContaActionPerformed
 
-    private void btnCancelar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelar1ActionPerformed
+    private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
         // Cancelar
         limpaCampos();
-    }//GEN-LAST:event_btnCancelar1ActionPerformed
+    }//GEN-LAST:event_btnCancelarActionPerformed
 
-    private void btnSalvar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvar1ActionPerformed
+    private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
         // Salvar
         if(validaCampos()){
             Date hoje = new Date();
@@ -261,7 +261,7 @@ public class FrmDeposito extends javax.swing.JFrame {
             else
             JOptionPane.showMessageDialog(rootPane,"Erro na transferencia");
         }
-    }//GEN-LAST:event_btnSalvar1ActionPerformed
+    }//GEN-LAST:event_btnSalvarActionPerformed
 
     private void btnVoltarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVoltarActionPerformed
         // volar
@@ -270,8 +270,8 @@ public class FrmDeposito extends javax.swing.JFrame {
     }//GEN-LAST:event_btnVoltarActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnCancelar1;
-    private javax.swing.JButton btnSalvar1;
+    private javax.swing.JButton btnCancelar;
+    private javax.swing.JButton btnSalvar;
     private javax.swing.JButton btnVoltar;
     private javax.swing.JComboBox<String> cbxTipoDaConta;
     private javax.swing.JFormattedTextField ftxtNumeroDaConta;

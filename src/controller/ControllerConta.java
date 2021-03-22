@@ -20,7 +20,7 @@ import model.dao.MovimentacaoBancariaDAO;
  */
 public class ControllerConta {
     
-    public static String cadastraConta(String use, int tipo, char v){
+    public static String insert(String use, int tipo, char v){
         Conta conta = new Conta();
         ContaDAO contaDao = new ContaDAO();     
         String s = null;
@@ -72,7 +72,7 @@ public class ControllerConta {
             if (!list.isEmpty())
                 for(int i = 0; i<list.size(); i++)
                     if(list.get(i).getTipo()%2 == conta.getTipo()%2)
-                        cadastraConta(use, tipo, 'N');        
+                        insert(use, tipo, 'N');        
             if(contaDao.insert(conta))
                 return s;
             else 
@@ -86,7 +86,7 @@ public class ControllerConta {
         
     }
     
-    public static ArrayList<Conta> selecionarConta(String use){
+    public static ArrayList<Conta> select(String use){
         ContaDAO conta = new ContaDAO();
         ArrayList<Conta> contas = conta.select("usuario", use);
         return contas;

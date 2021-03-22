@@ -10,8 +10,6 @@ import controller.ControllerPessoaJuridica;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.text.MaskFormatter;
 import uteis.Uteis;
@@ -26,8 +24,6 @@ public class FrmCadastroPJ extends javax.swing.JFrame {
      * Creates new form frmCadastroPJ
      */
     private SimpleDateFormat formataData = new SimpleDateFormat("dd/MM/yyyy");
-    private String senhaLogin;
-    private int senha;
     
     public FrmCadastroPJ() {
         initComponents();
@@ -41,7 +37,7 @@ public class FrmCadastroPJ extends javax.swing.JFrame {
             maskTelefone.install(ftxtTelefone);
             
         } catch (ParseException ex) {
-            Logger.getLogger(FrmCadastroPJ.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println("Erro:"+ex);
         }
     }
     
@@ -56,24 +52,8 @@ public class FrmCadastroPJ extends javax.swing.JFrame {
         cbxTipoConta.setSelectedIndex(0);
     }
     
-    public boolean formataSenhas(){
-        String s  =  ""+Arrays.toString(pswSenha.getPassword());
-        senhaLogin = ""+Arrays.toString(pswSenhaLogin.getPassword());
-        senhaLogin = senhaLogin.replace(" ", "");
-        senhaLogin = senhaLogin.replace(",", "");
-        senhaLogin = senhaLogin.replace("[", "");
-        senhaLogin = senhaLogin.replace("]", "");
-        s = s.replace(" ", "");
-        s = s.replace(",", "");
-        s = s.replace("[", "");
-        s = s.replace("]", "");
-        try{
-            senha = Integer.parseInt(s); 
-            return true;
-        }catch (NumberFormatException ex){
-           System.err.println("Erro: "+ex);
-           return false;
-        }          
+     public String formataSenha(String senha){
+        return senha.replace(" ", "").replace(",", "").replace("[", "").replace("]", "");
     }
     
     public String dadosConta(String num){
@@ -129,11 +109,6 @@ public class FrmCadastroPJ extends javax.swing.JFrame {
         }  
         if(pswSenha.getPassword().length != 8){
             JOptionPane.showMessageDialog(rootPane, "Preencha senha corretamente, ela deve conter 8 dígitos");
-            pswSenha.requestFocus();
-            return false;
-        }
-        if(!formataSenhas()){
-            JOptionPane.showMessageDialog(rootPane, "Preencha senha corretamente, ela deve conter apenas numeros");
             pswSenha.requestFocus();
             return false;
         }
@@ -408,7 +383,7 @@ public class FrmCadastroPJ extends javax.swing.JFrame {
         // Salvar
         if(validaCampos()){
             try {
-                if(ControllerPessoaJuridica.insert(ftxtCnpj.getText(),txtNome.getText(),formataData.parse(ftxtFundacao.getText()),txtEmail.getText(),ftxtTelefone.getText(),txtEndereco.getText(), senha, senhaLogin)){
+                if(ControllerPessoaJuridica.insert(ftxtCnpj.getText(),txtNome.getText(),formataData.parse(ftxtFundacao.getText()),txtEmail.getText(),ftxtTelefone.getText(),txtEndereco.getText(), Integer.parseInt(formataSenha(Arrays.toString(pswSenha.getPassword()))), formataSenha(Arrays.toString(pswSenhaLogin.getPassword())))){
                     int tipo = 0;
                     switch(cbxTipoConta.getItemAt(cbxTipoConta.getSelectedIndex()).toCharArray()[0]){
                         case 'P':
@@ -418,7 +393,7 @@ public class FrmCadastroPJ extends javax.swing.JFrame {
                             tipo = 3;                                
                             break;
                     }
-                    String s = ControllerConta.cadastraConta(ftxtCnpj.getText(),tipo, 'N');
+                    String s = ControllerConta.insert(ftxtCnpj.getText(),tipo, 'N');
                     if(!s.isEmpty()){
                         JOptionPane.showMessageDialog(rootPane,dadosConta(s));
                         new FrmLogin().setVisible(true);
@@ -429,8 +404,9 @@ public class FrmCadastroPJ extends javax.swing.JFrame {
                 }
                 else
                     JOptionPane.showMessageDialog(rootPane,"Erro ao cadastrar usuário");
-            } catch (ParseException ex) {
-                Logger.getLogger(FrmCadastroPJ.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (NumberFormatException | ParseException ex) {
+                JOptionPane.showMessageDialog(rootPane,"a senha deve conter apenas numeros");
+                pswSenha.requestFocus();
             }
         }
     }//GEN-LAST:event_btnSalvarActionPerformed

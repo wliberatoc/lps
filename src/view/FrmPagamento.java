@@ -29,7 +29,6 @@ public class FrmPagamento extends javax.swing.JFrame {
      */
     Conta conta  = new Conta();
     Boleto boleto  = new Boleto();
-    Date hoje = new Date();
     int i = 0;
     public FrmPagamento(int id, int i) {
         initComponents();
@@ -298,6 +297,7 @@ public class FrmPagamento extends javax.swing.JFrame {
         // Salvar
         if(validaCampos()){
             String descricao ="pagamento boleto";
+            Date hoje = new Date();
             if(ControllerMovimentacaoBancaria.insert(conta.getId(), 'D', hoje, 5, descricao, Float.parseFloat(txtValor.getText()))){
                 ControllerMovimentacaoBancaria.insert(boleto.getIdConta(), 'C', hoje, 5, descricao, Float.parseFloat(txtValor.getText()));
                 descricao = "saldo de "+hoje;

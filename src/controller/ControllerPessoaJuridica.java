@@ -29,15 +29,7 @@ public class ControllerPessoaJuridica {
         return clienteDao.insert(cliente);  
     }//fim cadastra Pessoa Juridica
     
-    public static boolean update(String cnpj, String nome, Date dataFund, String email, String telefone, String endereco, int id){
-        PessoaJuridica cliente = new PessoaJuridica();
-        cliente.setId(id);
-        cliente.setCnpj(cnpj);
-        cliente.setNome(nome);
-        cliente.setFundacao(dataFund);
-        cliente.setEmail(email);
-        cliente.setTelefone(telefone);
-        cliente.setEndereco(endereco);
+    public static boolean update(PessoaJuridica cliente){
         PessoaJuridicaDAO clienteDao = new PessoaJuridicaDAO();
         return clienteDao.insert(cliente);  
     }//fim cadastra Pessoa Juridica

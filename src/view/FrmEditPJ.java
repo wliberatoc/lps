@@ -6,10 +6,6 @@
 package view;
 
 import controller.ControllerPessoaJuridica;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import model.classes.PessoaJuridica;
 import uteis.Uteis;
@@ -23,7 +19,6 @@ public class FrmEditPJ extends javax.swing.JFrame {
     /**
      * Creates new form frmCadastrar
      */
-    private final SimpleDateFormat formataData = new SimpleDateFormat("dd/MM/yyyy");
     PessoaJuridica cliente = new PessoaJuridica();
     private String use = "";        
     public FrmEditPJ(String use) {
@@ -320,17 +315,13 @@ public class FrmEditPJ extends javax.swing.JFrame {
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
         // Salvar
         if(validaCampos()){
-            try {
-                if(ControllerPessoaJuridica.update(ftxtCnpj.getText(),txtNome.getText(),formataData.parse(ftxtFundacao.getText()),txtEmail.getText(),ftxtTelefone.getText(),txtEndereco.getText(),cliente.getId())){
+                if(ControllerPessoaJuridica.update(cliente)){
                     JOptionPane.showMessageDialog(rootPane,"Edição realizada com sucesso");
                     new FrmHome(cliente.getCnpj(),0).setVisible(true);
                     this.dispose();
                 }
                 else
                     JOptionPane.showMessageDialog(rootPane,"Erro ao editar usuário");
-            } catch (ParseException ex) {
-                Logger.getLogger(FrmEditPJ.class.getName()).log(Level.SEVERE, null, ex);
-            }
         }
     }//GEN-LAST:event_btnSalvarActionPerformed
 

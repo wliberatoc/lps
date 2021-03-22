@@ -29,7 +29,6 @@ public final class FrmTransferencia extends javax.swing.JFrame {
     Conta conta  = new Conta();
     Conta destinatario  = new Conta();
     int i = 0;
-    float valor = 0;
     public FrmTransferencia(int id, int i) {
         initComponents();
         carregaTipo();
@@ -91,13 +90,12 @@ public final class FrmTransferencia extends javax.swing.JFrame {
             return false;
         }
         try{
-            valor = Float.parseFloat(txtValor.getText());
-            if(valor < 3 || valor > conta.getLimiteTeds()){
+            if(Float.parseFloat(txtValor.getText()) < 3 || Float.parseFloat(txtValor.getText()) > conta.getLimiteTeds()){
                JOptionPane.showMessageDialog(rootPane, "O valor informado deve ser um número entre 3 e "+conta.getLimiteTeds());
                txtValor.requestFocus();
                return false;
             }
-            if(valor > conta.getSaldo()){
+            if(Float.parseFloat(txtValor.getText()) > conta.getSaldo()){
                 JOptionPane.showMessageDialog(rootPane, "Saldo insuficiente");
                 txtValor.requestFocus();
                 return false;

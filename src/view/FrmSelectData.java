@@ -95,9 +95,9 @@ public class FrmSelectData extends javax.swing.JFrame {
         ftxtInicio = new javax.swing.JFormattedTextField();
         lbA = new javax.swing.JLabel();
         ftxtFim = new javax.swing.JFormattedTextField();
-        btnCancelar3 = new javax.swing.JButton();
+        btnCancelar = new javax.swing.JButton();
         btnSalvar = new javax.swing.JButton();
-        btnVoltar3 = new javax.swing.JButton();
+        btnVoltar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -119,11 +119,11 @@ public class FrmSelectData extends javax.swing.JFrame {
             }
         });
 
-        btnCancelar3.setIcon(new javax.swing.ImageIcon("C:\\Users\\Willian-PC\\Documents\\NetBeansProjects\\Banco\\src\\imagens\\cancela.png")); // NOI18N
-        btnCancelar3.setText("Cancelar");
-        btnCancelar3.addActionListener(new java.awt.event.ActionListener() {
+        btnCancelar.setIcon(new javax.swing.ImageIcon("C:\\Users\\Willian-PC\\Documents\\NetBeansProjects\\Banco\\src\\imagens\\cancela.png")); // NOI18N
+        btnCancelar.setText("Cancelar");
+        btnCancelar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnCancelar3ActionPerformed(evt);
+                btnCancelarActionPerformed(evt);
             }
         });
 
@@ -143,7 +143,7 @@ public class FrmSelectData extends javax.swing.JFrame {
                 .addContainerGap(75, Short.MAX_VALUE)
                 .addGroup(pnlDataLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addGroup(pnlDataLayout.createSequentialGroup()
-                        .addComponent(btnCancelar3)
+                        .addComponent(btnCancelar)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(btnSalvar))
                     .addGroup(pnlDataLayout.createSequentialGroup()
@@ -169,15 +169,15 @@ public class FrmSelectData extends javax.swing.JFrame {
                 .addGap(33, 33, 33)
                 .addGroup(pnlDataLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnSalvar)
-                    .addComponent(btnCancelar3, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(22, Short.MAX_VALUE))
         );
 
-        btnVoltar3.setIcon(new javax.swing.ImageIcon("C:\\Users\\Willian-PC\\Documents\\NetBeansProjects\\Banco\\src\\imagens\\voltar.png")); // NOI18N
-        btnVoltar3.setText(" Voltar");
-        btnVoltar3.addActionListener(new java.awt.event.ActionListener() {
+        btnVoltar.setIcon(new javax.swing.ImageIcon("C:\\Users\\Willian-PC\\Documents\\NetBeansProjects\\Banco\\src\\imagens\\voltar.png")); // NOI18N
+        btnVoltar.setText(" Voltar");
+        btnVoltar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnVoltar3ActionPerformed(evt);
+                btnVoltarActionPerformed(evt);
             }
         });
 
@@ -190,7 +190,7 @@ public class FrmSelectData extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(pnlData, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnVoltar3)
+                        .addComponent(btnVoltar)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -200,7 +200,7 @@ public class FrmSelectData extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(pnlData, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(btnVoltar3)
+                .addComponent(btnVoltar)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -215,10 +215,10 @@ public class FrmSelectData extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_ftxtFimActionPerformed
 
-    private void btnCancelar3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelar3ActionPerformed
+    private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
         // Cancelar
         limpaCampos();
-    }//GEN-LAST:event_btnCancelar3ActionPerformed
+    }//GEN-LAST:event_btnCancelarActionPerformed
 
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
         // Salvar
@@ -236,16 +236,16 @@ public class FrmSelectData extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnSalvarActionPerformed
 
-    private void btnVoltar3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVoltar3ActionPerformed
+    private void btnVoltarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVoltarActionPerformed
         // volar
         new FrmHome(conta.getUsuario(),this.i).setVisible(true);
         this.dispose();
-    }//GEN-LAST:event_btnVoltar3ActionPerformed
+    }//GEN-LAST:event_btnVoltarActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnCancelar3;
+    private javax.swing.JButton btnCancelar;
     private javax.swing.JButton btnSalvar;
-    private javax.swing.JButton btnVoltar3;
+    private javax.swing.JButton btnVoltar;
     private javax.swing.JFormattedTextField ftxtFim;
     private javax.swing.JFormattedTextField ftxtInicio;
     private javax.swing.JLabel lbA;

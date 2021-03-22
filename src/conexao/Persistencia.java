@@ -14,6 +14,7 @@ import java.sql.SQLException;
  */
 public class Persistencia {
     private static Connection conn = null;
+    
     private Persistencia() {
         try {
             

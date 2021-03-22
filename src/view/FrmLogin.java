@@ -16,7 +16,6 @@ import java.util.Date;
 import javax.swing.JOptionPane;
 import javax.swing.text.MaskFormatter;
 import model.classes.Conta;
-import model.classes.MovimentacaoBancaria;
 
 /**
  *
@@ -28,7 +27,6 @@ public class FrmLogin extends javax.swing.JFrame {
      * Creates new form frmLogin
      */
     Conta conta  = new Conta();
-    float valor = 0;
     public FrmLogin() {
         initComponents();
         try {
@@ -320,8 +318,7 @@ public class FrmLogin extends javax.swing.JFrame {
             return false;
         }
         try{
-            valor = Float.parseFloat(txtValor.getText());
-            if(valor < 5){
+            if(Float.parseFloat(txtValor.getText()) < 5){
                 JOptionPane.showMessageDialog(rootPane, "O valor deve ser pelo menos 5");
                 txtValor.requestFocus();
                 return false;

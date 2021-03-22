@@ -27,10 +27,11 @@ public class FrmHome extends javax.swing.JFrame {
      */
     ArrayList<Conta> conta  = new ArrayList<>();
     int i = 0;
+    
     public FrmHome(String use, int i) {
         initComponents();
         this.i = i;
-        conta = ControllerConta.selecionarConta(use);
+        conta = ControllerConta.select(use);
         ControllerConta.atualizaQtds(conta.get(i).getId());
         conta.get(i).setSaldo(ControllerConta.atualizaSaldo(conta.get(i).getId()));
         if(!ControllerConta.update(conta.get(i)))
@@ -108,7 +109,7 @@ public class FrmHome extends javax.swing.JFrame {
         cbxVisualizar = new javax.swing.JComboBox<>();
         btnVisualizar = new javax.swing.JButton();
         cbxRealizar = new javax.swing.JComboBox<>();
-        btnREalizar = new javax.swing.JButton();
+        btnRealizar = new javax.swing.JButton();
         btnSaque = new javax.swing.JButton();
         btnDepositar = new javax.swing.JButton();
         btnSair = new javax.swing.JButton();
@@ -224,11 +225,11 @@ public class FrmHome extends javax.swing.JFrame {
 
         cbxRealizar.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pagamento", "Transferencia" }));
 
-        btnREalizar.setIcon(new javax.swing.ImageIcon("C:\\Users\\Willian-PC\\Documents\\NetBeansProjects\\Banco\\src\\imagens\\realizar.png")); // NOI18N
-        btnREalizar.setText("Realizar");
-        btnREalizar.addActionListener(new java.awt.event.ActionListener() {
+        btnRealizar.setIcon(new javax.swing.ImageIcon("C:\\Users\\Willian-PC\\Documents\\NetBeansProjects\\Banco\\src\\imagens\\realizar.png")); // NOI18N
+        btnRealizar.setText("Realizar");
+        btnRealizar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnREalizarActionPerformed(evt);
+                btnRealizarActionPerformed(evt);
             }
         });
 
@@ -266,7 +267,7 @@ public class FrmHome extends javax.swing.JFrame {
                     .addComponent(cbxRealizar, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(10, 10, 10)
-                        .addComponent(btnREalizar)))
+                        .addComponent(btnRealizar)))
                 .addGap(83, 83, 83))
         );
         jPanel1Layout.setVerticalGroup(
@@ -288,7 +289,7 @@ public class FrmHome extends javax.swing.JFrame {
                                 .addGap(18, 18, 18)))
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(btnVisualizar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnREalizar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnRealizar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(btnDepositar, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -446,7 +447,7 @@ public class FrmHome extends javax.swing.JFrame {
                 tipo = conta.get(i).getTipo() - 2;
             else
                 tipo = conta.get(i).getTipo() + 2;
-            if(ControllerConta.cadastraConta(conta.get(i).getUsuario(), tipo, 'M').isEmpty())
+            if(ControllerConta.insert(conta.get(i).getUsuario(), tipo, 'M').isEmpty())
                 JOptionPane.showMessageDialog(rootPane,"Erro ao criar conta");
             else{        
                 JOptionPane.showMessageDialog(rootPane,"Conta criada com sucesso");
@@ -475,7 +476,7 @@ public class FrmHome extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(rootPane,info);
     }//GEN-LAST:event_brnInfoActionPerformed
 
-    private void btnREalizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnREalizarActionPerformed
+    private void btnRealizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRealizarActionPerformed
         // transferencia
         if(cbxRealizar.getSelectedIndex() == 1){
             new FrmTransferencia(conta.get(i).getId(),i).setVisible(true);
@@ -486,7 +487,7 @@ public class FrmHome extends javax.swing.JFrame {
         }
             
         
-    }//GEN-LAST:event_btnREalizarActionPerformed
+    }//GEN-LAST:event_btnRealizarActionPerformed
 
     private void btnVisualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVisualizarActionPerformed
         //saldo
@@ -529,7 +530,7 @@ public class FrmHome extends javax.swing.JFrame {
     private javax.swing.JButton btnGerarBoleto;
     private javax.swing.JButton btnLimpar;
     private javax.swing.JButton btnOutraConta;
-    private javax.swing.JButton btnREalizar;
+    private javax.swing.JButton btnRealizar;
     private javax.swing.JButton btnSair;
     private javax.swing.JButton btnSaque;
     private javax.swing.JButton btnVisualizar;

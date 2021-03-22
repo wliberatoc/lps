@@ -30,6 +30,7 @@ public class FrmVisualizar extends javax.swing.JFrame {
          conta = ControllerConta.load(id);
         carregarTabela();
     }
+    
     public final void carregarTabela(){
         String [] colunas = {"Data","Tipo", "Descricao", "Valor"};
         DefaultTableModel modelo = new DefaultTableModel(colunas, 0);

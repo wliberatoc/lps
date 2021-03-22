@@ -30,16 +30,7 @@ public class ControllerPessoaFisica {
         return clienteDao.insert(cliente);  
     }//fim cadastra Pessoa Fisica
     
-    public static boolean update(String cpf, String nome, Date dataNasc, char sexo, String email, String telefone, String endereco, int id){
-        PessoaFisica cliente = new PessoaFisica();
-        cliente.setId(id);
-        cliente.setCpf(cpf);
-        cliente.setNome(nome);
-        cliente.setNascimento(dataNasc);
-        cliente.setSexo(sexo);
-        cliente.setEmail(email);
-        cliente.setTelefone(telefone);
-        cliente.setEndereco(endereco);
+    public static boolean update(PessoaFisica cliente){
         PessoaFisicaDAO clienteDao = new PessoaFisicaDAO();
         return clienteDao.update(cliente);  
     }
