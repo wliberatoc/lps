@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.Date;
 import javax.swing.JOptionPane;
 import javax.swing.text.MaskFormatter;
-import model.classes.Conta;
 /**
  *
  * @author Willian-PC
@@ -26,8 +25,8 @@ public final class FrmTransferencia extends javax.swing.JFrame {
      * @param id
      * @param i
      */
-    Conta conta  = new Conta();
-    Conta destinatario  = new Conta();
+    Object [] conta  = new Object [11];
+    Object [] destinatario  = new Object [11];
     int i = 0;
     public FrmTransferencia(int id, int i) {
         initComponents();
@@ -45,7 +44,7 @@ public final class FrmTransferencia extends javax.swing.JFrame {
     
     public void carregaTipo(){
         ControllerMovimentacaoBancaria.pegaTipos().forEach((tipo) -> {
-            if(tipo.getId() != 1 && tipo.getId() != 4 && tipo.getId() != 5 && tipo.getId() != 6)
+            if((int)tipo[0] != 1 && (int)tipo[0] != 4 && (int)tipo[0] != 5 && (int)tipo[0] != 6)
                 cbxTipoOperacao.addItem(tipo);
         });
     }
@@ -80,7 +79,7 @@ public final class FrmTransferencia extends javax.swing.JFrame {
             ftxtNumeroDaConta.requestFocus();
             return false;
         }
-        if(conta.getId() == destinatario.getId()){
+        if((int)conta[0] == (int)destinatario[0]){
             JOptionPane.showMessageDialog(rootPane, "Você não pode transferir para a mesma conta");
             ftxtNumeroDaConta.requestFocus();
         }
@@ -90,12 +89,12 @@ public final class FrmTransferencia extends javax.swing.JFrame {
             return false;
         }
         try{
-            if(Float.parseFloat(txtValor.getText()) < 3 || Float.parseFloat(txtValor.getText()) > conta.getLimiteTeds()){
-               JOptionPane.showMessageDialog(rootPane, "O valor informado deve ser um número entre 3 e "+conta.getLimiteTeds());
+            if(Float.parseFloat(txtValor.getText()) < 3 || Float.parseFloat(txtValor.getText()) > (float)conta[7]){
+               JOptionPane.showMessageDialog(rootPane, "O valor informado deve ser um número entre 3 e "+(float)conta[7]);
                txtValor.requestFocus();
                return false;
             }
-            if(Float.parseFloat(txtValor.getText()) > conta.getSaldo()){
+            if(Float.parseFloat(txtValor.getText()) > (float)conta[4]){
                 JOptionPane.showMessageDialog(rootPane, "Saldo insuficiente");
                 txtValor.requestFocus();
                 return false;
@@ -104,16 +103,16 @@ public final class FrmTransferencia extends javax.swing.JFrame {
             s = s.replace(" ", "").replace(",", "").replace("[", "").replace("]", "");
             try{
                 int senha = Integer.parseInt(s); 
-                    if(conta.getTipo()%2 == 0){
-                        if(ControllerPessoaFisica.confirma(conta.getUsuario(), senha)){
+                    if((int)conta[3]%2 == 0){
+                        if(ControllerPessoaFisica.confirma((String)conta[10], senha)){
                             return true;
                         }else{
                             JOptionPane.showMessageDialog(rootPane, "Senha incorreta ela deve conter 8 números");
                             pswSenha.requestFocus();
                             return false;
                         }   
-                    }else if(conta.getTipo()%2 == 1) {
-                        if(ControllerPessoaJuridica.confirma(conta.getUsuario(), senha)){
+                    }else if((int)conta[3]%2 == 1) {
+                        if(ControllerPessoaJuridica.confirma((String)conta[10], senha)){
                             return true;
                         }else{
                             JOptionPane.showMessageDialog(rootPane, "Senha incorreta ela deve conter 8 números");
@@ -355,20 +354,25 @@ public final class FrmTransferencia extends javax.swing.JFrame {
             Date hoje = new Date();
             String descricao = txtDescricao.getText();
             int tipo = ControllerMovimentacaoBancaria.pegaIdTipo(cbxTipoOperacao.getItemAt(cbxTipoOperacao.getSelectedIndex()).toString());
-            if(ControllerMovimentacaoBancaria.insert(conta.getId(), 'D', hoje, tipo, descricao, Float.parseFloat(txtValor.getText()))){
-                ControllerMovimentacaoBancaria.insert(destinatario.getId(), 'C', hoje, tipo, descricao, Float.parseFloat(txtValor.getText()));
+            float valor;
+            if((int)conta[5] == 0)
+                 valor = (float) (Float.parseFloat(txtValor.getText())* 1.03);
+            else{
+                ControllerConta.update((float)conta[4],(int)conta[5]-1,(int)conta[6],(int)conta[0]);
+                valor = Float.parseFloat(txtValor.getText());
+            }
+            if(ControllerMovimentacaoBancaria.insert((int)conta[0], 'D', hoje, tipo, descricao, valor)){
+                ControllerMovimentacaoBancaria.insert((int)destinatario[0], 'C', hoje, tipo, descricao, Float.parseFloat(txtValor.getText()));
                 descricao = "saldo de "+hoje;
-                ControllerMovimentacaoBancaria.insert(conta.getId(), 'S', hoje, 1, descricao, ControllerConta.atualizaSaldo(conta.getId()));
-                ControllerMovimentacaoBancaria.insert(destinatario.getId(), 'S', hoje, 1, descricao, ControllerConta.atualizaSaldo(destinatario.getId()));
-                conta.setQtdTransacoes(conta.getQtdTransacoes()-1);
-                ControllerConta.update(conta);
+                ControllerMovimentacaoBancaria.insert((int)conta[0], 'S', hoje, 1, descricao, ControllerConta.atualizaSaldo((int)conta[0]));
+                ControllerMovimentacaoBancaria.insert((int)destinatario[0], 'S', hoje, 1, descricao, ControllerConta.atualizaSaldo((int)destinatario[0]));
                 JOptionPane.showMessageDialog(rootPane,"Transferencia realizada com sucesso");
                 int confirma = JOptionPane.showConfirmDialog(rootPane, "deseja realizar outra transferencia?","",JOptionPane.YES_NO_OPTION);
                 if(confirma == JOptionPane.YES_OPTION){
                     limpaCampos();
                     ftxtNumeroDaConta.requestFocus();
                 }else{
-                    new FrmHome(conta.getUsuario(),i).setVisible(true);
+                    new FrmHome((String)conta[10],i).setVisible(true);
                     this.dispose();
                 }  
             }else
@@ -378,7 +382,7 @@ public final class FrmTransferencia extends javax.swing.JFrame {
 
     private void btnVoltarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVoltarActionPerformed
         // volar
-        new FrmHome(conta.getUsuario(),this.i).setVisible(true);
+        new FrmHome((String)conta[10],this.i).setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnVoltarActionPerformed
 

@@ -11,10 +11,8 @@ import controller.ControllerConta;
 import controller.ControllerPessoaFisica;
 import controller.ControllerPessoaJuridica;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Calendar;
 import javax.swing.JOptionPane;
-import model.classes.Conta;
-import model.classes.Data;
 
 /**
  *
@@ -25,25 +23,25 @@ public class FrmHome extends javax.swing.JFrame {
     /**
      * Creates new form frmHome
      */
-    ArrayList<Conta> conta  = new ArrayList<>();
+    ArrayList<Object []> conta  = new ArrayList<>();
     int i = 0;
     
     public FrmHome(String use, int i) {
         initComponents();
         this.i = i;
         conta = ControllerConta.select(use);
-        ControllerConta.atualizaQtds(conta.get(i).getId());
-        conta.get(i).setSaldo(ControllerConta.atualizaSaldo(conta.get(i).getId()));
-        if(!ControllerConta.update(conta.get(i)))
+        ControllerConta.atualizaQtds((int)conta.get(i)[0]);
+        ControllerConta.cobrancaConta((int)conta.get(i)[0]);
+        if(!ControllerConta.update(ControllerConta.atualizaSaldo((int)conta.get(i)[0]), (int)conta.get(i)[5], (int)conta.get(i)[6], (int)conta.get(i)[1]))
             JOptionPane.showMessageDialog(rootPane, "Erro ao atualizar o salda da conta");
         btnOutraConta.setText("Mudar conta");
-        if(conta.get(i).getTipo() < 4)
+        if((int)conta.get(i)[3] < 4)
             lblTipoConta.setText("Saldo Conta Corrente:");
         else
             lblTipoConta.setText("Saldo Poupança:");
         if(conta.size() == 1)
             btnOutraConta.setText("Criar conta");
-        txtSaldo.setText(""+conta.get(i).getSaldo());
+        txtSaldo.setText(""+conta.get(i)[4]);
         lblNome.setText(ControllerConta.nomeUse(use)); 
     }
 
@@ -52,16 +50,16 @@ public class FrmHome extends javax.swing.JFrame {
             i = 0;
         else
             i = 1;
-        new FrmHome(conta.get(i).getUsuario(),i).setVisible(true);
+        new FrmHome((String)conta.get(i)[10],i).setVisible(true);
         this.dispose();
     }
     
     public void editar(){
-        if(conta.get(i).getTipo() % 2 == 0){
-            new FrmEditPF(conta.get(i).getUsuario()).setVisible(true);
+        if((int)conta.get(i)[3] % 2 == 0){
+            new FrmEditPF((String)conta.get(i)[10]).setVisible(true);
             this.dispose();
         }else{
-            new FrmEditPJ(conta.get(i).getUsuario()).setVisible(true);
+            new FrmEditPJ((String)conta.get(i)[10]).setVisible(true);
             this.dispose();
         }
     }
@@ -69,8 +67,8 @@ public class FrmHome extends javax.swing.JFrame {
     public void excluir(){
         int confirma = JOptionPane.showConfirmDialog(rootPane, "Confirma que deseja EXCLUIR SEU CADASTROS?","Confimação",JOptionPane.YES_NO_OPTION);
         if(confirma == JOptionPane.YES_OPTION){ 
-            if(conta.get(i).getTipo() % 2 == 0){
-                if(ControllerPessoaFisica.delete(conta.get(i).getUsuario()) && ControllerConta.deleteAll(conta.get(i).getUsuario())){
+            if((int)conta.get(i)[3] % 2 == 0){
+                if(ControllerPessoaFisica.delete((String)conta.get(i)[10]) && ControllerConta.deleteAll((String)conta.get(i)[10])){
                     JOptionPane.showMessageDialog(rootPane, "Conta Excluida");
                     new FrmLogin().setVisible(true);
                     this.dispose();
@@ -78,7 +76,7 @@ public class FrmHome extends javax.swing.JFrame {
                 else
                     JOptionPane.showMessageDialog(rootPane, "Erro ao tentar Excluir");
             }else{
-                if(ControllerPessoaJuridica.delete(conta.get(i).getUsuario()) && ControllerConta.deleteAll(conta.get(i).getUsuario())){
+                if(ControllerPessoaJuridica.delete((String)conta.get(i)[10]) && ControllerConta.deleteAll((String)conta.get(i)[10])){
                     JOptionPane.showMessageDialog(rootPane, "Conta Excluida");
                     new FrmLogin().setVisible(true);
                     this.dispose();
@@ -99,7 +97,6 @@ public class FrmHome extends javax.swing.JFrame {
 
         pnlHome = new javax.swing.JPanel();
         txtSaldo = new javax.swing.JTextField();
-        btnOutraConta = new javax.swing.JButton();
         lblNome = new javax.swing.JLabel();
         btnExcluir = new javax.swing.JButton();
         lblTipoConta = new javax.swing.JLabel();
@@ -112,6 +109,8 @@ public class FrmHome extends javax.swing.JFrame {
         btnRealizar = new javax.swing.JButton();
         btnSaque = new javax.swing.JButton();
         btnDepositar = new javax.swing.JButton();
+        btnExcluirConta = new javax.swing.JButton();
+        btnOutraConta = new javax.swing.JButton();
         btnSair = new javax.swing.JButton();
         pnlDeposito = new javax.swing.JPanel();
         btnGerarBoleto = new javax.swing.JButton();
@@ -125,22 +124,14 @@ public class FrmHome extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        pnlHome.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED), "HOME", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Arial Black", 0, 20))); // NOI18N
+        pnlHome.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED), "Usuário", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Arial Black", 0, 20))); // NOI18N
         pnlHome.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
         txtSaldo.setEditable(false);
 
-        btnOutraConta.setIcon(new javax.swing.ImageIcon("C:\\Users\\Willian-PC\\Documents\\NetBeansProjects\\Banco\\src\\imagens\\novo.jpeg")); // NOI18N
-        btnOutraConta.setText("defalut");
-        btnOutraConta.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnOutraContaActionPerformed(evt);
-            }
-        });
-
         lblNome.setText("default");
 
-        btnExcluir.setIcon(new javax.swing.ImageIcon("C:\\Users\\Willian-PC\\Documents\\NetBeansProjects\\Banco\\src\\imagens\\excluir.jpeg")); // NOI18N
+        btnExcluir.setIcon(new javax.swing.ImageIcon("C:\\Users\\Willian-PC\\Documents\\NetBeansProjects\\Banco\\src\\imagens\\excluir.png")); // NOI18N
         btnExcluir.setText("Excluir");
         btnExcluir.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -150,7 +141,7 @@ public class FrmHome extends javax.swing.JFrame {
 
         lblTipoConta.setText("default");
 
-        btnEditar.setIcon(new javax.swing.ImageIcon("C:\\Users\\Willian-PC\\Documents\\NetBeansProjects\\Banco\\src\\imagens\\editar.jpeg")); // NOI18N
+        btnEditar.setIcon(new javax.swing.ImageIcon("C:\\Users\\Willian-PC\\Documents\\NetBeansProjects\\Banco\\src\\imagens\\editar.png")); // NOI18N
         btnEditar.setText("Editar");
         btnEditar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -158,7 +149,7 @@ public class FrmHome extends javax.swing.JFrame {
             }
         });
 
-        brnInfo.setIcon(new javax.swing.ImageIcon("C:\\Users\\Willian-PC\\Documents\\NetBeansProjects\\Banco\\src\\imagens\\info.jpeg")); // NOI18N
+        brnInfo.setIcon(new javax.swing.ImageIcon("C:\\Users\\Willian-PC\\Documents\\NetBeansProjects\\Banco\\src\\imagens\\info.png")); // NOI18N
         brnInfo.setText("info");
         brnInfo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -172,23 +163,20 @@ public class FrmHome extends javax.swing.JFrame {
             pnlHomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlHomeLayout.createSequentialGroup()
                 .addGap(26, 26, 26)
-                .addGroup(pnlHomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(pnlHomeLayout.createSequentialGroup()
-                        .addComponent(lblNome, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(lblTipoConta)
-                        .addGap(18, 18, 18)
-                        .addComponent(txtSaldo, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(80, 80, 80))
-                    .addGroup(pnlHomeLayout.createSequentialGroup()
-                        .addComponent(btnOutraConta)
-                        .addGap(28, 28, 28)
-                        .addComponent(brnInfo)
-                        .addGap(33, 33, 33)
-                        .addComponent(btnExcluir)
-                        .addGap(33, 33, 33)
-                        .addComponent(btnEditar)
-                        .addGap(55, 55, 55))))
+                .addComponent(lblNome, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(lblTipoConta)
+                .addGap(18, 18, 18)
+                .addComponent(txtSaldo, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(80, 80, 80))
+            .addGroup(pnlHomeLayout.createSequentialGroup()
+                .addGap(80, 80, 80)
+                .addComponent(brnInfo)
+                .addGap(33, 33, 33)
+                .addComponent(btnExcluir)
+                .addGap(33, 33, 33)
+                .addComponent(btnEditar)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         pnlHomeLayout.setVerticalGroup(
             pnlHomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -199,14 +187,13 @@ public class FrmHome extends javax.swing.JFrame {
                     .addComponent(lblTipoConta))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 46, Short.MAX_VALUE)
                 .addGroup(pnlHomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnOutraConta, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnEditar)
                     .addComponent(btnExcluir)
                     .addComponent(brnInfo))
                 .addContainerGap())
         );
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED), "Conta", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Arial", 1, 20))); // NOI18N
 
         cbxVisualizar.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Saldo", "Extrato" }));
         cbxVisualizar.addActionListener(new java.awt.event.ActionListener() {
@@ -249,16 +236,36 @@ public class FrmHome extends javax.swing.JFrame {
             }
         });
 
+        btnExcluirConta.setIcon(new javax.swing.ImageIcon("C:\\Users\\Willian-PC\\Documents\\NetBeansProjects\\Banco\\src\\imagens\\delete.png")); // NOI18N
+        btnExcluirConta.setText("excluir");
+        btnExcluirConta.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExcluirContaActionPerformed(evt);
+            }
+        });
+
+        btnOutraConta.setIcon(new javax.swing.ImageIcon("C:\\Users\\Willian-PC\\Documents\\NetBeansProjects\\Banco\\src\\imagens\\mudar.png")); // NOI18N
+        btnOutraConta.setText("defalut");
+        btnOutraConta.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnOutraContaActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnSaque)
-                    .addComponent(btnDepositar))
-                .addGap(47, 47, 47)
+                    .addComponent(btnExcluirConta, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnOutraConta))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 35, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnDepositar)
+                    .addComponent(btnSaque))
+                .addGap(25, 25, 25)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(cbxVisualizar, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnVisualizar))
@@ -268,7 +275,7 @@ public class FrmHome extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(10, 10, 10)
                         .addComponent(btnRealizar)))
-                .addGap(83, 83, 83))
+                .addGap(42, 42, 42))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -278,19 +285,23 @@ public class FrmHome extends javax.swing.JFrame {
                         .addGap(19, 19, 19)
                         .addComponent(cbxVisualizar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(19, 19, 19)
-                                .addComponent(cbxRealizar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(28, 28, 28))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                .addContainerGap()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGap(1, 1, 1)
+                                        .addComponent(cbxRealizar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(btnOutraConta))
+                                .addGap(20, 20, 20)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(btnVisualizar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(btnRealizar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(btnExcluirConta, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(btnSaque, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)))
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnVisualizar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnRealizar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnDepositar, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                .addGap(18, 18, 18)
+                                .addComponent(btnDepositar, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -302,7 +313,7 @@ public class FrmHome extends javax.swing.JFrame {
             }
         });
 
-        pnlDeposito.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        pnlDeposito.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED), "Gerador de Boleto", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Arial", 1, 20))); // NOI18N
 
         btnGerarBoleto.setIcon(new javax.swing.ImageIcon("C:\\Users\\Willian-PC\\Documents\\NetBeansProjects\\Banco\\src\\imagens\\boleto.png")); // NOI18N
         btnGerarBoleto.setText("Gerar Boleto");
@@ -380,11 +391,11 @@ public class FrmHome extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(pnlHome, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(pnlHome, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(pnlDeposito, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnSair)
@@ -410,9 +421,9 @@ public class FrmHome extends javax.swing.JFrame {
     private void btnGerarBoletoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGerarBoletoActionPerformed
         // GeraBoleto
         ControllerBoleto boleto = new ControllerBoleto();
-        String tipo = ""+conta.get(i).getTipo();
+        String tipo = ""+(int)conta.get(i)[3];
         String [] bol;
-        bol = boleto.geraBoleto(conta.get(i).getNumeroDaConta(),tipo,txtValor.getText(), conta.get(i).getId());
+        bol = boleto.geraBoleto((String)conta.get(i)[1],tipo,txtValor.getText(), (int)conta.get(i)[0]);
         if(bol == null){
             JOptionPane.showMessageDialog(rootPane, "Erro na geração do boleto");
             txtValor.requestFocus();
@@ -443,16 +454,16 @@ public class FrmHome extends javax.swing.JFrame {
         // criar
         if(btnOutraConta.getText().equals("Criar conta")){
             int tipo;
-            if (conta.get(i).getTipo() > 3)
-                tipo = conta.get(i).getTipo() - 2;
+            if ((int)conta.get(i)[3] > 3)
+                tipo = (int)conta.get(i)[3] - 2;
             else
-                tipo = conta.get(i).getTipo() + 2;
-            if(ControllerConta.insert(conta.get(i).getUsuario(), tipo, 'M').isEmpty())
+                tipo = (int)conta.get(i)[3] + 2;
+            if(ControllerConta.insert((String)conta.get(i)[10], tipo, 'M').isEmpty())
                 JOptionPane.showMessageDialog(rootPane,"Erro ao criar conta");
             else{        
                 JOptionPane.showMessageDialog(rootPane,"Conta criada com sucesso");
                 btnOutraConta.setText("Mudar conta");
-                new FrmHome(conta.get(i).getUsuario(),0).setVisible(true);
+                new FrmHome((String)conta.get(i)[10],0).setVisible(true);
                 this.dispose();
             }   
         }else// mudar
@@ -468,8 +479,8 @@ public class FrmHome extends javax.swing.JFrame {
 
     private void brnInfoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_brnInfoActionPerformed
         // info
-        String info = "Nº conta: "+conta.get(i).getNumeroDaConta()+"\nAgência: "+conta.get(i).getAgencia();
-        if(conta.get(i).getTipo() < 4)
+        String info = "Nº conta: "+conta.get(i)[1]+"\nAgência: "+conta.get(i)[2];
+        if((int)conta.get(i)[3] < 4)
             info += "\nConta Corrente";
         else
             info += "\nConta Poupança";
@@ -479,10 +490,10 @@ public class FrmHome extends javax.swing.JFrame {
     private void btnRealizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRealizarActionPerformed
         // transferencia
         if(cbxRealizar.getSelectedIndex() == 1){
-            new FrmTransferencia(conta.get(i).getId(),i).setVisible(true);
+            new FrmTransferencia((int)conta.get(i)[0],i).setVisible(true);
             this.dispose();
         }else{//pagamento
-            new FrmPagamento(conta.get(i).getId(),i).setVisible(true);
+            new FrmPagamento((int)conta.get(i)[0],i).setVisible(true);
             this.dispose();
         }
             
@@ -492,27 +503,25 @@ public class FrmHome extends javax.swing.JFrame {
     private void btnVisualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVisualizarActionPerformed
         //saldo
         if(cbxVisualizar.getSelectedIndex() == 0){
-            Data date = new Data();
-            Date hoje = new Date();
-            date.setInicio(hoje);
-            date.setFim(hoje);
-            new FrmVisualizar(conta.get(i).getId(),i, date).setVisible(true);
+            Calendar cal = Calendar.getInstance();
+            String data = cal.get(Calendar.DAY_OF_MONTH)+"/"+(cal.get(Calendar.MONTH)+1)+"/"+cal.get(Calendar.YEAR); 
+            new FrmVisualizar((int)conta.get(i)[0],i,data,data).setVisible(true);
             this.dispose();
         }else{//extrato
-            new FrmSelectData(conta.get(i).getId(),i).setVisible(true);
+            new FrmSelectData((int)conta.get(i)[0],i).setVisible(true);
             this.dispose();
         }
     }//GEN-LAST:event_btnVisualizarActionPerformed
 
     private void btnSaqueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaqueActionPerformed
         //Sacar
-        new FrmSaque(conta.get(i).getId(),i).setVisible(true);
+        new FrmSaque((int)conta.get(i)[0],i).setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnSaqueActionPerformed
 
     private void btnDepositarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDepositarActionPerformed
         //Depositar
-        new FrmDeposito(conta.get(i).getId(),i).setVisible(true);
+        new FrmDeposito((int)conta.get(i)[0],i).setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnDepositarActionPerformed
 
@@ -521,12 +530,29 @@ public class FrmHome extends javax.swing.JFrame {
         
     }//GEN-LAST:event_cbxVisualizarActionPerformed
 
+    private void btnExcluirContaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExcluirContaActionPerformed
+        // excluir conta
+        if(conta.size() == 1)
+            excluir();
+        else{
+            int confirma = JOptionPane.showConfirmDialog(rootPane, "Confirma que deseja EXCLUIR essa conta?","Confimação",JOptionPane.YES_NO_OPTION);
+            if(confirma == JOptionPane.YES_OPTION)
+                if(ControllerConta.delete((int)conta.get(i)[0])){
+                    JOptionPane.showMessageDialog(rootPane, "Conta Excluida");
+                    new FrmHome((String)conta.get(i)[10],0).setVisible(true);
+                    this.dispose();
+                }else
+                    JOptionPane.showMessageDialog(rootPane, "Erro ao tentar excluir a conta"); 
+        }  
+    }//GEN-LAST:event_btnExcluirContaActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton brnInfo;
     private javax.swing.JButton btnDepositar;
     private javax.swing.JButton btnEditar;
     private javax.swing.JButton btnExcluir;
+    private javax.swing.JButton btnExcluirConta;
     private javax.swing.JButton btnGerarBoleto;
     private javax.swing.JButton btnLimpar;
     private javax.swing.JButton btnOutraConta;

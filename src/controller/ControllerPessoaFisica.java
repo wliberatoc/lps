@@ -30,14 +30,33 @@ public class ControllerPessoaFisica {
         return clienteDao.insert(cliente);  
     }//fim cadastra Pessoa Fisica
     
-    public static boolean update(PessoaFisica cliente){
+    public static boolean update(String cpf, String nome, Date dataNasc, char sexo, String email, String telefone, String endereco){
+        PessoaFisica cliente = new PessoaFisica();
+        cliente.setCpf(cpf);
+        cliente.setNome(nome);
+        cliente.setNascimento(dataNasc);
+        cliente.setSexo(sexo);
+        cliente.setEmail(email);
+        cliente.setTelefone(telefone);
+        cliente.setEndereco(endereco);
+        cliente.setId((int)select(cpf)[0]);
         PessoaFisicaDAO clienteDao = new PessoaFisicaDAO();
         return clienteDao.update(cliente);  
     }
     
-    public static PessoaFisica select(String cpf){
+    public static Object [] select(String cpf){
         PessoaFisicaDAO clienteDao = new PessoaFisicaDAO();
-        return clienteDao.select(cpf);
+        PessoaFisica lista = clienteDao.select(cpf);
+        Object [] cliente  = new Object[8];
+        cliente[0] = ((PessoaFisica) lista).getId();
+        cliente[1] = ((PessoaFisica) lista).getCpf();
+        cliente[2] = ((PessoaFisica) lista).getNome();
+        cliente[3] = ((PessoaFisica) lista).getNascimento();
+        cliente[4] = ((PessoaFisica) lista).getSexo();
+        cliente[5] = ((PessoaFisica) lista).getEmail();
+        cliente[6] = ((PessoaFisica) lista).getTelefone();
+        cliente[7] = ((PessoaFisica) lista).getEndereco();
+        return cliente;
     }
     
     public static boolean login(String cpf, String senha){

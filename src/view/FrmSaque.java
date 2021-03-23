@@ -12,7 +12,6 @@ import controller.ControllerPessoaJuridica;
 import java.util.Arrays;
 import java.util.Date;
 import javax.swing.JOptionPane;
-import model.classes.Conta;
 
 /**
  *
@@ -23,7 +22,7 @@ public class FrmSaque extends javax.swing.JFrame {
     /**
      * Creates new form FrmSaque
      */
-    Conta conta  = new Conta();
+    Object [] conta  = new Object [11];
     int i;
     public FrmSaque(int id, int i) {
         initComponents();
@@ -38,12 +37,12 @@ public class FrmSaque extends javax.swing.JFrame {
      
     public boolean validaCampos(){
         try{
-            if(Float.parseFloat(txtValor.getText()) < 3 || Float.parseFloat(txtValor.getText()) > conta.getLimiteSaques()){
-               JOptionPane.showMessageDialog(rootPane, "O valor informado deve ser um número entre 3 e "+conta.getLimiteSaques());
+            if(Float.parseFloat(txtValor.getText()) < 3 || Float.parseFloat(txtValor.getText()) > (float)conta[8]){
+               JOptionPane.showMessageDialog(rootPane, "O valor informado deve ser um número entre 3 e "+(float)conta[8]);
                txtValor.requestFocus();
                return false;
             }
-            if(Float.parseFloat(txtValor.getText()) > conta.getSaldo()){
+            if(Float.parseFloat(txtValor.getText()) > (float)conta[4]){
                 JOptionPane.showMessageDialog(rootPane, "Saldo insuficiente");
                 txtValor.requestFocus();
                 return false;
@@ -52,16 +51,16 @@ public class FrmSaque extends javax.swing.JFrame {
             s = s.replace(" ", "").replace(",", "").replace("[", "").replace("]", "");
             try{
                 int senha = Integer.parseInt(s); 
-                    if(conta.getTipo()%2 == 0){
-                        if(ControllerPessoaFisica.confirma(conta.getUsuario(), senha))
+                    if((int)conta[3]%2 == 0){
+                        if(ControllerPessoaFisica.confirma((String)conta[10], senha))
                             return true;
                         else{
                             JOptionPane.showMessageDialog(rootPane, "Senha incorreta ela deve conter 8 números");
                             pswSenha.requestFocus();
                             return false;
                         }   
-                    }else if(conta.getTipo()%2 == 1) {
-                        if(ControllerPessoaJuridica.confirma(conta.getUsuario(), senha))
+                    }else if((int)conta[3]%2 == 1) {
+                        if(ControllerPessoaJuridica.confirma((String)conta[10], senha))
                             return true;
                         else{
                             JOptionPane.showMessageDialog(rootPane, "Senha incorreta ela deve conter 8 números");
@@ -235,18 +234,23 @@ public class FrmSaque extends javax.swing.JFrame {
         if(validaCampos()){
             Date hoje = new Date();
             String descricao ="Saque";
-            if(ControllerMovimentacaoBancaria.insert(conta.getId(), 'D', hoje, 4, descricao, Float.parseFloat(txtValor.getText()))){
+            float valor;
+            if((int)conta[6] == 0)
+                 valor = (float) (Float.parseFloat(txtValor.getText())* 1.05);
+            else{
+                ControllerConta.update((float)conta[4],(int)conta[5],(int)conta[6]-1,(int)conta[0]);
+                valor = Float.parseFloat(txtValor.getText());
+            }
+            if(ControllerMovimentacaoBancaria.insert((int)conta[0], 'D', hoje, 4, descricao, valor)){
                 descricao ="saldo de "+hoje;
-                ControllerMovimentacaoBancaria.insert(conta.getId(), 'S', hoje, 1, descricao, ControllerConta.atualizaSaldo(conta.getId()));
-                conta.setQtdSaques(conta.getQtdSaques()-1);
-                ControllerConta.update(conta);
+                ControllerMovimentacaoBancaria.insert((int)conta[0], 'S', hoje, 1, descricao, ControllerConta.atualizaSaldo((int)conta[0]));
                 JOptionPane.showMessageDialog(rootPane,"Saque realizado com sucesso");
                 int confirma = JOptionPane.showConfirmDialog(rootPane, "deseja realizar outro Saque?","",JOptionPane.YES_NO_OPTION);
                 if(confirma == JOptionPane.YES_OPTION){
                     limpaCampos();
                     txtValor.requestFocus();
                 }else{
-                    new FrmHome(conta.getUsuario(),i).setVisible(true);
+                    new FrmHome((String)conta[10],i).setVisible(true);
                     this.dispose();
                 }
             }else
@@ -256,7 +260,7 @@ public class FrmSaque extends javax.swing.JFrame {
 
     private void btnVoltarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVoltarActionPerformed
         // volar
-        new FrmHome(conta.getUsuario(),this.i).setVisible(true);
+        new FrmHome((String)conta[10],this.i).setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnVoltarActionPerformed
 

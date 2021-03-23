@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Random;
 import model.classes.Boleto;
+import model.classes.Boleto;
 import model.dao.BoletoDAO;
 
 /**
@@ -91,9 +92,17 @@ public class ControllerBoleto {
         return null; 
     }
     
-    public static Boleto select(String cod){
+    public static Object [] select(String cod){
         BoletoDAO boletoDao = new BoletoDAO();
-        return boletoDao.select(cod);
+        Boleto lista = boletoDao.select(cod);
+        Object [] boleto  = new Object[6];
+        boleto[0] = ((Boleto) lista).getId();
+        boleto[1] = ((Boleto) lista).getCodigoDeBarras();
+        boleto[2] = ((Boleto) lista).getIdConta();
+        boleto[3] = ((Boleto) lista).getValor();
+        boleto[4] = ((Boleto) lista).getDataDeVencimento();
+        boleto[5] = ((Boleto) lista).isPago();
+        return boleto;
     }
     
     public static boolean isVencido(String data){
@@ -111,8 +120,11 @@ public class ControllerBoleto {
         return(ano == year && mes == month && dia < day);
     }
     
-    public static boolean update(Boleto boleto){
+    public static boolean update(boolean pago, int id){
         BoletoDAO boletoDao = new BoletoDAO();
+        Boleto boleto = new Boleto();
+        boleto.setPago(pago);
+        boleto.setId(id);
         return boletoDao.update(boleto);
     }
     

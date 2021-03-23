@@ -15,7 +15,6 @@ import java.util.Arrays;
 import java.util.Date;
 import javax.swing.JOptionPane;
 import javax.swing.text.MaskFormatter;
-import model.classes.Conta;
 
 /**
  *
@@ -26,7 +25,7 @@ public class FrmLogin extends javax.swing.JFrame {
     /**
      * Creates new form frmLogin
      */
-    Conta conta  = new Conta();
+    Object [] conta  = new Object [11];
     public FrmLogin() {
         initComponents();
         try {
@@ -99,7 +98,7 @@ public class FrmLogin extends javax.swing.JFrame {
 
         lblCadastro.setText("Não possui cadastro? Click no botão cadastrar:");
 
-        btnCadastrar.setIcon(new javax.swing.ImageIcon("C:\\Users\\Willian-PC\\Documents\\NetBeansProjects\\Banco\\src\\imagens\\novo.jpeg")); // NOI18N
+        btnCadastrar.setIcon(new javax.swing.ImageIcon("C:\\Users\\Willian-PC\\Documents\\NetBeansProjects\\Banco\\src\\imagens\\novo.png")); // NOI18N
         btnCadastrar.setText("Cadastrar");
         btnCadastrar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -135,7 +134,7 @@ public class FrmLogin extends javax.swing.JFrame {
                         .addGap(74, 74, 74))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlLoginLayout.createSequentialGroup()
                         .addComponent(btnCadastrar)
-                        .addGap(120, 120, 120))))
+                        .addGap(122, 122, 122))))
         );
         pnlLoginLayout.setVerticalGroup(
             pnlLoginLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -155,8 +154,8 @@ public class FrmLogin extends javax.swing.JFrame {
                 .addGap(28, 28, 28)
                 .addComponent(lblCadastro)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnCadastrar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(btnCadastrar)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pnlCaixa.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -382,9 +381,9 @@ public class FrmLogin extends javax.swing.JFrame {
         if(validaCampos()){
             Date hoje = new Date();
             String descricao ="Depósito";
-            if(ControllerMovimentacaoBancaria.insert(conta.getId(), 'C', hoje, 6, descricao, Float.parseFloat(txtValor.getText()))){
+            if(ControllerMovimentacaoBancaria.insert((int)conta[0], 'C', hoje, 6, descricao, Float.parseFloat(txtValor.getText()))){
                 descricao ="saldo de "+hoje;
-                ControllerMovimentacaoBancaria.insert(conta.getId(), 'S', hoje, 1, descricao, ControllerConta.atualizaSaldo(conta.getId()));
+                ControllerMovimentacaoBancaria.insert((int)conta[0], 'S', hoje, 1, descricao, ControllerConta.atualizaSaldo((int)conta[0]));
                 JOptionPane.showMessageDialog(rootPane,"Depósito realizado com sucesso");
                 int confirma = JOptionPane.showConfirmDialog(rootPane, "deseja realizar outro depósito?","",JOptionPane.YES_NO_OPTION);
                 if(confirma == JOptionPane.YES_OPTION)

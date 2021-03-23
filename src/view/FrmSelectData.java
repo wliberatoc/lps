@@ -10,7 +10,6 @@ import java.text.SimpleDateFormat;;
 import java.util.Calendar;
 import javax.swing.JOptionPane;
 import javax.swing.text.MaskFormatter;
-import model.classes.Conta;
 import model.classes.Data;
 import uteis.Uteis;
 /**
@@ -25,7 +24,7 @@ public class FrmSelectData extends javax.swing.JFrame {
      * @param i
      * @param view
      */
-    Conta conta  = new Conta();
+    Object [] conta  = new Object [11];
     int i;
     String inicio;
     String fim;
@@ -228,7 +227,7 @@ public class FrmSelectData extends javax.swing.JFrame {
             try {
                 data.setInicio(formataData.parse(inicio));
                 data.setFim(formataData.parse(fim));
-                new FrmVisualizar(conta.getId(),i,data).setVisible(true);
+                new FrmVisualizar((int)conta[0],i,inicio,fim).setVisible(true);
                 this.dispose();
             } catch (ParseException ex) {
                 System.err.println("Erro: "+ex);
@@ -238,7 +237,7 @@ public class FrmSelectData extends javax.swing.JFrame {
 
     private void btnVoltarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVoltarActionPerformed
         // volar
-        new FrmHome(conta.getUsuario(),this.i).setVisible(true);
+        new FrmHome((String)conta[10],this.i).setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnVoltarActionPerformed
 

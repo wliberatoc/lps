@@ -68,12 +68,11 @@ public final class Uteis {
     
     public static boolean verificaData(String data){
         Calendar cal = Calendar.getInstance();
-        int year = cal.get(Calendar.YEAR);
         int ano, mes, dia;
         dia = Integer.parseInt(data.substring(0,2));
         mes = Integer.parseInt(data.substring(3,5));
         ano = Integer.parseInt(data.substring(6,10));
-        if(ano < 1694 || ano > year)
+        if(ano < 1694 || ano > cal.get(Calendar.YEAR))
             return false;
         if(mes > 12 || mes < 1)
             return false;
@@ -88,18 +87,15 @@ public final class Uteis {
     
     public static boolean verificaSeTem18Anos(String data){
         Calendar cal = Calendar.getInstance();
-        int year = cal.get(Calendar.YEAR);
-        int month = cal.get(Calendar.MONTH)+1;
-        int day = cal.get(Calendar.DAY_OF_MONTH);
         int ano, mes, dia;
         dia = Integer.parseInt(data.substring(0,2));
         mes = Integer.parseInt(data.substring(3,5));
         ano = Integer.parseInt(data.substring(6,10));
-        if((year - ano) < 18)
+        if((cal.get(Calendar.YEAR) - ano) < 18)
             return false;
-        else if((year - ano) == 18 && mes < month)
+        else if((cal.get(Calendar.YEAR) - ano) == 18 && mes < cal.get(Calendar.MONTH)+1)
             return false;
-        else if((year - ano) == 18 && mes == month && dia < day)
+        else if((cal.get(Calendar.YEAR) - ano) == 18 && mes == cal.get(Calendar.MONTH)+1 && dia < cal.get(Calendar.DAY_OF_MONTH))
             return false;
         return true;
     }//fim verifica se tem 18 

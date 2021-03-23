@@ -9,7 +9,6 @@ import controller.ControllerConta;
 import controller.ControllerMovimentacaoBancaria;
 import java.util.Date;
 import javax.swing.JOptionPane;
-import model.classes.Conta;
 
 /**
  *
@@ -20,7 +19,7 @@ public class FrmDeposito extends javax.swing.JFrame {
     /**
      * Creates new form FrmDeposito
      */
-    Conta conta  = new Conta();
+    Object [] conta  = new Object [11];
     int i;
     public FrmDeposito(int id, int i) {
         initComponents();
@@ -34,9 +33,9 @@ public class FrmDeposito extends javax.swing.JFrame {
     }
     
     public final void  preencheCampos(){
-        ftxtNumeroDaConta.setText(conta.getNumeroDaConta());
-        txtAgencia.setText(conta.getAgencia());
-        cbxTipoDaConta.setSelectedIndex(conta.getTipo()-2);
+        ftxtNumeroDaConta.setText((String)conta[1]);
+        txtAgencia.setText((String)conta[2]);
+        cbxTipoDaConta.setSelectedIndex((int)conta[3]-2);
     }
     
     public boolean validaCampos(){
@@ -246,15 +245,15 @@ public class FrmDeposito extends javax.swing.JFrame {
         if(validaCampos()){
             Date hoje = new Date();
             String descricao ="Depósito";
-            if(ControllerMovimentacaoBancaria.insert(conta.getId(), 'C', hoje, 6, descricao, Float.parseFloat(txtValor.getText()))){
+            if(ControllerMovimentacaoBancaria.insert((int)conta[0], 'C', hoje, 6, descricao, Float.parseFloat(txtValor.getText()))){
                 descricao ="saldo de "+hoje;
-                ControllerMovimentacaoBancaria.insert(conta.getId(), 'S', hoje, 1, descricao, ControllerConta.atualizaSaldo(conta.getId()));
+                ControllerMovimentacaoBancaria.insert((int)conta[0], 'S', hoje, 1, descricao, ControllerConta.atualizaSaldo((int)conta[0]));
                 JOptionPane.showMessageDialog(rootPane,"Depósito realizado com sucesso");
                 int confirma = JOptionPane.showConfirmDialog(rootPane, "deseja realizar outro depósito?","",JOptionPane.YES_NO_OPTION);
                 if(confirma == JOptionPane.YES_OPTION)
                 limpaCampos();
                 else{
-                    new FrmHome(conta.getUsuario(),i).setVisible(true);
+                    new FrmHome((String)conta[10],i).setVisible(true);
                     this.dispose();
                 }
             }
@@ -265,7 +264,7 @@ public class FrmDeposito extends javax.swing.JFrame {
 
     private void btnVoltarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVoltarActionPerformed
         // volar
-        new FrmHome(conta.getUsuario(),this.i).setVisible(true);
+        new FrmHome((String)conta[10],this.i).setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnVoltarActionPerformed
 

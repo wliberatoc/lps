@@ -6,8 +6,10 @@
 package view;
 
 import controller.ControllerPessoaFisica;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import javax.swing.JOptionPane;
-import model.classes.PessoaFisica;
+import javax.swing.text.MaskFormatter;
 import uteis.Uteis;
 
 /**
@@ -19,33 +21,37 @@ public class FrmEditPF extends javax.swing.JFrame {
     /**
      * Creates new form frmCadastrar
      */
-    private PessoaFisica cliente = new PessoaFisica();
+    Object [] cliente = new Object [8];
     private String use = "";    
     public FrmEditPF(String use) {
         initComponents();
+        try {
+            MaskFormatter maskData = new MaskFormatter("##/##/####");
+            maskData.install(ftxtNascimento);
+
+        } catch (ParseException ex) {
+           System.err.println("Erro:"+ex);
+        }
         cliente = ControllerPessoaFisica.select(use);
         this.use = use;
         preencheCampos();
     }
     
-    public String editaData(){
-        String data = cliente.getNascimento().toString();
-        data = data.replace("-", "/");
-        data = data.substring(8,10) + data.substring(4,7) +"/"+ data.substring(0,4);
-        return data;
-    }
-    
+  
     public final void preencheCampos(){
-        ftxtCpf.setText(cliente.getCpf());
-        txtNome.setText(cliente.getNome());
-        ftxtNascimento.setText(editaData());
-        if(cliente.getSexo() == 'M')
+        ftxtCpf.setText((String)cliente[1]);
+        txtNome.setText((String)cliente[2]);
+        String data = (String)cliente[3];
+        data = data.replace("-", "");
+        data = data.substring(6, 8)+ data.substring(4, 6)+ data.substring(0, 4);
+        ftxtNascimento.setText(data);
+        if((char)cliente[4] == 'M')
             cbxSexo.setSelectedIndex(0);
         else
             cbxSexo.setSelectedIndex(1); 
-        txtEmail.setText(cliente.getEmail());
-        ftxtTelefone.setText(cliente.getTelefone());
-        txtEndereco.setText(cliente.getEndereco());       
+        txtEmail.setText((String)cliente[5]);
+        ftxtTelefone.setText((String)cliente[6]);
+        txtEndereco.setText((String)cliente[7]);       
     }
     
     public boolean validaCampos(){
@@ -333,13 +339,18 @@ public class FrmEditPF extends javax.swing.JFrame {
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
         // Salvar
         if(validaCampos()){
-                if(ControllerPessoaFisica.update(cliente)){
+                SimpleDateFormat formataData = new SimpleDateFormat("dd/MM/yyyy");
+            try {
+                if(ControllerPessoaFisica.update(ftxtCpf.getText(),txtNome.getText(),formataData.parse(ftxtNascimento.getText()),cbxSexo.getItemAt(cbxSexo.getSelectedIndex()).toCharArray()[0],txtEmail.getText(),ftxtTelefone.getText(),txtEndereco.getText())){
                     JOptionPane.showMessageDialog(rootPane,"Edição realizada com sucesso");
-                    new FrmHome(cliente.getCpf(),0).setVisible(true);
+                    new FrmHome((String)cliente[1],0).setVisible(true);
                     this.dispose();
                 }
                 else
                     JOptionPane.showMessageDialog(rootPane,"Erro ao editar usuário");
+            } catch (ParseException ex) {
+                System.err.println("Erro: "+ex);
+            }
         }
     }//GEN-LAST:event_btnSalvarActionPerformed
 

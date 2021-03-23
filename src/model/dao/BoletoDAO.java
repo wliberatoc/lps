@@ -60,15 +60,11 @@ public class BoletoDAO {
     }
 
     public boolean update(Boleto boleto){
-        String sql = "UPDATE tbl_boleto SET codigo_de_barras = ?, id_conta = ?, valor = ?, data_de_vencimento = ?, pago = ? WHERE tbl_boleto.id = ?";
+        String sql = "UPDATE tbl_boleto SET pago = ? WHERE tbl_boleto.id = ?";
         try {
             stmt = Persistencia.getConnection().prepareStatement(sql);
-            stmt.setString(1, boleto.getCodigoDeBarras());
-            stmt.setInt(2, boleto.getIdConta());
-            stmt.setFloat(3, boleto.getValor());
-            stmt.setDate(4, new Date(boleto.getDataDeVencimento().getTime()));
-            stmt.setBoolean(5, boleto.isPago());
-            stmt.setInt(6, boleto.getId());
+            stmt.setBoolean(1, boleto.isPago());
+            stmt.setInt(2, boleto.getId());
             stmt.executeUpdate();
             return true;
         } catch (SQLException ex) {

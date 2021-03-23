@@ -10,9 +10,6 @@ import controller.ControllerConta;
 import controller.ControllerMovimentacaoBancaria;
 import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
-import model.classes.Conta;
-import model.classes.Data;
-import model.classes.MovimentacaoBancaria;
 /**
  *
  * @author Willian-PC
@@ -20,23 +17,25 @@ import model.classes.MovimentacaoBancaria;
 public class FrmVisualizar extends javax.swing.JFrame {
 
     /** Creates new form FrmVizualizar */
-    Conta conta  = new Conta();
+    Object [] conta  = new Object [11];
     int i;
-    Data data = new Data();
-    public FrmVisualizar(int id, int i, Data data) {
+    String inicio;
+    String fim;
+    public FrmVisualizar(int id, int i, String inicio, String fim) {
         initComponents();
         this.i = i;
-        this.data = data;
-         conta = ControllerConta.load(id);
+        this.inicio = inicio;
+        this.fim = fim;
+        conta = ControllerConta.load(id);
         carregarTabela();
     }
     
     public final void carregarTabela(){
         String [] colunas = {"Data","Tipo", "Descricao", "Valor"};
         DefaultTableModel modelo = new DefaultTableModel(colunas, 0);
-        ArrayList<MovimentacaoBancaria> moviB = ControllerMovimentacaoBancaria.extrato(conta.getId(), data);
+        ArrayList<Object []> moviB = ControllerMovimentacaoBancaria.extrato((int)conta[0], inicio,fim);
         for(int j=0; j<moviB.size(); j++){
-                Object [] linha = {moviB.get(j).getData(), ControllerMovimentacaoBancaria.pegaTipo(moviB.get(j).getIdTipoOperacao()), moviB.get(j).getDescricao(),moviB.get(j).getValor()};
+                Object [] linha = {(String)moviB.get(j)[1], ControllerMovimentacaoBancaria.pegaTipo((int)moviB.get(j)[2]), (String)moviB.get(j)[3],(float)moviB.get(j)[0]};
                 modelo.addRow(linha);
             }
         tblVisualizar.setModel(modelo);        
@@ -129,7 +128,7 @@ public class FrmVisualizar extends javax.swing.JFrame {
 
     private void btnVoltarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVoltarActionPerformed
         // volar
-        new FrmHome(conta.getUsuario(),this.i).setVisible(true);
+        new FrmHome((String)conta[10],this.i).setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnVoltarActionPerformed
 

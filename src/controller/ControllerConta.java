@@ -86,18 +86,47 @@ public class ControllerConta {
         
     }
     
-    public static ArrayList<Conta> select(String use){
-        ContaDAO conta = new ContaDAO();
-        ArrayList<Conta> contas = conta.select("usuario", use);
+    public static ArrayList<Object []> select(String use){
+        ContaDAO contaDao = new ContaDAO();
+        ArrayList<Conta> lista = contaDao.select("usuario", use);
+        ArrayList<Object []> contas = new ArrayList<>();
+        for(int i=0; i<lista.size(); i++){
+            Object [] conta  = new Object[11];
+            conta[0] = ((Conta) lista.get(i)).getId();
+            conta[1] = ((Conta) lista.get(i)).getNumeroDaConta();
+            conta[2] = ((Conta) lista.get(i)).getAgencia();
+            conta[3] = ((Conta) lista.get(i)).getTipo();
+            conta[4] = ((Conta) lista.get(i)).getSaldo();
+            conta[5] = ((Conta) lista.get(i)).getQtdTransacoes();
+            conta[6] = ((Conta) lista.get(i)).getQtdSaques();
+            conta[7] = ((Conta) lista.get(i)).getLimiteTeds();
+            conta[8] = ((Conta) lista.get(i)).getLimiteSaques();
+            conta[9] = ((Conta) lista.get(i)).getAbertura();
+            conta[10] = ((Conta) lista.get(i)).getUsuario();
+            contas.add(conta);
+        }
         return contas;
     }
-    
-    public static Conta confirmaConta(String numConta, int tipo){
+
+    public static Object [] confirmaConta(String numConta, int tipo){
         ContaDAO contaDao = new ContaDAO();
         ArrayList<Conta> contas = contaDao.select("numero_da_conta", numConta);
-        for (Conta conta : contas) {
-            if(conta.getTipo()== tipo)
+        for (Conta lista : contas) {
+            if(lista.getTipo()== tipo){
+                Object [] conta  = new Object[11];
+                conta[0] = ((Conta) lista).getId();
+                conta[1] = ((Conta) lista).getNumeroDaConta();
+                conta[2] = ((Conta) lista).getAgencia();
+                conta[3] = ((Conta) lista).getTipo();
+                conta[4] = ((Conta) lista).getSaldo();
+                conta[5] = ((Conta) lista).getQtdTransacoes();
+                conta[6] = ((Conta) lista).getQtdSaques();
+                conta[7] = ((Conta) lista).getLimiteTeds();
+                conta[8] = ((Conta) lista).getLimiteSaques();
+                conta[9] = ((Conta) lista).getAbertura();
+                conta[10] = ((Conta) lista).getUsuario();
                 return conta;
+            }
         }
         return null;
     }
@@ -124,6 +153,8 @@ public class ControllerConta {
         int year = cal.get(Calendar.YEAR);
         int month = cal.get(Calendar.MONTH)+1;
         int day = cal.get(Calendar.DAY_OF_MONTH);
+        if(mes == 2 && dia == 29)
+            dia = 28;
         if(ano == year)
             return(month > mes && dia == day);
         else
@@ -160,18 +191,60 @@ public class ControllerConta {
         }
     }
     
+    public static void cobrancaConta(int id){
+        ContaDAO contaDao = new ContaDAO();
+        Conta conta = contaDao.load(id);
+        String data = conta.getAbertura().toString();
+        int ano = Integer.parseInt(data.substring(0, 4));
+        int mes = Integer.parseInt(data.substring(6, 7));
+        int dia = Integer.parseInt(data.substring(8, 10));  
+        if(verificaData(dia,mes,ano)){
+            if(conta.getTipo() < 4){
+                Date hoje = new Date();
+                float valor = 25;
+                if(conta.getTipo() == 3)
+                    valor = 50;
+                ControllerMovimentacaoBancaria.insert(conta.getId(), 'D', hoje, 7, "mensaliade da conta corrente", valor);
+            }else{
+                //rendimento da poolpança
+            }
+        }
+    }
+    
     public static boolean deleteAll(String use){
         ContaDAO conta = new ContaDAO();
         return conta.deleteAll(use);
     }
     
-    public static Conta load(int id){
-        ContaDAO contaDao = new ContaDAO();
-        return contaDao.load(id);
+    public static boolean delete(int id){
+        ContaDAO conta = new ContaDAO();
+        return conta.delete(id);
     }
     
-    public static boolean update(Conta conta){
+    public static Object [] load(int id){
         ContaDAO contaDao = new ContaDAO();
+        Conta lista = contaDao.load(id);
+        Object [] conta  = new Object[11];
+        conta[0] = ((Conta) lista).getId();
+        conta[1] = ((Conta) lista).getNumeroDaConta();
+        conta[2] = ((Conta) lista).getAgencia();
+        conta[3] = ((Conta) lista).getTipo();
+        conta[4] = ((Conta) lista).getSaldo();
+        conta[5] = ((Conta) lista).getQtdTransacoes();
+        conta[6] = ((Conta) lista).getQtdSaques();
+        conta[7] = ((Conta) lista).getLimiteTeds();
+        conta[8] = ((Conta) lista).getLimiteSaques();
+        conta[9] = ((Conta) lista).getAbertura();
+        conta[10] = ((Conta) lista).getUsuario();
+        return conta;
+    }
+    
+    public static boolean update(float saldo, int qtdT, int qtdS, int id){
+        ContaDAO contaDao = new ContaDAO();
+        Conta conta = new Conta();
+        conta.setId(id);
+        conta.setQtdSaques(qtdS);
+        conta.setQtdTransacoes(qtdS);
         return contaDao.update(conta);
     }
             

@@ -129,20 +129,13 @@ public class ContaDAO {
     }
     
     public boolean update(Conta conta){
-        String sql = "UPDATE tbl_conta SET numero_da_conta = ?, agencia = ?, tipo = ?, saldo = ?, qtd_transacoes = ?, qtd_saques = ?, limite_teds = ?, limite_Saques = ?, data_abertura = ?, usuario = ? WHERE tbl_conta.id = ?";
+        String sql = "UPDATE tbl_conta SET  saldo = ?, qtd_transacoes = ?, qtd_saques = ? WHERE tbl_conta.id = ?";
         try {
             stmt = Persistencia.getConnection().prepareStatement(sql);
-            stmt.setString(1, conta.getNumeroDaConta());
-            stmt.setString(2, conta.getAgencia());
-            stmt.setInt(3, conta.getTipo());
-            stmt.setFloat(4, conta.getSaldo());
-            stmt.setInt(5, conta.getQtdTransacoes());
-            stmt.setInt(6, conta.getQtdSaques());
-            stmt.setFloat(7, conta.getLimiteTeds());
-            stmt.setFloat(8, conta.getLimiteSaques());
-            stmt.setDate(9,new Date(conta.getAbertura().getTime()));
-            stmt.setString(10, conta.getUsuario());
-            stmt.setInt(11, conta.getId());
+            stmt.setFloat(1, conta.getSaldo());
+            stmt.setInt(2, conta.getQtdTransacoes());
+            stmt.setInt(3, conta.getQtdSaques());
+            stmt.setInt(4, conta.getId());
             stmt.executeUpdate();
             return true;
         } catch (SQLException ex) {

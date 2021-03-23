@@ -6,8 +6,10 @@
 package view;
 
 import controller.ControllerPessoaJuridica;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import javax.swing.JOptionPane;
-import model.classes.PessoaJuridica;
+import javax.swing.text.MaskFormatter;
 import uteis.Uteis;
 
 /**
@@ -19,30 +21,33 @@ public class FrmEditPJ extends javax.swing.JFrame {
     /**
      * Creates new form frmCadastrar
      */
-    PessoaJuridica cliente = new PessoaJuridica();
+    Object [] cliente = new Object [7];
     private String use = "";        
     public FrmEditPJ(String use) {
         initComponents();
+        try {
+            MaskFormatter maskData = new MaskFormatter("##/##/####");
+            maskData.install(ftxtFundacao);
+
+        } catch (ParseException ex) {
+           System.err.println("Erro:"+ex);
+        }
         cliente = ControllerPessoaJuridica.select(use);
         this.use = use;
         preencheCampos();
         
     }
-    
-    public String editaData(){
-        String data = cliente.getFundacao().toString();
-        data = data.replace("-", "/");
-        data = data.substring(8,10) + data.substring(4,7) +"/"+ data.substring(0,4);
-        return data;
-    }
-    
+  
     public final void preencheCampos(){
-        ftxtCnpj.setText(cliente.getCnpj());
-        txtNome.setText(cliente.getNome());
-        ftxtFundacao.setText(editaData());
-        txtEmail.setText(cliente.getEmail());
-        ftxtTelefone.setText(cliente.getTelefone());
-        txtEndereco.setText(cliente.getEndereco());       
+        ftxtCnpj.setText((String)cliente[1]);
+        txtNome.setText((String)cliente[2]);
+        String data = (String)cliente[3];
+        data = data.replace("-", "");
+        data = data.substring(6, 8)+ data.substring(4, 6)+ data.substring(0, 4);
+        ftxtFundacao.setText(data);
+        txtEmail.setText((String)cliente[4]);
+        ftxtTelefone.setText((String)cliente[5]);
+        txtEndereco.setText((String)cliente[6]);       
     }
     
     public boolean validaCampos(){
@@ -315,13 +320,18 @@ public class FrmEditPJ extends javax.swing.JFrame {
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
         // Salvar
         if(validaCampos()){
-                if(ControllerPessoaJuridica.update(cliente)){
+            SimpleDateFormat formataData = new SimpleDateFormat("dd/MM/yyyy");
+            try {
+                if(ControllerPessoaJuridica.update(ftxtCnpj.getText(),txtNome.getText(),formataData.parse(ftxtFundacao.getText()),txtEmail.getText(),ftxtTelefone.getText(),txtEndereco.getText())){
                     JOptionPane.showMessageDialog(rootPane,"Edição realizada com sucesso");
-                    new FrmHome(cliente.getCnpj(),0).setVisible(true);
+                    new FrmHome((String)cliente[1],0).setVisible(true);
                     this.dispose();
                 }
                 else
                     JOptionPane.showMessageDialog(rootPane,"Erro ao editar usuário");
+            } catch (ParseException ex) {
+                System.err.println("Erro: "+ex);
+            }
         }
     }//GEN-LAST:event_btnSalvarActionPerformed
 
