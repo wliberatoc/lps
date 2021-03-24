@@ -4,12 +4,12 @@
  * and open the template in the editor.
  */
 package controller;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
 import model.classes.Conta;
+import model.classes.Data;
 import model.classes.MovimentacaoBancaria;
 import model.dao.ContaDAO;
 import model.dao.MovimentacaoBancariaDAO;
@@ -140,6 +140,22 @@ public class ControllerConta {
         return val;
     }
     
+    public static boolean rendimento(int id){
+        float val = 0;
+        Date hoje = new Date();
+        if(hoje.getHours() == 23 && hoje.getMinutes()== 59){  
+            MovimentacaoBancariaDAO mbd = new MovimentacaoBancariaDAO();
+            Data data = new Data();
+            data.setInicio(hoje);
+            float [] saldos = mbd.saldo(id, data);
+            for(int i=0; i<saldos.length; i++)
+                if(val>saldos[i])
+                    val = saldos[i]; 
+            return ControllerMovimentacaoBancaria.insert(id, 'C', hoje, 8, "rendimento Poupança", (float) (val*0.00066));         
+        }else
+            return false;
+    }
+    
     public static String nomeUse(String use){
         ContaDAO conta = new ContaDAO();
         if(use.length() < 15)
@@ -191,24 +207,24 @@ public class ControllerConta {
         }
     }
     
-    public static void cobrancaConta(int id){
+    public static boolean cobrancaConta(int id){
         ContaDAO contaDao = new ContaDAO();
         Conta conta = contaDao.load(id);
         String data = conta.getAbertura().toString();
         int ano = Integer.parseInt(data.substring(0, 4));
         int mes = Integer.parseInt(data.substring(6, 7));
         int dia = Integer.parseInt(data.substring(8, 10));  
-        if(verificaData(dia,mes,ano)){
-            if(conta.getTipo() < 4){
+        if(conta.getTipo() < 4){
+            if(verificaData(dia,mes,ano)){
                 Date hoje = new Date();
                 float valor = 25;
                 if(conta.getTipo() == 3)
                     valor = 50;
-                ControllerMovimentacaoBancaria.insert(conta.getId(), 'D', hoje, 7, "mensaliade da conta corrente", valor);
-            }else{
-                //rendimento da poolpança
+                return ControllerMovimentacaoBancaria.insert(conta.getId(), 'D', hoje, 7, "mensaliade da conta corrente", valor);
             }
-        }
+        }else
+            return rendimento(conta.getId());
+        return false;
     }
     
     public static boolean deleteAll(String use){

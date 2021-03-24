@@ -46,7 +46,7 @@ public class MovimentacaoBancariaDAO {
     }
     
     public ArrayList<MovimentacaoBancaria> load(int id){
-        String sql = "SELECT * FROM tbl_movimentacao_bancaria WHERE id_Conta = ? and tipo_movimentacao != 'S'";
+        String sql = "SELECT * FROM tbl_movimentacao_bancaria WHERE id_conta = ? and tipo_movimentacao != 'S'";
         ArrayList<MovimentacaoBancaria> lista  = new ArrayList<>();
         try {
             stmt = Persistencia.getConnection().prepareStatement(sql);
@@ -133,6 +133,29 @@ public class MovimentacaoBancariaDAO {
                 moviB.setIdTipoOperacao(rs.getInt("id_tipo_operacao"));
                 moviB.setDescricao(rs.getString("descricao"));
                 lista.add(moviB);
+            }
+            return lista;
+        } catch (SQLException ex) {
+            System.err.println("Erro Movimentação bancária: "+ex);
+            return null;
+        }
+           
+    }//fim load
+    
+    public float[] saldo(int id, Data data){
+        String sql = "SELECT valor FROM tbl_movimentacao_bancaria WHERE id_conta = ? and tipo_movimentacao == 'S' and data == ?";
+        float [] lista  = null;
+        try {
+            stmt = Persistencia.getConnection().prepareStatement(sql);
+            stmt.setInt(1, id);
+            stmt.setDate(2, new Date(data.getInicio().getTime()));
+            rs = stmt.executeQuery();
+            int i = 0;
+            while(rs.next()){
+                MovimentacaoBancaria moviB = new MovimentacaoBancaria();
+                moviB.setValor(rs.getFloat("valor"));
+                lista[i] = moviB.getValor();
+                i++;
             }
             return lista;
         } catch (SQLException ex) {

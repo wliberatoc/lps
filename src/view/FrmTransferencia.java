@@ -28,6 +28,7 @@ public final class FrmTransferencia extends javax.swing.JFrame {
     Object [] conta  = new Object [11];
     Object [] destinatario  = new Object [11];
     int i = 0;
+    float valor = 0;
     public FrmTransferencia(int id, int i) {
         initComponents();
         carregaTipo();
@@ -89,12 +90,12 @@ public final class FrmTransferencia extends javax.swing.JFrame {
             return false;
         }
         try{
-            if(Float.parseFloat(txtValor.getText()) < 3 || Float.parseFloat(txtValor.getText()) > (float)conta[7]){
+            if(valor < 3 || valor > (float)conta[7]){
                JOptionPane.showMessageDialog(rootPane, "O valor informado deve ser um número entre 3 e "+(float)conta[7]);
                txtValor.requestFocus();
                return false;
             }
-            if(Float.parseFloat(txtValor.getText()) > (float)conta[4]){
+            if(valor > (float)conta[4]){
                 JOptionPane.showMessageDialog(rootPane, "Saldo insuficiente");
                 txtValor.requestFocus();
                 return false;
@@ -350,19 +351,17 @@ public final class FrmTransferencia extends javax.swing.JFrame {
 
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
         // Salvar
+        valor = Float.parseFloat(txtValor.getText());
+        if((int)conta[5] == 0)
+             valor = (float) (valor * 1.03);
         if(validaCampos()){
             Date hoje = new Date();
             String descricao = txtDescricao.getText();
             int tipo = ControllerMovimentacaoBancaria.pegaIdTipo(cbxTipoOperacao.getItemAt(cbxTipoOperacao.getSelectedIndex()).toString());
-            float valor;
-            if((int)conta[5] == 0)
-                 valor = (float) (Float.parseFloat(txtValor.getText())* 1.03);
-            else{
+            if((int)conta[5] != 0)
                 ControllerConta.update((float)conta[4],(int)conta[5]-1,(int)conta[6],(int)conta[0]);
-                valor = Float.parseFloat(txtValor.getText());
-            }
             if(ControllerMovimentacaoBancaria.insert((int)conta[0], 'D', hoje, tipo, descricao, valor)){
-                ControllerMovimentacaoBancaria.insert((int)destinatario[0], 'C', hoje, tipo, descricao, Float.parseFloat(txtValor.getText()));
+                ControllerMovimentacaoBancaria.insert((int)destinatario[0], 'C', hoje, tipo, descricao, valor);
                 descricao = "saldo de "+hoje;
                 ControllerMovimentacaoBancaria.insert((int)conta[0], 'S', hoje, 1, descricao, ControllerConta.atualizaSaldo((int)conta[0]));
                 ControllerMovimentacaoBancaria.insert((int)destinatario[0], 'S', hoje, 1, descricao, ControllerConta.atualizaSaldo((int)destinatario[0]));

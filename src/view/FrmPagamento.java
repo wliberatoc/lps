@@ -28,6 +28,7 @@ public class FrmPagamento extends javax.swing.JFrame {
     Object [] conta  = new Object [11];
     Object [] boleto  = new Object [6];
     int i = 0;
+    float valor = 0;
     public FrmPagamento(int id, int i) {
         initComponents();
         this.i = i;
@@ -58,7 +59,6 @@ public class FrmPagamento extends javax.swing.JFrame {
             return false;
         }
         try{
-            float valor = Float.parseFloat(txtValor.getText());
             if(valor < 3 || valor > (float)conta[7]){
                JOptionPane.showMessageDialog(rootPane, "O valor informado deve ser um número entre 3 e "+(float)conta[7]);
                txtValor.requestFocus();
@@ -293,18 +293,16 @@ public class FrmPagamento extends javax.swing.JFrame {
 
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
         // Salvar
+        valor = Float.parseFloat(txtValor.getText());
+        if((int)conta[5] == 0)
+             valor = (float) (valor * 1.03);
         if(validaCampos()){
             String descricao ="pagamento boleto";
             Date hoje = new Date();
-            float valor;
-            if((int)conta[5] == 0)
-                 valor = (float) (Float.parseFloat(txtValor.getText())* 1.03);
-            else{
+             if((int)conta[5] != 0)
                 ControllerConta.update((float)conta[4],(int)conta[5]-1,(int)conta[6],(int)conta[0]);
-                valor = Float.parseFloat(txtValor.getText());
-            }
             if(ControllerMovimentacaoBancaria.insert((int)conta[0], 'D', hoje, 5, descricao,valor)){
-                ControllerMovimentacaoBancaria.insert((int)boleto[2], 'C', hoje, 5, descricao, Float.parseFloat(txtValor.getText()));
+                ControllerMovimentacaoBancaria.insert((int)boleto[2], 'C', hoje, 5, descricao, valor);
                 descricao = "saldo de "+hoje;
                 ControllerMovimentacaoBancaria.insert((int)conta[0], 'S', hoje, 1, descricao, ControllerConta.atualizaSaldo((int)conta[0]));
                 ControllerMovimentacaoBancaria.insert((int)boleto[2], 'S', hoje, 1, descricao, ControllerConta.atualizaSaldo((int)boleto[2]));

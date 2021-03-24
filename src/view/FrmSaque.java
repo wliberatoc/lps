@@ -24,6 +24,7 @@ public class FrmSaque extends javax.swing.JFrame {
      */
     Object [] conta  = new Object [11];
     int i;
+    float valor = 0;
     public FrmSaque(int id, int i) {
         initComponents();
         this.i = i;
@@ -37,12 +38,12 @@ public class FrmSaque extends javax.swing.JFrame {
      
     public boolean validaCampos(){
         try{
-            if(Float.parseFloat(txtValor.getText()) < 3 || Float.parseFloat(txtValor.getText()) > (float)conta[8]){
+            if(valor < 3 || valor > (float)conta[8]){
                JOptionPane.showMessageDialog(rootPane, "O valor informado deve ser um número entre 3 e "+(float)conta[8]);
                txtValor.requestFocus();
                return false;
             }
-            if(Float.parseFloat(txtValor.getText()) > (float)conta[4]){
+            if(valor > (float)conta[4]){
                 JOptionPane.showMessageDialog(rootPane, "Saldo insuficiente");
                 txtValor.requestFocus();
                 return false;
@@ -231,16 +232,14 @@ public class FrmSaque extends javax.swing.JFrame {
 
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
         // Salvar
+        valor  = Float.parseFloat(txtValor.getText());
+        if((int)conta[6] == 0)
+            valor = (float) (valor * 1.05);
         if(validaCampos()){
             Date hoje = new Date();
             String descricao ="Saque";
-            float valor;
-            if((int)conta[6] == 0)
-                 valor = (float) (Float.parseFloat(txtValor.getText())* 1.05);
-            else{
+            if((int)conta[6] != 0)
                 ControllerConta.update((float)conta[4],(int)conta[5],(int)conta[6]-1,(int)conta[0]);
-                valor = Float.parseFloat(txtValor.getText());
-            }
             if(ControllerMovimentacaoBancaria.insert((int)conta[0], 'D', hoje, 4, descricao, valor)){
                 descricao ="saldo de "+hoje;
                 ControllerMovimentacaoBancaria.insert((int)conta[0], 'S', hoje, 1, descricao, ControllerConta.atualizaSaldo((int)conta[0]));

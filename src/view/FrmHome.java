@@ -31,9 +31,9 @@ public class FrmHome extends javax.swing.JFrame {
         this.i = i;
         conta = ControllerConta.select(use);
         ControllerConta.atualizaQtds((int)conta.get(i)[0]);
-        ControllerConta.cobrancaConta((int)conta.get(i)[0]);
-        if(!ControllerConta.update(ControllerConta.atualizaSaldo((int)conta.get(i)[0]), (int)conta.get(i)[5], (int)conta.get(i)[6], (int)conta.get(i)[1]))
-            JOptionPane.showMessageDialog(rootPane, "Erro ao atualizar o salda da conta");
+        if(ControllerConta.cobrancaConta((int)conta.get(i)[0]))
+            if(!ControllerConta.update(ControllerConta.atualizaSaldo((int)conta.get(i)[0]), (int)conta.get(i)[5], (int)conta.get(i)[6], (int)conta.get(i)[1]))
+                JOptionPane.showMessageDialog(rootPane, "Erro ao atualizar o salda da conta");
         btnOutraConta.setText("Mudar conta");
         if((int)conta.get(i)[3] < 4)
             lblTipoConta.setText("Saldo Conta Corrente:");
